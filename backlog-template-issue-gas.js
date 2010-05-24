@@ -1,3 +1,12 @@
+function createIssues() {
+	var newIssues = getTemplateIssues();
+
+	var issues = [];
+	for ( var i = 0; i < newIssues.length; i++) {
+		issues.push(createIssue(newIssues[i]));
+	}
+}
+
 function getTemplateIssues() {
 	var issues = [];
 
@@ -43,13 +52,11 @@ function getUsers(projectId) {
 }
 
 function createIssue(issue) {
-	var issue = getTemplateIssues()[0]; // TODO テスト用
-
 	var request = new XmlRpcRequest(REQUEST_URI, "backlog.createIssue");
 	request.setAuthentication(USERNAME, PASSWORD);
 	request.addParam(issue);
 
-	return request.send().parseXML();
+	return request.send().parseXML(); // TODO Parseに時間かかるかもなので、要検証
 }
 
 function convertValue(name, value) {
