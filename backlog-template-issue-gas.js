@@ -110,7 +110,7 @@ convertName = {
 	"カテゴリ名" : "component",
 	"発生バージョン名" : "version",
 	"マイルストーン名" : "milestone",
-	"優先度ID" : "priority",
+	"優先度ID" : "priorityId",
 	"担当者ユーザ名" : "assignerId"
 };
 
