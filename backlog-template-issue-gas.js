@@ -13,9 +13,9 @@ function getTemplateIssues() {
 			projectId : project.id
 		};
 		for ( var j = 0; j < values[0].length; j++) {
-			var columnName = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
+			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[convertToParam[columnName]] = values[i][j];
+				issue[convertName[name]] = convertValue(values[i][j]);
 			}
 		}
 		issues[i] = issue;
@@ -42,15 +42,25 @@ function createIssue(issue) {
 	return request.send().parseXML();
 }
 
+function convertValue(value) {
+	if (value.constructor == Date) {
+		var jstDate = value;
+		jstDate.setHours(jstDate.getHours() + 17);
+		return Utilities.formatDate(jstDate, "JST", "yyyyMMdd");
+	} else {
+		return value;
+	}
+}
+
 TEMPLATE_SHEET_NAME = "Template";
 ROW_HEADER_INDEX = 1;
 ROW_START_INDEX = 2;
 COLUMN_START_INDEX = 1;
 
-convertToParam = {
+convertName = {
 	"件名" : "summary",
-	"詳細" : "description", // TODO 日付フォーマットの変換
-	"開始日" : "start_date", // TODO 日付フォーマットの変換
+	"詳細" : "description",
+	"開始日" : "start_date",
 	"期限日" : "due_date",
 	"予定時間" : "estimated_hours",
 	"実績時間" : "actual_hours",
