@@ -3,6 +3,8 @@ function getTemplateIssues() {
 
 	var project = getProject(PROJECT_KEY);
 
+	registeredUsers = getUsers(project.id); // TODO クラスのプロパティ化
+
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
 	var values = sheet.getSheetValues(ROW_START_INDEX, COLUMN_START_INDEX,
@@ -15,7 +17,7 @@ function getTemplateIssues() {
 		for ( var j = 0; j < values[0].length; j++) {
 			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[convertName[name]] = convertValue(values[i][j]);
+				issue[convertName[name]] = convertValue(name, values[i][j]);
 			}
 		}
 		issues[i] = issue;
@@ -32,6 +34,14 @@ function getProject(projectKey) {
 	return request.send().parseXML();
 }
 
+function getUsers(projectId) {
+	var request = new XmlRpcRequest(REQUEST_URI, "backlog.getUsers");
+	request.setAuthentication(USERNAME, PASSWORD);
+	request.addParam(projectId);
+
+	return request.send().parseXML();
+}
+
 function createIssue(issue) {
 	var issue = getTemplateIssues()[0]; // TODO テスト用
 
@@ -42,14 +52,39 @@ function createIssue(issue) {
 	return request.send().parseXML();
 }
 
-function convertValue(value) {
+function convertValue(name, value) {
 	if (value.constructor == Date) {
-		var jstDate = value;
-		jstDate.setHours(jstDate.getHours() + 17);
-		return Utilities.formatDate(jstDate, "JST", "yyyyMMdd");
+		return convertDate(value);
+
+	} else if (convertName[name] == "assignerId") {
+		var user = getRegisteredUser(value);
+		if (user != null) {
+			return user.id;
+		} else {
+			Logger.log("Don't find registered user '" + value + "'!");
+			return 0;
+		}
+
 	} else {
 		return value;
 	}
+}
+
+function convertDate(date) {
+	var jstDate = date;
+	jstDate.setHours(jstDate.getHours() + 17);
+
+	return Utilities.formatDate(jstDate, "JST", "yyyyMMdd");
+}
+
+function getRegisteredUser(userName) {
+	for ( var i = 0; i < registeredUsers.length; i++) {
+		if (registeredUsers[i].name == userName) {
+			return registeredUsers[i];
+		}
+	}
+
+	return null;
 }
 
 TEMPLATE_SHEET_NAME = "Template";
@@ -69,7 +104,7 @@ convertName = {
 	"発生バージョン名" : "version",
 	"マイルストーン名" : "milestone",
 	"優先度ID" : "priority",
-	"担当者ユーザ名" : "assignerId" // TODO assignerIdをassignerNameから取得する
+	"担当者ユーザ名" : "assignerId"
 };
 
 // TODO ユーザ入力受け取れるようにする
