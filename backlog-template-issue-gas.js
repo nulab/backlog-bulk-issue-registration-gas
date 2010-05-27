@@ -1,3 +1,13 @@
+function onOpen() {
+	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+	var menuEntries = [ {
+		name : "課題一括登録",
+		functionName : "createIssues"
+	} ];
+
+	spreadSheet.addMenu("Backlog", menuEntries);
+}
+
 function createIssues() {
 	var newIssues = getTemplateIssues();
 
@@ -56,7 +66,9 @@ function createIssue(issue) {
 	request.setAuthentication(USERNAME, PASSWORD);
 	request.addParam(issue);
 
-	return request.send().parseXML(); // TODO Parseに時間かかるかもなので、要検証
+	// TODO Parseに時間かかるかもなので、要検証
+	// return request.send().parseXML();
+	return request.send();
 }
 
 function convertValue(name, value) {
@@ -68,7 +80,7 @@ function convertValue(name, value) {
 		if (user != null) {
 			return user.id;
 		} else {
-			Logger.log("Don't find registered user '" + value + "'!");
+			Logger.log("Don't find registered user '" + value + "'");
 			return 0;
 		}
 
@@ -79,7 +91,7 @@ function convertValue(name, value) {
 
 function convertDate(date) {
 	var jstDate = date;
-	jstDate.setHours(jstDate.getHours() + 17);
+	jstDate.setHours(jstDate.getHours() + 17); // TODO タイムゾーンに依存しないようにする
 
 	return Utilities.formatDate(jstDate, "JST", "yyyyMMdd");
 }
