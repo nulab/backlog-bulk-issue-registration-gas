@@ -37,10 +37,21 @@ function createIssues() {
 
 	// TODO クラスのプロパティ化
 	SPACE = Browser.inputBox("'スペースID'" + promptMessage);
+	if (SPACE == "cancel" || SPACE == "") {
+		return;
+	}
 	USERNAME = Browser.inputBox("'ユーザID'" + promptMessage);
+	if (USERNAME == "cancel" || USERNAME == "") {
+		return;
+	}
 	PASSWORD = Browser.inputBox("'パスワード'" + promptMessage);
+	if (PASSWORD == "cancel" || PASSWORD == "") {
+		return;
+	}
 	PROJECT_KEY = Browser.inputBox("'プロジェクト'" + promptMessage);
-
+	if (PROJECT_KEY == "cancel" || PROJECT_KEY == "") {
+		return;
+	}
 	REQUEST_URI = "https://" + SPACE + ".backlog.jp/XML-RPC";
 
 	var newIssues = getTemplateIssues();
