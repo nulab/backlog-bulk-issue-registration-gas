@@ -8,13 +8,51 @@ function onOpen() {
 	spreadSheet.addMenu("Backlog", menuEntries);
 }
 
+// ------------------------- 定数 -------------------------
+
+TEMPLATE_SHEET_NAME = "Template";
+ROW_HEADER_INDEX = 1;
+ROW_START_INDEX = 2;
+COLUMN_START_INDEX = 1;
+
+CONVERT_NAME = {
+	"件名" : "summary",
+	"詳細" : "description",
+	"開始日" : "start_date",
+	"期限日" : "due_date",
+	"予定時間" : "estimated_hours",
+	"実績時間" : "actual_hours",
+	"種別名" : "issueType",
+	"カテゴリ名" : "component",
+	"発生バージョン名" : "version",
+	"マイルストーン名" : "milestone",
+	"優先度ID" : "priorityId",
+	"担当者ユーザ名" : "assignerId"
+};
+
+// ------------------------- 関数 -------------------------
+
 function createIssues() {
+	var promptMessage = " を入力してください";
+
+	// TODO クラスのプロパティ化
+	SPACE = Browser.inputBox("'スペースID'" + promptMessage);
+	USERNAME = Browser.inputBox("'ユーザID'" + promptMessage);
+	PASSWORD = Browser.inputBox("'パスワード'" + promptMessage);
+	PROJECT_KEY = Browser.inputBox("'プロジェクト'" + promptMessage);
+
+	REQUEST_URI = "https://" + SPACE + ".backlog.jp/XML-RPC";
+
 	var newIssues = getTemplateIssues();
 
 	var issues = [];
 	for ( var i = 0; i < newIssues.length; i++) {
 		issues.push(createIssue(newIssues[i]));
 	}
+
+	// TODO 下記のメソッドでalertが出る。Help forumにあがっているが、まだ解決していない。
+	// - http://www.google.com/support/forum/p/apps-script/thread?tid=307b1739a0216017&hl=en
+	Browser.msgBox("課題一括登録が正常に行われました");
 }
 
 function getTemplateIssues() {
@@ -36,7 +74,7 @@ function getTemplateIssues() {
 		for ( var j = 0; j < values[0].length; j++) {
 			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[convertName[name]] = convertValue(name, values[i][j]);
+				issue[CONVERT_NAME[name]] = convertValue(name, values[i][j]);
 			}
 		}
 		issues[i] = issue;
@@ -75,14 +113,13 @@ function convertValue(name, value) {
 	if (value.constructor == Date) {
 		return convertDate(value);
 
-	} else if (convertName[name] == "assignerId") {
+	} else if (CONVERT_NAME[name] == "assignerId") {
 		var user = getRegisteredUser(value);
-		if (user != null) {
-			return user.id;
-		} else {
+		if (user == null) {
 			Logger.log("Don't find registered user '" + value + "'");
 			return 0;
 		}
+		return user.id;
 
 	} else {
 		return value;
@@ -105,31 +142,3 @@ function getRegisteredUser(userName) {
 
 	return null;
 }
-
-TEMPLATE_SHEET_NAME = "Template";
-ROW_HEADER_INDEX = 1;
-ROW_START_INDEX = 2;
-COLUMN_START_INDEX = 1;
-
-convertName = {
-	"件名" : "summary",
-	"詳細" : "description",
-	"開始日" : "start_date",
-	"期限日" : "due_date",
-	"予定時間" : "estimated_hours",
-	"実績時間" : "actual_hours",
-	"種別名" : "issueType",
-	"カテゴリ名" : "component",
-	"発生バージョン名" : "version",
-	"マイルストーン名" : "milestone",
-	"優先度ID" : "priorityId",
-	"担当者ユーザ名" : "assignerId"
-};
-
-// TODO ユーザ入力受け取れるようにする
-SPACE = "demo";
-USERNAME = "demo";
-PASSWORD = "demo";
-PROJECT_KEY = "STWK";
-
-REQUEST_URI = "https://" + SPACE + ".backlog.jp/XML-RPC";
