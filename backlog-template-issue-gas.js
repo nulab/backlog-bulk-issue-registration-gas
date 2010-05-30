@@ -56,14 +56,25 @@ function createIssues() {
 
 	var newIssues = getTemplateIssues();
 
-	var issues = [];
+	// TODO タイムゾーンに依存しないようにする
+	var current = Utilities
+			.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
+	var logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(
+			"課題一括登録 : " + current);
+
 	for ( var i = 0; i < newIssues.length; i++) {
-		issues.push(createIssue(newIssues[i]));
+		var issue = createIssue(newIssues[i]);
+		var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
+		logSheet.getRange(i + 1, COLUMN_START_INDEX).setValue(linkKey);
+		logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
+				issue.summary.toString());
+
+		SpreadsheetApp.flush();
 	}
 
 	// TODO 下記のメソッドでalertが出る。Help forumにあがっているが、まだ解決していない。
 	// - http://www.google.com/support/forum/p/apps-script/thread?tid=307b1739a0216017&hl=en
-	Browser.msgBox("課題一括登録が正常に行われました");
+	// Browser.msgBox("課題一括登録が正常に行われました");
 }
 
 function getTemplateIssues() {
@@ -115,9 +126,7 @@ function createIssue(issue) {
 	request.setAuthentication(USERNAME, PASSWORD);
 	request.addParam(issue);
 
-	// TODO Parseに時間かかるかもなので、要検証
-	// return request.send().parseXML();
-	return request.send();
+	return request.send().parseXML();
 }
 
 function convertValue(name, value) {
