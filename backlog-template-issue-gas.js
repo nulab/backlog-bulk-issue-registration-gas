@@ -1,7 +1,7 @@
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var menuEntries = [ {
-		name : "課題一括登録",
+		name : SCRIPT_NAME,
 		functionName : "createIssues"
 	} ];
 
@@ -10,6 +10,7 @@ function onOpen() {
 
 // ------------------------- 定数 -------------------------
 
+SCRIPT_NAME = "課題一括登録";
 TEMPLATE_SHEET_NAME = "Template";
 ROW_HEADER_INDEX = 1;
 ROW_START_INDEX = 2;
@@ -37,79 +38,38 @@ CONVERT_NAME = {
 // ------------------------- 関数 -------------------------
 
 function createIssues() {
+	if (inputParameters() == false) {
+		Browser.msgBox(SCRIPT_NAME + " がキャンセルされました");
+		return;
+	}
+	createIssuesAndLog(getTemplateIssues());
+
+	Browser.msgBox(SCRIPT_NAME + " が正常に行われました");
+}
+
+function inputParameters() {
 	var promptMessage = " を入力してください";
 
 	// TODO クラスのプロパティ化
 	SPACE = Browser.inputBox("'スペースID'" + promptMessage);
-	if (SPACE == "cancel" || SPACE == "") {
-		return;
-	}
+	if (SPACE == "cancel" || SPACE == "")
+		return false;
+
 	USERNAME = Browser.inputBox("'ユーザID'" + promptMessage);
-	if (USERNAME == "cancel" || USERNAME == "") {
-		return;
-	}
+	if (USERNAME == "cancel" || USERNAME == "")
+		return false;
+
 	PASSWORD = Browser.inputBox("'パスワード'" + promptMessage);
-	if (PASSWORD == "cancel" || PASSWORD == "") {
-		return;
-	}
-	PROJECT_KEY = Browser.inputBox("'プロジェクト'" + promptMessage);
-	if (PROJECT_KEY == "cancel" || PROJECT_KEY == "") {
-		return;
-	}
+	if (PASSWORD == "cancel" || PASSWORD == "")
+		return false;
+
+	PROJECT_KEY = Browser.inputBox("'プロジェクト'" + promptMessage).toUpperCase();
+	if (PROJECT_KEY == "CANCEL" || PROJECT_KEY == "")
+		return false;
+
 	REQUEST_URI = "https://" + SPACE + ".backlog.jp/XML-RPC";
 
-	var newIssues = getTemplateIssues();
-
-	// TODO タイムゾーンに依存しないようにする
-	var current = Utilities
-			.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-	var logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(
-			"課題一括登録 : " + current);
-
-	var maxKeyLength = DEFAULT_COLUMN_LENGTH;
-	var maxSummaryLength = DEFAULT_COLUMN_LENGTH;
-	for ( var i = 0; i < newIssues.length; i++) {
-		var issue = createIssue(newIssues[i]);
-
-		var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
-		logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
-				.setFontColor("blue").setFontLine("underline");
-		var keyLength = getBytes(issue.key);
-		if (maxKeyLength < keyLength) {
-			var keyWidth = keyLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
-			logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
-			maxKeyLength = keyLength;
-		}
-
-		logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
-				issue.summary.toString());
-		var summaryLength = getBytes(issue.summary);
-		if (maxSummaryLength < summaryLength) {
-			var summaryWidth = summaryLength * DEFAULT_FONT_SIZE
-					* ADJUST_WIDTH_FACTOR;
-			logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
-			maxSummaryLength = summaryLength;
-		}
-
-		SpreadsheetApp.flush();
-	}
-
-	Browser.msgBox("課題一括登録が正常に行われました");
-}
-
-function getBytes(text) {
-	var count = 0;
-
-	for ( var i = 0; i < text.length; i++) {
-		var n = escape(text.charAt(i));
-		if (n.length < 4) {
-			count++;
-		} else {
-			count += 2;
-		}
-	}
-
-	return count;
+	return true;
 }
 
 function getTemplateIssues() {
@@ -196,4 +156,58 @@ function getRegisteredUser(userName) {
 	}
 
 	return null;
+}
+
+function createIssuesAndLog(newIssues) {
+	// TODO タイムゾーンに依存しないようにする
+	var current = Utilities
+			.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
+	var logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(
+			SCRIPT_NAME + " : " + current);
+
+	var keyLength = DEFAULT_COLUMN_LENGTH;
+	var summaryLength = DEFAULT_COLUMN_LENGTH;
+	for ( var i = 0; i < newIssues.length; i++) {
+		var issue = createIssue(newIssues[i]);
+
+		keyLength = Math.max(keyLength, getLength(issue.key));
+		logKey(logSheet, keyLength, i, issue);
+
+		summaryLength = Math.max(summaryLength, getLength(issue.summary));
+		logSummary(logSheet, summaryLength, i, issue);
+
+		SpreadsheetApp.flush();
+	}
+}
+
+function logKey(logSheet, keyLength, i, issue) {
+	var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
+	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
+			.setFontColor("blue").setFontLine("underline");
+
+	var keyWidth = keyLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
+}
+
+function logSummary(logSheet, summaryLength, i, issue) {
+	logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
+			issue.summary.toString());
+
+	var summaryWidth = summaryLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
+}
+
+function getLength(text) {
+	var count = 0;
+
+	for ( var i = 0; i < text.length; i++) {
+		var n = escape(text.charAt(i));
+		if (n.length < 4) {
+			count += 1;
+		} else {
+			count += 2;
+		}
+	}
+
+	return count;
 }
