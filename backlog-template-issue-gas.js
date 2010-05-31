@@ -15,6 +15,10 @@ ROW_HEADER_INDEX = 1;
 ROW_START_INDEX = 2;
 COLUMN_START_INDEX = 1;
 
+DEFAULT_COLUMN_LENGTH = 16;
+DEFAULT_FONT_SIZE = 10;
+ADJUST_WIDTH_FACTOR = 0.75;
+
 CONVERT_NAME = {
 	"件名" : "summary",
 	"詳細" : "description",
@@ -62,19 +66,50 @@ function createIssues() {
 	var logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(
 			"課題一括登録 : " + current);
 
+	var maxKeyLength = DEFAULT_COLUMN_LENGTH;
+	var maxSummaryLength = DEFAULT_COLUMN_LENGTH;
 	for ( var i = 0; i < newIssues.length; i++) {
 		var issue = createIssue(newIssues[i]);
+
 		var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
-		logSheet.getRange(i + 1, COLUMN_START_INDEX).setValue(linkKey);
+		logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
+				.setFontColor("blue").setFontLine("underline");
+		var keyLength = getBytes(issue.key);
+		if (maxKeyLength < keyLength) {
+			var keyWidth = keyLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+			logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
+			maxKeyLength = keyLength;
+		}
+
 		logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
 				issue.summary.toString());
+		var summaryLength = getBytes(issue.summary);
+		if (maxSummaryLength < summaryLength) {
+			var summaryWidth = summaryLength * DEFAULT_FONT_SIZE
+					* ADJUST_WIDTH_FACTOR;
+			logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
+			maxSummaryLength = summaryLength;
+		}
 
 		SpreadsheetApp.flush();
 	}
 
-	// TODO 下記のメソッドでalertが出る。Help forumにあがっているが、まだ解決していない。
-	// - http://www.google.com/support/forum/p/apps-script/thread?tid=307b1739a0216017&hl=en
-	// Browser.msgBox("課題一括登録が正常に行われました");
+	Browser.msgBox("課題一括登録が正常に行われました");
+}
+
+function getBytes(text) {
+	var count = 0;
+
+	for ( var i = 0; i < text.length; i++) {
+		var n = escape(text.charAt(i));
+		if (n.length < 4) {
+			count++;
+		} else {
+			count += 2;
+		}
+	}
+
+	return count;
 }
 
 function getTemplateIssues() {
