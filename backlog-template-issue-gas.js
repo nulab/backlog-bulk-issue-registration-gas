@@ -39,31 +39,37 @@ CONVERT_NAME = {
 
 function createIssues() {
 	if (inputParameters() == false) {
-		Browser.msgBox(SCRIPT_NAME + " がキャンセルされました");
+		SpreadsheetApp.getActiveSpreadsheet().toast(
+				SCRIPT_NAME + " がキャンセルされました", SCRIPT_NAME);
 		return;
 	}
 	createIssuesAndLog(getTemplateIssues());
 
-	Browser.msgBox(SCRIPT_NAME + " が正常に行われました");
+	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
+			SCRIPT_NAME);
 }
 
 function inputParameters() {
 	var promptMessage = " を入力してください";
 
 	// TODO クラスのプロパティ化
-	SPACE = Browser.inputBox("'スペースID'" + promptMessage);
+	SPACE = Browser.inputBox(SCRIPT_NAME, "'スペースID'" + promptMessage,
+			Browser.Buttons.OK_CANCEL);
 	if (SPACE == "cancel" || SPACE == "")
 		return false;
 
-	USERNAME = Browser.inputBox("'ユーザID'" + promptMessage);
+	USERNAME = Browser.inputBox(SCRIPT_NAME, "'ユーザID'" + promptMessage,
+			Browser.Buttons.OK_CANCEL);
 	if (USERNAME == "cancel" || USERNAME == "")
 		return false;
 
-	PASSWORD = Browser.inputBox("'パスワード'" + promptMessage);
+	PASSWORD = Browser.inputBox(SCRIPT_NAME, "'パスワード'" + promptMessage,
+			Browser.Buttons.OK_CANCEL);
 	if (PASSWORD == "cancel" || PASSWORD == "")
 		return false;
 
-	PROJECT_KEY = Browser.inputBox("'プロジェクト'" + promptMessage).toUpperCase();
+	PROJECT_KEY = Browser.inputBox(SCRIPT_NAME, "'プロジェクト'" + promptMessage,
+			Browser.Buttons.OK_CANCEL).toUpperCase();
 	if (PROJECT_KEY == "CANCEL" || PROJECT_KEY == "")
 		return false;
 
@@ -150,9 +156,8 @@ function convertDate(date) {
 
 function getRegisteredUser(userName) {
 	for ( var i = 0; i < registeredUsers.length; i++) {
-		if (registeredUsers[i].name == userName) {
+		if (registeredUsers[i].name == userName)
 			return registeredUsers[i];
-		}
 	}
 
 	return null;
