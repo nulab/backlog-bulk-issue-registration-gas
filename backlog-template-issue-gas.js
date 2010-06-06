@@ -1,28 +1,18 @@
-function onOpen() {
-	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
-	var menuEntries = [ {
-		name : SCRIPT_NAME,
-		functionName : "createIssues"
-	} ];
-
-	spreadSheet.addMenu("Backlog", menuEntries);
-}
-
 // ------------------------- 定数 -------------------------
 
-SCRIPT_NAME = "課題一括登録";
-TEMPLATE_SHEET_NAME = "Template";
-ROW_HEADER_INDEX = 1;
-ROW_START_INDEX = 2;
-COLUMN_START_INDEX = 1;
+var SCRIPT_NAME = "課題一括登録";
+var TEMPLATE_SHEET_NAME = "Template";
+var ROW_HEADER_INDEX = 1;
+var ROW_START_INDEX = 2;
+var COLUMN_START_INDEX = 1;
 
-DEFAULT_COLUMN_LENGTH = 16;
-DEFAULT_FONT_SIZE = 10;
-ADJUST_WIDTH_FACTOR = 0.75;
+var DEFAULT_COLUMN_LENGTH = 16;
+var DEFAULT_FONT_SIZE = 10;
+var ADJUST_WIDTH_FACTOR = 0.75;
 
-JST_OFFSET = 9;
+var JST_OFFSET = 9;
 
-CONVERT_NAME = {
+var CONVERT_NAME = {
 	"件名" : "summary",
 	"詳細" : "description",
 	"開始日" : "start_date",
@@ -37,7 +27,58 @@ CONVERT_NAME = {
 	"担当者ユーザ名" : "assignerId"
 };
 
+// ------------------------- グローバルオブジェクト -------------------------
+
+var parameter = {
+	SPACE : "",
+	USERNAME : "",
+	PASSWORD : "",
+	PROJECT_KEY : "",
+	REQUEST_URI : ""
+};
+
+var backlogRegistry = {
+	users : []
+};
+
+// ------------------------- Backlog API -------------------------
+
+function getProject(projectKey) {
+	var request = new XmlRpcRequest(parameter.REQUEST_URI, "backlog.getProject");
+	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
+	request.addParam(projectKey);
+
+	return request.send().parseXML();
+}
+
+function getUsers(projectId) {
+	var request = new XmlRpcRequest(parameter.REQUEST_URI, "backlog.getUsers");
+	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
+	request.addParam(projectId);
+
+	return request.send().parseXML();
+}
+
+function createIssue(issue) {
+	var request = new XmlRpcRequest(parameter.REQUEST_URI,
+			"backlog.createIssue");
+	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
+	request.addParam(issue);
+
+	return request.send().parseXML();
+}
+
 // ------------------------- 関数 -------------------------
+
+function onOpen() {
+	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+	var menuEntries = [ {
+		name : SCRIPT_NAME,
+		functionName : "createIssues"
+	} ];
+
+	spreadSheet.addMenu("Backlog", menuEntries);
+}
 
 function createIssues() {
 	if (inputParameters() == false) {
@@ -62,28 +103,29 @@ function createIssues() {
 function inputParameters() {
 	var promptMessage = " を入力してください";
 
-	// TODO クラスのプロパティ化
-	SPACE = Browser.inputBox(SCRIPT_NAME, "'スペースID'" + promptMessage,
+	parameter.SPACE = Browser.inputBox(SCRIPT_NAME, "'スペースID'" + promptMessage,
 			Browser.Buttons.OK_CANCEL);
-	if (SPACE == "cancel" || SPACE == "")
+	if (parameter.SPACE == "cancel" || parameter.SPACE == "")
 		return false;
 
-	USERNAME = Browser.inputBox(SCRIPT_NAME, "'ユーザID'" + promptMessage,
-			Browser.Buttons.OK_CANCEL);
-	if (USERNAME == "cancel" || USERNAME == "")
+	parameter.USERNAME = Browser.inputBox(SCRIPT_NAME, "'ユーザID'"
+			+ promptMessage, Browser.Buttons.OK_CANCEL);
+	if (parameter.USERNAME == "cancel" || parameter.USERNAME == "")
 		return false;
 
-	PASSWORD = Browser.inputBox(SCRIPT_NAME, "'パスワード'" + promptMessage,
-			Browser.Buttons.OK_CANCEL);
-	if (PASSWORD == "cancel" || PASSWORD == "")
+	parameter.PASSWORD = Browser.inputBox(SCRIPT_NAME, "'パスワード'"
+			+ promptMessage, Browser.Buttons.OK_CANCEL);
+	if (parameter.PASSWORD == "cancel" || parameter.PASSWORD == "")
 		return false;
 
-	PROJECT_KEY = Browser.inputBox(SCRIPT_NAME, "'プロジェクト'" + promptMessage,
-			Browser.Buttons.OK_CANCEL).toUpperCase();
-	if (PROJECT_KEY == "CANCEL" || PROJECT_KEY == "")
+	parameter.PROJECT_KEY = Browser.inputBox(SCRIPT_NAME,
+			"'プロジェクト'" + promptMessage, Browser.Buttons.OK_CANCEL)
+			.toUpperCase();
+	if (parameter.PROJECT_KEY == "CANCEL" || parameter.PROJECT_KEY == "")
 		return false;
 
-	REQUEST_URI = "https://" + SPACE + ".backlog.jp/XML-RPC";
+	parameter.REQUEST_URI = "https://" + parameter.SPACE
+			+ ".backlog.jp/XML-RPC";
 
 	return true;
 }
@@ -92,7 +134,7 @@ function checkParameters() {
 	var project;
 
 	try {
-		project = getProject(PROJECT_KEY);
+		project = getProject(parameter.PROJECT_KEY);
 	} catch (e) {
 		throw "ログインに失敗しました";
 	}
@@ -105,9 +147,9 @@ function checkParameters() {
 function getTemplateIssues() {
 	var issues = [];
 
-	var project = getProject(PROJECT_KEY);
+	var project = getProject(parameter.PROJECT_KEY);
 
-	registeredUsers = getUsers(project.id); // TODO クラスのプロパティ化
+	backlogRegistry.users = getUsers(project.id);
 
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
@@ -128,30 +170,6 @@ function getTemplateIssues() {
 	}
 
 	return issues;
-}
-
-function getProject(projectKey) {
-	var request = new XmlRpcRequest(REQUEST_URI, "backlog.getProject");
-	request.setAuthentication(USERNAME, PASSWORD);
-	request.addParam(projectKey);
-
-	return request.send().parseXML();
-}
-
-function getUsers(projectId) {
-	var request = new XmlRpcRequest(REQUEST_URI, "backlog.getUsers");
-	request.setAuthentication(USERNAME, PASSWORD);
-	request.addParam(projectId);
-
-	return request.send().parseXML();
-}
-
-function createIssue(issue) {
-	var request = new XmlRpcRequest(REQUEST_URI, "backlog.createIssue");
-	request.setAuthentication(USERNAME, PASSWORD);
-	request.addParam(issue);
-
-	return request.send().parseXML();
 }
 
 function convertValue(name, value) {
@@ -179,9 +197,9 @@ function convertDate(date, format) {
 }
 
 function getRegisteredUser(userName) {
-	for ( var i = 0; i < registeredUsers.length; i++) {
-		if (registeredUsers[i].name == userName)
-			return registeredUsers[i];
+	for ( var i = 0; i < backlogRegistry.users.length; i++) {
+		if (backlogRegistry.users[i].name == userName)
+			return backlogRegistry.users[i];
 	}
 
 	return null;
