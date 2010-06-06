@@ -45,6 +45,14 @@ function createIssues() {
 				SCRIPT_NAME + " がキャンセルされました", SCRIPT_NAME);
 		return;
 	}
+
+	try {
+		checkParameters();
+	} catch (e) {
+		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
+		return;
+	}
+
 	createIssuesAndLog(getTemplateIssues());
 
 	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
@@ -78,6 +86,20 @@ function inputParameters() {
 	REQUEST_URI = "https://" + SPACE + ".backlog.jp/XML-RPC";
 
 	return true;
+}
+
+function checkParameters() {
+	var project;
+
+	try {
+		project = getProject(PROJECT_KEY);
+	} catch (e) {
+		throw "ログインに失敗しました";
+	}
+
+	if (project.id == undefined) {
+		throw "プロジェクトの取得に失敗しました";
+	}
 }
 
 function getTemplateIssues() {
