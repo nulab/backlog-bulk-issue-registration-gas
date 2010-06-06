@@ -20,6 +20,8 @@ DEFAULT_COLUMN_LENGTH = 16;
 DEFAULT_FONT_SIZE = 10;
 ADJUST_WIDTH_FACTOR = 0.75;
 
+JST_OFFSET = 9;
+
 CONVERT_NAME = {
 	"件名" : "summary",
 	"詳細" : "description",
@@ -132,7 +134,7 @@ function createIssue(issue) {
 
 function convertValue(name, value) {
 	if (value.constructor == Date) {
-		return convertDate(value);
+		return convertDate(value, "yyyyMMdd");
 
 	} else if (CONVERT_NAME[name] == "assignerId") {
 		var user = getRegisteredUser(value);
@@ -147,11 +149,11 @@ function convertValue(name, value) {
 	}
 }
 
-function convertDate(date) {
-	var jstDate = date;
-	jstDate.setHours(jstDate.getHours() + 17); // TODO タイムゾーンに依存しないようにする
+function convertDate(date, format) {
+	var GMTDate = date;
+	GMTDate.setHours(GMTDate.getHours() + (GMTDate.getTimezoneOffset() / 60));
 
-	return Utilities.formatDate(jstDate, "JST", "yyyyMMdd");
+	return Utilities.formatDate(GMTDate, "GMT", format);
 }
 
 function getRegisteredUser(userName) {
@@ -164,11 +166,7 @@ function getRegisteredUser(userName) {
 }
 
 function createIssuesAndLog(newIssues) {
-	// TODO タイムゾーンに依存しないようにする
-	var current = Utilities
-			.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-	var logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(
-			SCRIPT_NAME + " : " + current);
+	var logSheet = createLogSheet();
 
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
@@ -183,6 +181,18 @@ function createIssuesAndLog(newIssues) {
 
 		SpreadsheetApp.flush();
 	}
+}
+
+function createLogSheet() {
+	// TODO 現在、Utilities.formatDate() が"GMT"しか認識しない
+	// - http://code.google.com/p/google-apps-script-issues/issues/detail?id=71
+
+	var date = new Date();
+	date.setHours(date.getHours() + JST_OFFSET);
+	var current = Utilities.formatDate(date, "GMT", "yyyy/MM/dd HH:mm:ss");
+
+	return SpreadsheetApp.getActiveSpreadsheet().insertSheet(
+			SCRIPT_NAME + " : " + current);
 }
 
 function logKey(logSheet, keyLength, i, issue) {
