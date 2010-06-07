@@ -191,7 +191,7 @@ function convertValue(name, value) {
 
 function convertDate(date, format) {
 	var GMTDate = date;
-	GMTDate.setHours(GMTDate.getHours() + (GMTDate.getTimezoneOffset() / 60));
+	GMTDate.setTime(GMTDate.getTime() + (JST_OFFSET * 60 * 60 * 1000));
 
 	return Utilities.formatDate(GMTDate, "GMT", format);
 }
