@@ -179,7 +179,8 @@ function convertValue(name, value) {
 	} else if (CONVERT_NAME[name] == "assignerId") {
 		var user = getRegisteredUser(value);
 		if (user == null) {
-			Logger.log("Don't find registered user '" + value + "'");
+			SpreadsheetApp.getActiveSpreadsheet().toast(
+					"ユーザ '" + value + "' は登録されていません", SCRIPT_NAME);
 			return 0;
 		}
 		return user.id;
