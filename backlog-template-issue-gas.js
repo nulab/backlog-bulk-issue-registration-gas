@@ -1,17 +1,33 @@
 // ------------------------- 定数 -------------------------
 
+/** スクリプト名 */
 var SCRIPT_NAME = "課題一括登録";
+
+/** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
+
+/** ヘッダ行のインデックス */
 var ROW_HEADER_INDEX = 1;
+
+/** データ行の開始インデックス */
 var ROW_START_INDEX = 2;
+
+/** データ列の開始インデックス */
 var COLUMN_START_INDEX = 1;
 
+/** 行のデフォルト長 */
 var DEFAULT_COLUMN_LENGTH = 16;
+
+/** フォントのデフォルトサイズ */
 var DEFAULT_FONT_SIZE = 10;
+
+/** 列幅調整時の係数 */
 var ADJUST_WIDTH_FACTOR = 0.75;
 
+/** 日本標準時のオフセット */
 var JST_OFFSET = 9;
 
+/** ヘッダ行の項目名 */
 var CONVERT_NAME = {
 	"件名" : "summary",
 	"詳細" : "description",
@@ -29,6 +45,7 @@ var CONVERT_NAME = {
 
 // ------------------------- グローバルオブジェクト -------------------------
 
+/** 入力パラメータ */
 var parameter = {
 	SPACE : "",
 	USERNAME : "",
@@ -37,12 +54,19 @@ var parameter = {
 	REQUEST_URI : ""
 };
 
+/** Backlogに登録されているデータ */
 var backlogRegistry = {
 	users : []
 };
 
 // ------------------------- Backlog API -------------------------
 
+/**
+ * プロジェクトキーを指定して、プロジェクトを取得します。
+ * 
+ * @see http://www.backlog.jp/api/method1_2.html
+ * 
+ */
 function getProject(projectKey) {
 	var request = new XmlRpcRequest(parameter.REQUEST_URI, "backlog.getProject");
 	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
@@ -51,6 +75,12 @@ function getProject(projectKey) {
 	return request.send().parseXML();
 }
 
+/**
+ * プロジェクトの参加メンバーを返します。
+ * 
+ * @see http://www.backlog.jp/api/method2_2.html
+ * 
+ */
 function getUsers(projectId) {
 	var request = new XmlRpcRequest(parameter.REQUEST_URI, "backlog.getUsers");
 	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
@@ -59,6 +89,12 @@ function getUsers(projectId) {
 	return request.send().parseXML();
 }
 
+/**
+ * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
+ * 
+ * @see http://www.backlog.jp/api/method4_1.html
+ * 
+ */
 function createIssue(issue) {
 	var request = new XmlRpcRequest(parameter.REQUEST_URI,
 			"backlog.createIssue");
@@ -70,6 +106,9 @@ function createIssue(issue) {
 
 // ------------------------- 関数 -------------------------
 
+/**
+ * フック関数：スプレッドシート読み込み時に起動される
+ */
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var menuEntries = [ {
@@ -80,6 +119,9 @@ function onOpen() {
 	spreadSheet.addMenu("Backlog", menuEntries);
 }
 
+/**
+ * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録する
+ */
 function createIssues() {
 	if (inputParameters() == false) {
 		SpreadsheetApp.getActiveSpreadsheet().toast(
