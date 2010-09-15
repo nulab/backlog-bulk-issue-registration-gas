@@ -123,26 +123,26 @@ function onOpen() {
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録する
  */
 function createIssues() {
-	if (inputParameters() == false) {
+	if (inputParameters_() == false) {
 		SpreadsheetApp.getActiveSpreadsheet().toast(
 				SCRIPT_NAME + " がキャンセルされました", SCRIPT_NAME);
 		return;
 	}
 
 	try {
-		checkParameters();
+		checkParameters_();
 	} catch (e) {
 		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
 		return;
 	}
 
-	createIssuesAndLog(getTemplateIssues());
+	createIssuesAndLog_(getTemplateIssues_());
 
 	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
 			SCRIPT_NAME);
 }
 
-function inputParameters() {
+function inputParameters_() {
 	var promptMessage = " を入力してください";
 
 	parameter.SPACE = Browser.inputBox(SCRIPT_NAME, "'スペースID'" + promptMessage,
@@ -172,7 +172,7 @@ function inputParameters() {
 	return true;
 }
 
-function checkParameters() {
+function checkParameters_() {
 	var project;
 
 	try {
@@ -186,7 +186,7 @@ function checkParameters() {
 	}
 }
 
-function getTemplateIssues() {
+function getTemplateIssues_() {
 	var issues = [];
 
 	var project = getProject(parameter.PROJECT_KEY);
@@ -205,7 +205,7 @@ function getTemplateIssues() {
 		for ( var j = 0; j < values[0].length; j++) {
 			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[CONVERT_NAME[name]] = convertValue(name, values[i][j]);
+				issue[CONVERT_NAME[name]] = convertValue_(name, values[i][j]);
 			}
 		}
 		issues[i] = issue;
@@ -214,12 +214,12 @@ function getTemplateIssues() {
 	return issues;
 }
 
-function convertValue(name, value) {
+function convertValue_(name, value) {
 	if (value.constructor == Date) {
-		return convertDate(value, "yyyyMMdd");
+		return convertDate_(value, "yyyyMMdd");
 
 	} else if (CONVERT_NAME[name] == "assignerId") {
-		var user = getRegisteredUser(value);
+		var user = getRegisteredUser_(value);
 		if (user == null) {
 			SpreadsheetApp.getActiveSpreadsheet().toast(
 					"ユーザ '" + value + "' は登録されていません", SCRIPT_NAME);
@@ -232,14 +232,14 @@ function convertValue(name, value) {
 	}
 }
 
-function convertDate(date, format) {
+function convertDate_(date, format) {
 	var GMTDate = date;
 	GMTDate.setTime(GMTDate.getTime() + (JST_OFFSET * 60 * 60 * 1000));
 
 	return Utilities.formatDate(GMTDate, "GMT", format);
 }
 
-function getRegisteredUser(userName) {
+function getRegisteredUser_(userName) {
 	for ( var i = 0; i < backlogRegistry.users.length; i++) {
 		if (backlogRegistry.users[i].name == userName)
 			return backlogRegistry.users[i];
@@ -248,25 +248,25 @@ function getRegisteredUser(userName) {
 	return null;
 }
 
-function createIssuesAndLog(newIssues) {
-	var logSheet = createLogSheet();
+function createIssuesAndLog_(newIssues) {
+	var logSheet = createLogSheet_();
 
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	for ( var i = 0; i < newIssues.length; i++) {
 		var issue = createIssue(newIssues[i]);
 
-		keyLength = Math.max(keyLength, getLength(issue.key));
-		logKey(logSheet, keyLength, i, issue);
+		keyLength = Math.max(keyLength, getLength_(issue.key));
+		logKey_(logSheet, keyLength, i, issue);
 
-		summaryLength = Math.max(summaryLength, getLength(issue.summary));
-		logSummary(logSheet, summaryLength, i, issue);
+		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
+		logSummary_(logSheet, summaryLength, i, issue);
 
 		SpreadsheetApp.flush();
 	}
 }
 
-function createLogSheet() {
+function createLogSheet_() {
 	// TODO 現在、Utilities.formatDate() が"GMT"しか認識しない
 	// - http://code.google.com/p/google-apps-script-issues/issues/detail?id=71
 
@@ -278,7 +278,7 @@ function createLogSheet() {
 			SCRIPT_NAME + " : " + current);
 }
 
-function logKey(logSheet, keyLength, i, issue) {
+function logKey_(logSheet, keyLength, i, issue) {
 	var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
 	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
 			.setFontColor("blue").setFontLine("underline");
@@ -287,7 +287,7 @@ function logKey(logSheet, keyLength, i, issue) {
 	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
 }
 
-function logSummary(logSheet, summaryLength, i, issue) {
+function logSummary_(logSheet, summaryLength, i, issue) {
 	logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
 			issue.summary.toString());
 
@@ -295,7 +295,7 @@ function logSummary(logSheet, summaryLength, i, issue) {
 	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
 }
 
-function getLength(text) {
+function getLength_(text) {
 	var count = 0;
 
 	for ( var i = 0; i < text.length; i++) {
