@@ -155,14 +155,10 @@ function showInputDialog_() {
 }
 
 function submit_(grid) {
-	// TODO サブミットされたら、先にダイアログを消す
-
 	var app = UiApp.getActiveApplication();
 
 	if (inputParameters_(grid) == false) {
-		SpreadsheetApp.getActiveSpreadsheet().toast(
-				SCRIPT_NAME + " がキャンセルされました", SCRIPT_NAME);
-		return app.close();
+		return;
 	}
 
 	try {
@@ -181,23 +177,33 @@ function submit_(grid) {
 }
 
 function inputParameters_(grid) {
-	// TODO キャンセル時のハンドリング追加
-
 	parameter.SPACE = grid.parameter.space;
-	if (parameter.SPACE == "cancel" || parameter.SPACE == "")
+	if (parameter.SPACE == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("スペースID を入力してください",
+				SCRIPT_NAME);
 		return false;
+	}
 
 	parameter.USERNAME = grid.parameter.username;
-	if (parameter.USERNAME == "cancel" || parameter.USERNAME == "")
+	if (parameter.USERNAME == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("ユーザID を入力してください",
+				SCRIPT_NAME);
 		return false;
+	}
 
 	parameter.PASSWORD = grid.parameter.password;
-	if (parameter.PASSWORD == "cancel" || parameter.PASSWORD == "")
+	if (parameter.PASSWORD == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("パスワード を入力してください",
+				SCRIPT_NAME);
 		return false;
+	}
 
 	parameter.PROJECT_KEY = grid.parameter.projectKey.toUpperCase();
-	if (parameter.PROJECT_KEY == "CANCEL" || parameter.PROJECT_KEY == "")
+	if (parameter.PROJECT_KEY == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
+				SCRIPT_NAME);
 		return false;
+	}
 
 	parameter.REQUEST_URI = "https://" + parameter.SPACE
 			+ ".backlog.jp/XML-RPC";
