@@ -179,11 +179,11 @@ function submit_(grid) {
 		return app.close();
 	}
 
-	createIssuesAndLog_(getTemplateIssues_());
+	var logSheet = createLogSheet_();
+	createIssuesAndLog_(getTemplateIssues_(), logSheet);
 
 	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
 			SCRIPT_NAME);
-
 	return app.close();
 }
 
@@ -290,9 +290,7 @@ function getRegisteredUser_(userName) {
 	return null;
 }
 
-function createIssuesAndLog_(newIssues) {
-	var logSheet = createLogSheet_();
-
+function createIssuesAndLog_(newIssues, logSheet) {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	for ( var i = 0; i < newIssues.length; i++) {
