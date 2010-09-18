@@ -107,7 +107,7 @@ function createIssue(issue) {
 // ------------------------- 関数 -------------------------
 
 /**
- * フック関数：スプレッドシート読み込み時に起動される
+ * フック関数：スプレッドシート読み込み時に起動されます
  */
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -120,16 +120,16 @@ function onOpen() {
 }
 
 /**
- * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録する
+ * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
 function createIssues() {
-	appShow_();
+	showInputDialog_();
 }
 
-function appShow_() {
-	// TODO ダイアログを適切なサイズに変更する
-
+function showInputDialog_() {
 	var app = UiApp.createApplication().setTitle('Backlog 課題一括登録');
+	app.setWidth(220);
+	app.setHeight(150);
 
 	var grid = app.createGrid(4, 2);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
@@ -140,21 +140,23 @@ function appShow_() {
 	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
 	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
 	grid.setWidget(3, 1, app.createTextBox().setName("projectKey"));
+
 	var button = app.createButton('一括登録');
-
-	var panel = app.createVerticalPanel();
-	panel.add(grid);
-	panel.add(button);
-
 	var handler = app.createServerClickHandler('submit_');
 	handler.addCallbackElement(grid);
 	button.addClickHandler(handler);
 
+	var panel = app.createVerticalPanel();
+	panel.add(grid);
+	panel.add(button);
 	app.add(panel);
+
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
 
 function submit_(grid) {
+	// TODO サブミットされたら、先にダイアログを消す
+
 	var app = UiApp.getActiveApplication();
 
 	if (inputParameters_(grid) == false) {
