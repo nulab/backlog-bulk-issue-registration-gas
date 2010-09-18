@@ -131,15 +131,26 @@ function showInputDialog_() {
 	app.setWidth(220);
 	app.setHeight(150);
 
+	var lastSpace = UserProperties.getProperty("space") ? UserProperties
+			.getProperty("space") : "";
+	var lastUsername = UserProperties.getProperty("username") ? UserProperties
+			.getProperty("username") : "";
+	var lastProjectKey = UserProperties.getProperty("projectKey") ? UserProperties
+			.getProperty("projectKey")
+			: "";
+
 	var grid = app.createGrid(4, 2);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
-	grid.setWidget(0, 1, app.createTextBox().setName("space"));
+	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
+			lastSpace));
 	grid.setWidget(1, 0, app.createLabel('ユーザID'));
-	grid.setWidget(1, 1, app.createTextBox().setName("username"));
+	grid.setWidget(1, 1, app.createTextBox().setName("username").setValue(
+			lastUsername));
 	grid.setWidget(2, 0, app.createLabel('パスワード'));
 	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
 	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
-	grid.setWidget(3, 1, app.createTextBox().setName("projectKey"));
+	grid.setWidget(3, 1, app.createTextBox().setName("projectKey").setValue(
+			lastProjectKey));
 
 	var button = app.createButton('一括登録');
 	var handler = app.createServerClickHandler('submit_');
@@ -204,7 +215,7 @@ function inputParameters_(grid) {
 				SCRIPT_NAME);
 		return false;
 	}
-	UserProperties.setProperty("projectkey", grid.parameter.projectKey
+	UserProperties.setProperty("projectKey", grid.parameter.projectKey
 			.toUpperCase());
 
 	return true;
@@ -214,7 +225,7 @@ function checkParameters_() {
 	var project;
 
 	try {
-		project = getProject(UserProperties.getProperty("projectkey"));
+		project = getProject(UserProperties.getProperty("projectKey"));
 	} catch (e) {
 		throw "ログインに失敗しました";
 	}
@@ -227,7 +238,7 @@ function checkParameters_() {
 function getTemplateIssues_() {
 	var issues = [];
 
-	var project = getProject(UserProperties.getProperty("projectkey"));
+	var project = getProject(UserProperties.getProperty("projectKey"));
 
 	backlogRegistry.users = getUsers(project.id);
 
