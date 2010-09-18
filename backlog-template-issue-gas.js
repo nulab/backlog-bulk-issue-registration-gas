@@ -130,46 +130,67 @@ function createIssues() {
 	}
 
 	try {
-		checkParameters_();
+		// checkParameters_();
 	} catch (e) {
 		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
 		return;
 	}
-
-	createIssuesAndLog_(getTemplateIssues_());
-
-	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
-			SCRIPT_NAME);
 }
 
 function inputParameters_() {
-	var promptMessage = " を入力してください";
+	var app = UiApp.createApplication().setTitle('Backlog 課題一括登録');
 
-	parameter.SPACE = Browser.inputBox(SCRIPT_NAME, "'スペースID'" + promptMessage,
-			Browser.Buttons.OK_CANCEL);
+	var grid = app.createGrid(4, 2);
+	grid.setWidget(0, 0, app.createLabel('スペースID'));
+	grid.setWidget(0, 1, app.createTextBox().setName("space"));
+	grid.setWidget(1, 0, app.createLabel('ユーザID'));
+	grid.setWidget(1, 1, app.createTextBox().setName("username"));
+	grid.setWidget(2, 0, app.createLabel('パスワード'));
+	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
+	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
+	grid.setWidget(3, 1, app.createTextBox().setName("projectKey"));
+
+	var button = app.createButton('一括登録');
+	var panel = app.createVerticalPanel();
+	panel.add(grid);
+	panel.add(button);
+
+	var handler = app.createServerClickHandler('submit');
+	handler.addCallbackElement(grid);
+	button.addClickHandler(handler);
+
+	app.add(panel);
+	SpreadsheetApp.getActiveSpreadsheet().show(app);
+}
+
+function submit(e) {
+	parameter.SPACE = e.parameter.space;
 	if (parameter.SPACE == "cancel" || parameter.SPACE == "")
 		return false;
 
-	parameter.USERNAME = Browser.inputBox(SCRIPT_NAME, "'ユーザID'"
-			+ promptMessage, Browser.Buttons.OK_CANCEL);
+	parameter.USERNAME = e.parameter.username;
 	if (parameter.USERNAME == "cancel" || parameter.USERNAME == "")
 		return false;
 
-	parameter.PASSWORD = Browser.inputBox(SCRIPT_NAME, "'パスワード'"
-			+ promptMessage, Browser.Buttons.OK_CANCEL);
+	parameter.PASSWORD = e.parameter.password;
 	if (parameter.PASSWORD == "cancel" || parameter.PASSWORD == "")
 		return false;
 
-	parameter.PROJECT_KEY = Browser.inputBox(SCRIPT_NAME,
-			"'プロジェクト'" + promptMessage, Browser.Buttons.OK_CANCEL)
-			.toUpperCase();
+	parameter.PROJECT_KEY = e.parameter.projectKey.toUpperCase();
 	if (parameter.PROJECT_KEY == "CANCEL" || parameter.PROJECT_KEY == "")
 		return false;
 
 	parameter.REQUEST_URI = "https://" + parameter.SPACE
 			+ ".backlog.jp/XML-RPC";
 
-	return true;
+	createIssuesAndLog_(getTemplateIssues_());
+
+	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
+			SCRIPT_NAME);
+
+	var app = UiApp.getActiveApplication();
+	app.close();
+	return app;
 }
 
 function checkParameters_() {
