@@ -44,11 +44,7 @@ var CONVERT_NAME = {
 
 /** 入力パラメータ */
 var parameter = {
-	SPACE : "",
-	USERNAME : "",
-	PASSWORD : "",
-	PROJECT_KEY : "",
-	REQUEST_URI : ""
+	PASSWORD : ""
 };
 
 /** Backlogに登録されているデータ */
@@ -65,8 +61,9 @@ var backlogRegistry = {
  * 
  */
 function getProject(projectKey) {
-	var request = new XmlRpcRequest(parameter.REQUEST_URI, "backlog.getProject");
-	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
+	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getProject");
+	request.setAuthentication(UserProperties.getProperty("username"),
+			parameter.PASSWORD);
 	request.addParam(projectKey);
 
 	return request.send().parseXML();
@@ -79,8 +76,9 @@ function getProject(projectKey) {
  * 
  */
 function getUsers(projectId) {
-	var request = new XmlRpcRequest(parameter.REQUEST_URI, "backlog.getUsers");
-	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
+	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getUsers");
+	request.setAuthentication(UserProperties.getProperty("username"),
+			parameter.PASSWORD);
 	request.addParam(projectId);
 
 	return request.send().parseXML();
@@ -93,12 +91,17 @@ function getUsers(projectId) {
  * 
  */
 function createIssue(issue) {
-	var request = new XmlRpcRequest(parameter.REQUEST_URI,
-			"backlog.createIssue");
-	request.setAuthentication(parameter.USERNAME, parameter.PASSWORD);
+	var request = new XmlRpcRequest(getRequestUri_(), "backlog.createIssue");
+	request.setAuthentication(UserProperties.getProperty("username"),
+			parameter.PASSWORD);
 	request.addParam(issue);
 
 	return request.send().parseXML();
+}
+
+function getRequestUri_() {
+	return "https://" + UserProperties.getProperty("space")
+			+ ".backlog.jp/XML-RPC";
 }
 
 // ------------------------- 関数 -------------------------
@@ -174,36 +177,35 @@ function submit_(grid) {
 }
 
 function inputParameters_(grid) {
-	parameter.SPACE = grid.parameter.space;
-	if (parameter.SPACE == "") {
+	if (grid.parameter.space == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("スペースID を入力してください",
 				SCRIPT_NAME);
 		return false;
 	}
+	UserProperties.setProperty("space", grid.parameter.space);
 
-	parameter.USERNAME = grid.parameter.username;
-	if (parameter.USERNAME == "") {
+	if (grid.parameter.username == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("ユーザID を入力してください",
 				SCRIPT_NAME);
 		return false;
 	}
+	UserProperties.setProperty("username", grid.parameter.username);
 
-	parameter.PASSWORD = grid.parameter.password;
-	if (parameter.PASSWORD == "") {
+	// パスワードはUserPropertiesには格納しない
+	if (grid.parameter.password == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("パスワード を入力してください",
 				SCRIPT_NAME);
 		return false;
 	}
+	parameter.PASSWORD = grid.parameter.password;
 
-	parameter.PROJECT_KEY = grid.parameter.projectKey.toUpperCase();
-	if (parameter.PROJECT_KEY == "") {
+	if (grid.parameter.projectKey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
 				SCRIPT_NAME);
 		return false;
 	}
-
-	parameter.REQUEST_URI = "https://" + parameter.SPACE
-			+ ".backlog.jp/XML-RPC";
+	UserProperties.setProperty("projectkey", grid.parameter.projectKey
+			.toUpperCase());
 
 	return true;
 }
@@ -212,7 +214,7 @@ function checkParameters_() {
 	var project;
 
 	try {
-		project = getProject(parameter.PROJECT_KEY);
+		project = getProject(UserProperties.getProperty("projectkey"));
 	} catch (e) {
 		throw "ログインに失敗しました";
 	}
@@ -225,7 +227,7 @@ function checkParameters_() {
 function getTemplateIssues_() {
 	var issues = [];
 
-	var project = getProject(parameter.PROJECT_KEY);
+	var project = getProject(UserProperties.getProperty("projectkey"));
 
 	backlogRegistry.users = getUsers(project.id);
 
