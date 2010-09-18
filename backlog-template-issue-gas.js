@@ -24,9 +24,6 @@ var DEFAULT_FONT_SIZE = 10;
 /** 列幅調整時の係数 */
 var ADJUST_WIDTH_FACTOR = 0.75;
 
-/** 日本標準時のオフセット */
-var JST_OFFSET = 9;
-
 /** ヘッダ行の項目名 */
 var CONVERT_NAME = {
 	"件名" : "summary",
@@ -255,7 +252,7 @@ function getTemplateIssues_() {
 
 function convertValue_(name, value) {
 	if (value.constructor == Date) {
-		return convertDate_(value, "yyyyMMdd");
+		return Utilities.formatDate(value, "JST", "yyyyMMdd");
 
 	} else if (CONVERT_NAME[name] == "assignerId") {
 		var user = getRegisteredUser_(value);
@@ -269,13 +266,6 @@ function convertValue_(name, value) {
 	} else {
 		return value;
 	}
-}
-
-function convertDate_(date, format) {
-	var GMTDate = date;
-	GMTDate.setTime(GMTDate.getTime() + (JST_OFFSET * 60 * 60 * 1000));
-
-	return Utilities.formatDate(GMTDate, "GMT", format);
 }
 
 function getRegisteredUser_(userName) {
@@ -306,12 +296,8 @@ function createIssuesAndLog_(newIssues) {
 }
 
 function createLogSheet_() {
-	// TODO 現在、Utilities.formatDate() が"GMT"しか認識しない
-	// - http://code.google.com/p/google-apps-script-issues/issues/detail?id=71
-
-	var date = new Date();
-	date.setHours(date.getHours() + JST_OFFSET);
-	var current = Utilities.formatDate(date, "GMT", "yyyy/MM/dd HH:mm:ss");
+	var current = Utilities
+			.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
 
 	return SpreadsheetApp.getActiveSpreadsheet().insertSheet(
 			SCRIPT_NAME + " : " + current);
