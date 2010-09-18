@@ -123,21 +123,12 @@ function onOpen() {
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録する
  */
 function createIssues() {
-	if (inputParameters_() == false) {
-		SpreadsheetApp.getActiveSpreadsheet().toast(
-				SCRIPT_NAME + " がキャンセルされました", SCRIPT_NAME);
-		return;
-	}
-
-	try {
-		// checkParameters_();
-	} catch (e) {
-		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
-		return;
-	}
+	appShow_();
 }
 
-function inputParameters_() {
+function appShow_() {
+	// TODO ダイアログを適切なサイズに変更する
+
 	var app = UiApp.createApplication().setTitle('Backlog 課題一括登録');
 
 	var grid = app.createGrid(4, 2);
@@ -149,13 +140,13 @@ function inputParameters_() {
 	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
 	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
 	grid.setWidget(3, 1, app.createTextBox().setName("projectKey"));
-
 	var button = app.createButton('一括登録');
+
 	var panel = app.createVerticalPanel();
 	panel.add(grid);
 	panel.add(button);
 
-	var handler = app.createServerClickHandler('submit');
+	var handler = app.createServerClickHandler('submit_');
 	handler.addCallbackElement(grid);
 	button.addClickHandler(handler);
 
@@ -163,34 +154,53 @@ function inputParameters_() {
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
 
-function submit(e) {
-	parameter.SPACE = e.parameter.space;
-	if (parameter.SPACE == "cancel" || parameter.SPACE == "")
-		return false;
+function submit_(grid) {
+	var app = UiApp.getActiveApplication();
 
-	parameter.USERNAME = e.parameter.username;
-	if (parameter.USERNAME == "cancel" || parameter.USERNAME == "")
-		return false;
+	if (inputParameters_(grid) == false) {
+		SpreadsheetApp.getActiveSpreadsheet().toast(
+				SCRIPT_NAME + " がキャンセルされました", SCRIPT_NAME);
+		return app.close();
+	}
 
-	parameter.PASSWORD = e.parameter.password;
-	if (parameter.PASSWORD == "cancel" || parameter.PASSWORD == "")
-		return false;
-
-	parameter.PROJECT_KEY = e.parameter.projectKey.toUpperCase();
-	if (parameter.PROJECT_KEY == "CANCEL" || parameter.PROJECT_KEY == "")
-		return false;
-
-	parameter.REQUEST_URI = "https://" + parameter.SPACE
-			+ ".backlog.jp/XML-RPC";
+	try {
+		checkParameters_();
+	} catch (e) {
+		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
+		return app.close();
+	}
 
 	createIssuesAndLog_(getTemplateIssues_());
 
 	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
 			SCRIPT_NAME);
 
-	var app = UiApp.getActiveApplication();
-	app.close();
-	return app;
+	return app.close();
+}
+
+function inputParameters_(grid) {
+	// TODO キャンセル時のハンドリング追加
+
+	parameter.SPACE = grid.parameter.space;
+	if (parameter.SPACE == "cancel" || parameter.SPACE == "")
+		return false;
+
+	parameter.USERNAME = grid.parameter.username;
+	if (parameter.USERNAME == "cancel" || parameter.USERNAME == "")
+		return false;
+
+	parameter.PASSWORD = grid.parameter.password;
+	if (parameter.PASSWORD == "cancel" || parameter.PASSWORD == "")
+		return false;
+
+	parameter.PROJECT_KEY = grid.parameter.projectKey.toUpperCase();
+	if (parameter.PROJECT_KEY == "CANCEL" || parameter.PROJECT_KEY == "")
+		return false;
+
+	parameter.REQUEST_URI = "https://" + parameter.SPACE
+			+ ".backlog.jp/XML-RPC";
+
+	return true;
 }
 
 function checkParameters_() {
