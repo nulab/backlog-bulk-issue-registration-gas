@@ -62,7 +62,7 @@ var backlogRegistry = {
  */
 function getProject(projectKey) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getProject");
-	request.setAuthentication(UserProperties.getProperty("username"),
+	request.setAuthentication(UserProperties.getProperty("bti.username"),
 			parameter.PASSWORD);
 	request.addParam(projectKey);
 
@@ -77,7 +77,7 @@ function getProject(projectKey) {
  */
 function getUsers(projectId) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getUsers");
-	request.setAuthentication(UserProperties.getProperty("username"),
+	request.setAuthentication(UserProperties.getProperty("bti.username"),
 			parameter.PASSWORD);
 	request.addParam(projectId);
 
@@ -92,7 +92,7 @@ function getUsers(projectId) {
  */
 function createIssue(issue) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.createIssue");
-	request.setAuthentication(UserProperties.getProperty("username"),
+	request.setAuthentication(UserProperties.getProperty("bti.username"),
 			parameter.PASSWORD);
 	request.addParam(issue);
 
@@ -100,7 +100,7 @@ function createIssue(issue) {
 }
 
 function getRequestUri_() {
-	return "https://" + UserProperties.getProperty("space")
+	return "https://" + UserProperties.getProperty("bti.space")
 			+ ".backlog.jp/XML-RPC";
 }
 
@@ -131,12 +131,13 @@ function showInputDialog_() {
 	app.setWidth(220);
 	app.setHeight(150);
 
-	var lastSpace = UserProperties.getProperty("space") ? UserProperties
-			.getProperty("space") : "";
-	var lastUsername = UserProperties.getProperty("username") ? UserProperties
-			.getProperty("username") : "";
-	var lastProjectKey = UserProperties.getProperty("projectKey") ? UserProperties
-			.getProperty("projectKey")
+	var lastSpace = UserProperties.getProperty("bti.space") ? UserProperties
+			.getProperty("bti.space") : "";
+	var lastUsername = UserProperties.getProperty("bti.username") ? UserProperties
+			.getProperty("bti.username")
+			: "";
+	var lastProjectKey = UserProperties.getProperty("bti.projectKey") ? UserProperties
+			.getProperty("bti.projectKey")
 			: "";
 
 	var grid = app.createGrid(4, 2);
@@ -193,14 +194,14 @@ function inputParameters_(grid) {
 				SCRIPT_NAME);
 		return false;
 	}
-	UserProperties.setProperty("space", grid.parameter.space);
+	UserProperties.setProperty("bti.space", grid.parameter.space);
 
 	if (grid.parameter.username == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("ユーザID を入力してください",
 				SCRIPT_NAME);
 		return false;
 	}
-	UserProperties.setProperty("username", grid.parameter.username);
+	UserProperties.setProperty("bti.username", grid.parameter.username);
 
 	// パスワードはUserPropertiesには格納しない
 	if (grid.parameter.password == "") {
@@ -215,7 +216,7 @@ function inputParameters_(grid) {
 				SCRIPT_NAME);
 		return false;
 	}
-	UserProperties.setProperty("projectKey", grid.parameter.projectKey
+	UserProperties.setProperty("bti.projectKey", grid.parameter.projectKey
 			.toUpperCase());
 
 	return true;
@@ -225,7 +226,7 @@ function checkParameters_() {
 	var project;
 
 	try {
-		project = getProject(UserProperties.getProperty("projectKey"));
+		project = getProject(UserProperties.getProperty("bti.projectKey"));
 	} catch (e) {
 		throw "ログインに失敗しました";
 	}
@@ -238,7 +239,7 @@ function checkParameters_() {
 function getTemplateIssues_() {
 	var issues = [];
 
-	var project = getProject(UserProperties.getProperty("projectKey"));
+	var project = getProject(UserProperties.getProperty("bti.projectKey"));
 
 	backlogRegistry.users = getUsers(project.id);
 
