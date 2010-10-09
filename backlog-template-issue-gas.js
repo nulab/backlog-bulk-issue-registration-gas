@@ -127,9 +127,10 @@ function createIssues() {
 }
 
 function showInputDialog_() {
-	var app = UiApp.createApplication().setTitle('Backlog 課題一括登録');
-	app.setWidth(220);
-	app.setHeight(150);
+	var app = UiApp.createApplication();
+	app.setTitle('Backlog 課題一括登録');
+	app.setWidth(270);
+	app.setHeight(200);
 
 	var lastSpace = UserProperties.getProperty("bti.space") ? UserProperties
 			.getProperty("bti.space") : "";
