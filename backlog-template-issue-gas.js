@@ -37,7 +37,8 @@ var CONVERT_NAME = {
 	"発生バージョン名" : "version",
 	"マイルストーン名" : "milestone",
 	"優先度ID" : "priorityId",
-	"担当者ユーザ名" : "assignerId"
+	"担当者ユーザ名" : "assignerId",
+	"親課題" : "parent_issue_id"
 };
 
 // ------------------------- グローバルオブジェクト -------------------------
@@ -49,7 +50,8 @@ var parameter = {
 
 /** Backlogに登録されているデータ */
 var backlogRegistry = {
-	users : []
+	users : [],
+	issues : []
 };
 
 // ------------------------- Backlog API -------------------------
@@ -97,6 +99,41 @@ function createIssue(issue) {
 	request.addParam(issue);
 
 	return request.send().parseXML();
+}
+
+/**
+ * プロジェクトに登録されている課題を返します。
+ * 
+ * @see http://www.backlog.jp/api/method3_4.html
+ * 
+ */
+function findIssue(params) {
+	var request = new XmlRpcRequest(getRequestUri_(), "backlog.findIssue");
+	request.setAuthentication(UserProperties.getProperty("bti.username"),
+			parameter.PASSWORD);
+	request.addParam(params);
+
+	return request.send().parseXML();
+}
+
+function findIssueByKey_(key) {
+	var foundIssue = null;
+	try {
+		backlogRegistry.issues.forEach(function(issue, index, context) {
+			if (issue["key"] == key) {
+				foundIssue = issue;
+				throw "issue found";
+			}
+		});
+	} catch (e) {
+		if (e != "issue found") {
+			throw e;
+		}
+	}
+	if (foundIssue == null) {
+		throw "親課題が見つかりません";
+	}
+	return foundIssue;
 }
 
 function getRequestUri_() {
@@ -243,6 +280,7 @@ function getTemplateIssues_() {
 	var project = getProject(UserProperties.getProperty("bti.projectKey"));
 
 	backlogRegistry.users = getUsers(project.id);
+	backlogRegistry.issues = findIssue({projectId : project.id});
 
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
@@ -277,6 +315,14 @@ function convertValue_(name, value) {
 			return 0;
 		}
 		return user.id;
+
+	} else if (CONVERT_NAME[name] == "parent_issue_id") {
+		if (value === "") {
+			return value;
+		} else {
+			var issue = findIssueByKey_(value);
+			return issue ? issue["id"] : null;
+		}
 
 	} else {
 		return value;
