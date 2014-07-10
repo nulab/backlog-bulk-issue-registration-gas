@@ -37,7 +37,8 @@ var CONVERT_NAME = {
 	"発生バージョン名" : "version",
 	"マイルストーン名" : "milestone",
 	"優先度ID" : "priorityId",
-	"担当者ユーザ名" : "assignerId"
+	"担当者ユーザ名" : "assignerId",
+	"親課題" : "parent_issue_id"
 };
 
 // ------------------------- グローバルオブジェクト -------------------------
@@ -56,9 +57,9 @@ var backlogRegistry = {
 
 /**
  * プロジェクトキーを指定して、プロジェクトを取得します。
- * 
+ *
  * @see http://www.backlog.jp/api/method1_2.html
- * 
+ *
  */
 function getProject(projectKey) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getProject");
@@ -71,9 +72,9 @@ function getProject(projectKey) {
 
 /**
  * プロジェクトの参加メンバーを返します。
- * 
+ *
  * @see http://www.backlog.jp/api/method2_2.html
- * 
+ *
  */
 function getUsers(projectId) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getUsers");
@@ -86,15 +87,30 @@ function getUsers(projectId) {
 
 /**
  * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
- * 
+ *
  * @see http://www.backlog.jp/api/method4_1.html
- * 
+ *
  */
 function createIssue(issue) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.createIssue");
 	request.setAuthentication(UserProperties.getProperty("bti.username"),
 			parameter.PASSWORD);
 	request.addParam(issue);
+
+	return request.send().parseXML();
+}
+
+/**
+ * 課題キーを指定して、課題を取得します。
+ *
+ * @see http://www.backlog.jp/api/method2_4.html
+ *
+ */
+function getIssue(params) {
+	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getIssue");
+	request.setAuthentication(UserProperties.getProperty("bti.username"),
+			parameter.PASSWORD);
+	request.addParam(params);
 
 	return request.send().parseXML();
 }
@@ -277,6 +293,14 @@ function convertValue_(name, value) {
 			return 0;
 		}
 		return user.id;
+
+	} else if (CONVERT_NAME[name] == "parent_issue_id") {
+		if (value === "") {
+			return value;
+		} else {
+			var issue = getIssue(value);
+			return issue ? issue["id"] : "";
+		}
 
 	} else {
 		return value;
