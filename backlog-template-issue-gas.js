@@ -64,7 +64,7 @@ var backlogRegistry = {
 function getProject(projectKey) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getProject");
 	request.setAuthentication(UserProperties.getProperty("bti.username"),
-			parameter.PASSWORD);
+		parameter.PASSWORD);
 	request.addParam(projectKey);
 
 	return request.send().parseXML();
@@ -79,7 +79,7 @@ function getProject(projectKey) {
 function getUsers(projectId) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getUsers");
 	request.setAuthentication(UserProperties.getProperty("bti.username"),
-			parameter.PASSWORD);
+		parameter.PASSWORD);
 	request.addParam(projectId);
 
 	return request.send().parseXML();
@@ -94,7 +94,7 @@ function getUsers(projectId) {
 function createIssue(issue) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.createIssue");
 	request.setAuthentication(UserProperties.getProperty("bti.username"),
-			parameter.PASSWORD);
+		parameter.PASSWORD);
 	request.addParam(issue);
 
 	return request.send().parseXML();
@@ -109,7 +109,7 @@ function createIssue(issue) {
 function getIssue(params) {
 	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getIssue");
 	request.setAuthentication(UserProperties.getProperty("bti.username"),
-			parameter.PASSWORD);
+		parameter.PASSWORD);
 	request.addParam(params);
 
 	return request.send().parseXML();
@@ -117,7 +117,7 @@ function getIssue(params) {
 
 function getRequestUri_() {
 	return "https://" + UserProperties.getProperty("bti.space")
-			+ ".backlog.jp/XML-RPC";
+		+ ".backlog.jp/XML-RPC";
 }
 
 // ------------------------- 関数 -------------------------
@@ -149,26 +149,26 @@ function showInputDialog_() {
 	app.setHeight(200);
 
 	var lastSpace = UserProperties.getProperty("bti.space") ? UserProperties
-			.getProperty("bti.space") : "";
+		.getProperty("bti.space") : "";
 	var lastUsername = UserProperties.getProperty("bti.username") ? UserProperties
-			.getProperty("bti.username")
-			: "";
+		.getProperty("bti.username")
+		: "";
 	var lastProjectKey = UserProperties.getProperty("bti.projectKey") ? UserProperties
-			.getProperty("bti.projectKey")
-			: "";
+		.getProperty("bti.projectKey")
+		: "";
 
 	var grid = app.createGrid(4, 2);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
-			lastSpace));
+		lastSpace));
 	grid.setWidget(1, 0, app.createLabel('ユーザID'));
 	grid.setWidget(1, 1, app.createTextBox().setName("username").setValue(
-			lastUsername));
+		lastUsername));
 	grid.setWidget(2, 0, app.createLabel('パスワード'));
 	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
 	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
 	grid.setWidget(3, 1, app.createTextBox().setName("projectKey").setValue(
-			lastProjectKey));
+		lastProjectKey));
 
 	var button = app.createButton('一括登録');
 	var handler = app.createServerClickHandler('submit_');
@@ -201,21 +201,21 @@ function submit_(grid) {
 	createIssuesAndLog_(getTemplateIssues_(), logSheet);
 
 	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
-			SCRIPT_NAME);
+		SCRIPT_NAME);
 	return app.close();
 }
 
 function inputParameters_(grid) {
 	if (grid.parameter.space == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("スペースID を入力してください",
-				SCRIPT_NAME);
+			SCRIPT_NAME);
 		return false;
 	}
 	UserProperties.setProperty("bti.space", grid.parameter.space);
 
 	if (grid.parameter.username == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("ユーザID を入力してください",
-				SCRIPT_NAME);
+			SCRIPT_NAME);
 		return false;
 	}
 	UserProperties.setProperty("bti.username", grid.parameter.username);
@@ -223,18 +223,18 @@ function inputParameters_(grid) {
 	// パスワードはUserPropertiesには格納しない
 	if (grid.parameter.password == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("パスワード を入力してください",
-				SCRIPT_NAME);
+			SCRIPT_NAME);
 		return false;
 	}
 	parameter.PASSWORD = grid.parameter.password;
 
 	if (grid.parameter.projectKey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
-				SCRIPT_NAME);
+			SCRIPT_NAME);
 		return false;
 	}
 	UserProperties.setProperty("bti.projectKey", grid.parameter.projectKey
-			.toUpperCase());
+		.toUpperCase());
 
 	return true;
 }
@@ -272,7 +272,7 @@ function getTemplateIssues_() {
 		for ( var j = 0; j < values[0].length; j++) {
 			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[CONVERT_NAME[name]] = convertValue_(name, values[i][j]);
+				issue[CONVERT_NAME[name]] = convertValue_(i, name, values[i][j]);
 			}
 		}
 		issues[i] = issue;
@@ -281,7 +281,7 @@ function getTemplateIssues_() {
 	return issues;
 }
 
-function convertValue_(name, value) {
+function convertValue_(i, name, value) {
 	if (value.constructor == Date) {
 		return Utilities.formatDate(value, "JST", "yyyyMMdd");
 
@@ -295,11 +295,33 @@ function convertValue_(name, value) {
 		return user.id;
 
 	} else if (CONVERT_NAME[name] == "parent_issue_id") {
-		if (value === "") {
-			return value;
+		if (value === "*") {
+			if (i == 0) {
+				SpreadsheetApp.getActiveSpreadsheet().toast(
+					"1行目の親課題に '*' は使用できません", SCRIPT_NAME);
+				return "";
+			} else {
+				return value;
+			}
 		} else {
+			if (value.indexOf(UserProperties.getProperty("bti.projectKey")) != 0) {
+				SpreadsheetApp.getActiveSpreadsheet().toast(
+						"課題 '" + value + "' はプロジェクト '" + UserProperties.getProperty("bti.projectKey") + "' と異なっています", SCRIPT_NAME);
+				return "";
+			}
 			var issue = getIssue(value);
-			return issue ? issue["id"] : "";
+			if (issue == null || !issue['id']) {
+				SpreadsheetApp.getActiveSpreadsheet().toast(
+						"課題 '" + value + "' は存在しません", SCRIPT_NAME);
+				return "";
+			}
+			if (issue['parent_issue_id']) {
+				SpreadsheetApp.getActiveSpreadsheet().toast(
+						"課題 '" + value + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+				return "";
+			}
+
+			return issue["id"];
 		}
 
 	} else {
@@ -319,7 +341,20 @@ function getRegisteredUser_(userName) {
 function createIssuesAndLog_(newIssues, logSheet) {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
+
+	var previousIssue = null;
 	for ( var i = 0; i < newIssues.length; i++) {
+		var isTakenOverParentIssueId = false;
+		if (newIssues[i]['parent_issue_id'] === "*") {
+			if (previousIssue && previousIssue['parent_issue_id']) {
+				SpreadsheetApp.getActiveSpreadsheet().toast(
+						"課題 '" + previousIssue.key + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+				newIssues[i]['parent_issue_id'] = "";
+			} else {
+				newIssues[i]['parent_issue_id'] = previousIssue.id;
+				isTakenOverParentIssueId = true;
+			}
+		}
 		var issue = createIssue(newIssues[i]);
 
 		keyLength = Math.max(keyLength, getLength_(issue.key));
@@ -329,12 +364,16 @@ function createIssuesAndLog_(newIssues, logSheet) {
 		logSummary_(logSheet, summaryLength, i, issue);
 
 		SpreadsheetApp.flush();
+
+		if (!isTakenOverParentIssueId) {
+			previousIssue = issue;
+		}
 	}
 }
 
 function createLogSheet_() {
 	var current = Utilities
-			.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
+		.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
 
 	return SpreadsheetApp.getActiveSpreadsheet().insertSheet(
 			SCRIPT_NAME + " : " + current);
@@ -343,7 +382,7 @@ function createLogSheet_() {
 function logKey_(logSheet, keyLength, i, issue) {
 	var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
 	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
-			.setFontColor("blue").setFontLine("underline");
+		.setFontColor("blue").setFontLine("underline");
 
 	var keyWidth = keyLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
 	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
@@ -351,7 +390,7 @@ function logKey_(logSheet, keyLength, i, issue) {
 
 function logSummary_(logSheet, summaryLength, i, issue) {
 	logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
-			issue.summary.toString());
+		issue.summary.toString());
 
 	var summaryWidth = summaryLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
 	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
