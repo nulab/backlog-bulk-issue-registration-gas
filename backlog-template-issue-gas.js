@@ -64,7 +64,6 @@ function build_query(param) {
 		params.push(name + "=" + encodeURIComponent(param[name]));
 	}
 	query = params.join("&");
-	Logger.log(query);
 	return query;
 }
 // ------------------------- Backlog API -------------------------
@@ -88,7 +87,6 @@ function getProjectV2(projectKey) {
 	var uri = getRequestUri_V2() + "projects/" + PropertiesService.getUserProperties().getProperty("bti.projectKey") +
 	"?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
 	var request = UrlFetchApp.fetch(uri);
-	Logger.log(uri);
 	return JSON.parse(request.getContentText());
 }
 
@@ -136,6 +134,7 @@ function createIssueV2(issue) {
 	var param = {
 		"method" : "post"
 	};
+	Logger.log(uri+query);
 	var request = UrlFetchApp.fetch(uri + query, param);
 
 	return JSON.parse(request.getContentText());
@@ -156,9 +155,9 @@ function getIssue(params) {
 	return request.send().parseXML();
 }
 
-function getIssueV2(issuekey) {
+function getIssueV2(issueId) {
 
-	var uri = getRequestUri_V2() + "issues/" + issuekey
+	var uri = getRequestUri_V2() + "issues/" + issueId
 	+ "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");	
 	var request = UrlFetchApp.fetch(uri);
 	return JSON.parse(request.getContentText());
@@ -253,8 +252,11 @@ function showInputDialog_() {
     		? PropertiesService.getUserProperties().getProperty("bti.projectKey")
 			: "";
 
-	var grid = app.createGrid(4, 2);
+	var grid = app.createGrid(3, 3);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
+	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
+		lastSpace));
+	grid.setWidget(0, 2, app.createLabel('.backlog.jp'));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
 		lastSpace));
 	grid.setWidget(1, 0, app.createLabel('APIキー'));
@@ -262,8 +264,8 @@ function showInputDialog_() {
 		lastUsername));
 //	grid.setWidget(2, 0, app.createLabel('パスワード'));
 //	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
-	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
-	grid.setWidget(3, 1, app.createTextBox().setName("projectKey").setValue(
+	grid.setWidget(2, 0, app.createLabel('プロジェクト'));
+	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(
 		lastProjectKey));
 
 	var button = app.createButton('一括登録');
@@ -434,7 +436,7 @@ function convertValue_(i, name, value) {
 				}
 				return issueType.id;
 				break;
-			case "categoryId":
+			case "categoryId[]":
 				var category = getRegisteredCategory_(value);
 				if (category == null) {
 					SpreadsheetApp.getActiveSpreadsheet().toast(
@@ -443,7 +445,7 @@ function convertValue_(i, name, value) {
 				}
 				return category.id;
 				break;				
-			case "versionId":
+			case "versionId[]":
 				var version = getRegisteredVersion_(value);
 				if (version == null) {
 					SpreadsheetApp.getActiveSpreadsheet().toast(
@@ -452,7 +454,7 @@ function convertValue_(i, name, value) {
 				}
 				return version.id;
 				break;					
-			case "milestoneId":
+			case "milestoneId[]":
 				var milestone = getRegisteredVersion_(value);
 				if (milestone == null) {
 					SpreadsheetApp.getActiveSpreadsheet().toast(
@@ -486,19 +488,17 @@ function getRegisteredIssueType_(issueTypeName) {
 
 function getRegisteredCategory_(categoryName) {
 	for ( var i = 0; i < backlogRegistry.categories.length; i++) {
-		if (backlogRegistry.issueTypes[i].name == categoryName)
+		if (backlogRegistry.categories[i].name == categoryName)
 			return backlogRegistry.categories[i];
 	}
-
 	return null;
 }
 
 function getRegisteredVersion_(versionName) {
 	for ( var i = 0; i < backlogRegistry.versions.length; i++) {
-		if (backlogRegistry.issueTypes[i].name == versionName)
+		if (backlogRegistry.versions[i].name == versionName)
 			return backlogRegistry.versions[i];
 	}
-
 	return null;
 }
 
@@ -510,9 +510,9 @@ function createIssuesAndLog_(newIssues, logSheet) {
 	for ( var i = 0; i < newIssues.length; i++) {
 		var isTakenOverParentIssueId = false;
 		if (newIssues[i]['parentIssueId'] === "*") {
-			if (previousIssue && previousIssue['parent_issue_id']) {
+			if (previousIssue && previousIssue['parentIssueId']) {
 				SpreadsheetApp.getActiveSpreadsheet().toast(
-						"課題 '" + previousIssue.key + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+						"課題 '" + previousIssue.issueKey + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
 				newIssues[i]['parentIssueId'] = "";
 			} else {
 				newIssues[i]['parentIssueId'] = previousIssue.id;
@@ -520,8 +520,7 @@ function createIssuesAndLog_(newIssues, logSheet) {
 			}
 		}
 		var issue = createIssueV2(newIssues[i]);
-
-		keyLength = Math.max(keyLength, getLength_(issue.key));
+		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
 		logKey_(logSheet, keyLength, i, issue);
 
 		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
@@ -544,7 +543,9 @@ function createLogSheet_() {
 }
 
 function logKey_(logSheet, keyLength, i, issue) {
-	var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
+	var linkKey = '=hyperlink("' + PropertiesService.getUserProperties().getProperty("bti.space") 
+		+ ".backlog.jp/" 
+		+ "view/" + issue.issueKey + '";"' + issue.issueKey + '")';
 	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
 		.setFontColor("blue").setFontLine("underline");
 
