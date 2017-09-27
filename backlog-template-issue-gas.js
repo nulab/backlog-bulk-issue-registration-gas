@@ -71,17 +71,9 @@ function build_query(param) {
 /**
  * プロジェクトキーを指定して、プロジェクトを取得します。
  *
- * @see http://www.backlog.jp/api/method1_2.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
  *
  */
-function getProject(projectKey) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getProject");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(projectKey);
-
-	return request.send().parseXML();
-}
 
 function getProjectV2(projectKey) {
 	var uri = getRequestUri_V2() + "projects/" + PropertiesService.getUserProperties().getProperty("bti.projectKey") +
@@ -93,17 +85,9 @@ function getProjectV2(projectKey) {
 /**
  * プロジェクトの参加メンバーを返します。
  *
- * @see http://www.backlog.jp/api/method2_2.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project-user-list/
  *
  */
-function getUsers(projectId) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getUsers");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(projectId);
-
-	return request.send().parseXML();
-}
 
 function getUsersV2(projectId) {
 	var uri = getRequestUri_V2() + "projects/" + projectId + "/users" + "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
@@ -114,17 +98,9 @@ function getUsersV2(projectId) {
 /**
  * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
  *
- * @see http://www.backlog.jp/api/method4_1.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/add-issue/
  *
  */
-function createIssue(issue) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.createIssue");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(issue);
-
-	return request.send().parseXML();
-}
 
 function createIssueV2(issue) {
 	
@@ -143,17 +119,9 @@ function createIssueV2(issue) {
 /**
  * 課題キーを指定して、課題を取得します。※親課題に*ではなく具体的な課題キーを指定した場合
  *
- * @see http://www.backlog.jp/api/method2_4.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue/
  *
  */
-function getIssue(params) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getIssue");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(params);
-
-	return request.send().parseXML();
-}
 
 function getIssueV2(issueId) {
 
@@ -202,16 +170,9 @@ function getVersionsV2(projectId) {
 	return JSON.parse(request.getContentText());
 }
 
-
-
-function getRequestUri_() {
-	return "https://" + PropertiesService.getUserProperties().getProperty("bti.space")
-			+ ".backlog.jp/XML-RPC";
-}
-
 function getRequestUri_V2() {
 	return "https://" + PropertiesService.getUserProperties().getProperty("bti.space")
-			+ ".backlog.jp/api/v2/";
+			+ ".backlog"+ PropertiesService.getUserProperties().getProperty("bti.domain") + "/api/v2/";
 }
 
 // ------------------------- 関数 -------------------------
@@ -244,7 +205,11 @@ function showInputDialog_() {
 
 	var lastSpace = PropertiesService.getUserProperties().getProperty("bti.space")
     		? PropertiesService.getUserProperties().getProperty("bti.space")
-    		: "";
+			: "";
+	var lastDomain = PropertiesService.getUserProperties().getProperty("bti.domain")
+    		? PropertiesService.getUserProperties().getProperty("bti.domain")
+			: ".com";
+	var anotherDomain = (lastDomain === ".com") ? ".jp" : ".com";
 	var lastUsername = PropertiesService.getUserProperties().getProperty("bti.apikey")
     		? PropertiesService.getUserProperties().getProperty("bti.apikey")
 			: "";
@@ -252,13 +217,13 @@ function showInputDialog_() {
     		? PropertiesService.getUserProperties().getProperty("bti.projectKey")
 			: "";
 
-	var grid = app.createGrid(3, 3);
+	var grid = app.createGrid(3, 4);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
 		lastSpace));
-	grid.setWidget(0, 2, app.createLabel('.backlog.jp'));
-	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
-		lastSpace));
+	grid.setWidget(0, 2, app.createLabel('.backlog'));
+	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
+	// grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(1, 0, app.createLabel('APIキー'));
 	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(
 		lastUsername));
@@ -305,12 +270,12 @@ function submit_(grid) {
 
 function inputParameters_(grid) {
 	if (grid.parameter.space == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("スペースID を入力してください",
+		SpreadsheetApp.getActiveSpreadsheet().toast("スペースURL を入力してください",
 			SCRIPT_NAME);
 		return false;
 	}
 	PropertiesService.getUserProperties().setProperty("bti.space", grid.parameter.space);
-
+	PropertiesService.getUserProperties().setProperty("bti.domain", grid.parameter.domain);
 	if (grid.parameter.apikey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("API Keyを入力してください",
 			SCRIPT_NAME);
