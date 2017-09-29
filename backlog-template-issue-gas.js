@@ -200,8 +200,8 @@ function createIssues() {
 function showInputDialog_() {
 	var app = UiApp.createApplication();
 	app.setTitle('Backlog 課題一括登録');
-	app.setWidth(270);
-	app.setHeight(200);
+	app.setWidth(360);
+	app.setHeight(160);
 
 	var lastSpace = PropertiesService.getUserProperties().getProperty("bti.space")
     		? PropertiesService.getUserProperties().getProperty("bti.space")
@@ -229,7 +229,7 @@ function showInputDialog_() {
 		lastUsername));
 //	grid.setWidget(2, 0, app.createLabel('パスワード'));
 //	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
-	grid.setWidget(2, 0, app.createLabel('プロジェクト'));
+	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
 	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(
 		lastProjectKey));
 
