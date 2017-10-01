@@ -28,17 +28,17 @@ var ADJUST_WIDTH_FACTOR = 0.75;
 var CONVERT_NAME = {
 	"件名" : "summary",
 	"詳細" : "description",
-	"開始日" : "start_date",
-	"期限日" : "due_date",
-	"予定時間" : "estimated_hours",
-	"実績時間" : "actual_hours",
-	"種別名" : "issueType",
-	"カテゴリ名" : "component",
-	"発生バージョン名" : "version",
-	"マイルストーン名" : "milestone",
+	"開始日" : "startDate",
+	"期限日" : "dueDate",
+	"予定時間" : "estimatedHours",
+	"実績時間" : "actualHours",
+	"種別名" : "issueTypeId",
+	"カテゴリ名" : "categoryId[]",
+	"発生バージョン名" : "versionId[]",
+	"マイルストーン名" : "milestoneId[]",
 	"優先度ID" : "priorityId",
-	"担当者ユーザ名" : "assignerId",
-	"親課題" : "parent_issue_id"
+	"担当者ユーザ名" : "assigneeId",
+	"親課題" : "parentIssueId"
 };
 
 // ------------------------- グローバルオブジェクト -------------------------
@@ -50,74 +50,129 @@ var parameter = {
 
 /** Backlogに登録されているデータ */
 var backlogRegistry = {
-	users : []
+	users : [],
+	issueTypes : [],
+	categories : [],
+	versions : []
 };
 
+
+// ------------------------- URLクエリ作成 ------------------------
+function build_query(param) {
+	var params = [];
+	for(var name in param){ 
+		params.push(name + "=" + encodeURIComponent(param[name]));
+	}
+	query = params.join("&");
+	return query;
+}
 // ------------------------- Backlog API -------------------------
 
 /**
  * プロジェクトキーを指定して、プロジェクトを取得します。
  *
- * @see http://www.backlog.jp/api/method1_2.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
  *
  */
-function getProject(projectKey) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getProject");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(projectKey);
 
-	return request.send().parseXML();
+function getProjectV2(projectKey) {
+	var uri = getRequestUri_V2() + "projects/" + PropertiesService.getUserProperties().getProperty("bti.projectKey") +
+	"?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
+	var request = UrlFetchApp.fetch(uri);
+	return JSON.parse(request.getContentText());
 }
 
 /**
  * プロジェクトの参加メンバーを返します。
  *
- * @see http://www.backlog.jp/api/method2_2.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project-user-list/
  *
  */
-function getUsers(projectId) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getUsers");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(projectId);
 
-	return request.send().parseXML();
+function getUsersV2(projectId) {
+	var uri = getRequestUri_V2() + "projects/" + projectId + "/users" + "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
+	var request = UrlFetchApp.fetch(uri);
+	return JSON.parse(request.getContentText());
 }
 
 /**
  * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
  *
- * @see http://www.backlog.jp/api/method4_1.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/add-issue/
  *
  */
-function createIssue(issue) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.createIssue");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(issue);
 
-	return request.send().parseXML();
+function createIssueV2(issue) {
+	
+	var query = "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey") + "&" + build_query(issue);
+
+	var uri = getRequestUri_V2() + "issues";
+	var param = {
+		"method" : "post"
+	};
+	Logger.log(uri+query);
+	var request = UrlFetchApp.fetch(uri + query, param);
+
+	return JSON.parse(request.getContentText());
 }
 
 /**
- * 課題キーを指定して、課題を取得します。
+ * 課題キーを指定して、課題を取得します。※親課題に*ではなく具体的な課題キーを指定した場合
  *
- * @see http://www.backlog.jp/api/method2_4.html
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue/
  *
  */
-function getIssue(params) {
-	var request = new XmlRpcRequest(getRequestUri_(), "backlog.getIssue");
-	request.setAuthentication(PropertiesService.getUserProperties().getProperty("bti.username"),
-			parameter.PASSWORD);
-	request.addParam(params);
 
-	return request.send().parseXML();
+function getIssueV2(issueId) {
+
+	var uri = getRequestUri_V2() + "issues/" + issueId
+	+ "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");	
+	var request = UrlFetchApp.fetch(uri);
+	return JSON.parse(request.getContentText());
 }
 
-function getRequestUri_() {
+/**
+ * プロジェクトの種別一覧を取得します。
+ *
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
+ *
+ */
+
+function getIssueTypesV2(projectId) {
+	var uri = getRequestUri_V2() + "projects/" + projectId + "/issueTypes" + "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
+	var request = UrlFetchApp.fetch(uri);
+	return JSON.parse(request.getContentText());
+}
+
+/**
+ * プロジェクトのカテゴリ一覧を取得します。
+ *
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
+ *
+ */
+
+function getCategoriesV2(projectId) {
+	var uri = getRequestUri_V2() + "projects/" + projectId + "/categories" + "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
+	var request = UrlFetchApp.fetch(uri);
+	return JSON.parse(request.getContentText());
+}
+
+/**
+ * プロジェクトのマイルストーン一覧を取得します。
+ *
+ * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
+ *
+ */
+
+function getVersionsV2(projectId) {
+	var uri = getRequestUri_V2() + "projects/" + projectId + "/versions" + "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
+	var request = UrlFetchApp.fetch(uri);
+	return JSON.parse(request.getContentText());
+}
+
+function getRequestUri_V2() {
 	return "https://" + PropertiesService.getUserProperties().getProperty("bti.space")
-			+ ".backlog.jp/XML-RPC";
+			+ ".backlog"+ PropertiesService.getUserProperties().getProperty("bti.domain") + "/api/v2/";
 }
 
 // ------------------------- 関数 -------------------------
@@ -145,30 +200,37 @@ function createIssues() {
 function showInputDialog_() {
 	var app = UiApp.createApplication();
 	app.setTitle('Backlog 課題一括登録');
-	app.setWidth(270);
-	app.setHeight(200);
+	app.setWidth(360);
+	app.setHeight(160);
 
 	var lastSpace = PropertiesService.getUserProperties().getProperty("bti.space")
     		? PropertiesService.getUserProperties().getProperty("bti.space")
-    		: "";
-	var lastUsername = PropertiesService.getUserProperties().getProperty("bti.username")
-    		? PropertiesService.getUserProperties().getProperty("bti.username")
+			: "";
+	var lastDomain = PropertiesService.getUserProperties().getProperty("bti.domain")
+    		? PropertiesService.getUserProperties().getProperty("bti.domain")
+			: ".com";
+	var anotherDomain = (lastDomain === ".com") ? ".jp" : ".com";
+	var lastUsername = PropertiesService.getUserProperties().getProperty("bti.apikey")
+    		? PropertiesService.getUserProperties().getProperty("bti.apikey")
 			: "";
 	var lastProjectKey = PropertiesService.getUserProperties().getProperty("bti.projectKey")
     		? PropertiesService.getUserProperties().getProperty("bti.projectKey")
 			: "";
 
-	var grid = app.createGrid(4, 2);
+	var grid = app.createGrid(3, 4);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
 		lastSpace));
-	grid.setWidget(1, 0, app.createLabel('ユーザID'));
-	grid.setWidget(1, 1, app.createTextBox().setName("username").setValue(
+	grid.setWidget(0, 2, app.createLabel('.backlog'));
+	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
+	// grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
+	grid.setWidget(1, 0, app.createLabel('APIキー'));
+	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(
 		lastUsername));
-	grid.setWidget(2, 0, app.createLabel('パスワード'));
-	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
-	grid.setWidget(3, 0, app.createLabel('プロジェクト'));
-	grid.setWidget(3, 1, app.createTextBox().setName("projectKey").setValue(
+//	grid.setWidget(2, 0, app.createLabel('パスワード'));
+//	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
+	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
+	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(
 		lastProjectKey));
 
 	var button = app.createButton('一括登録');
@@ -208,26 +270,27 @@ function submit_(grid) {
 
 function inputParameters_(grid) {
 	if (grid.parameter.space == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("スペースID を入力してください",
+		SpreadsheetApp.getActiveSpreadsheet().toast("スペースURL を入力してください",
 			SCRIPT_NAME);
 		return false;
 	}
 	PropertiesService.getUserProperties().setProperty("bti.space", grid.parameter.space);
-
-	if (grid.parameter.username == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("ユーザID を入力してください",
+	PropertiesService.getUserProperties().setProperty("bti.domain", grid.parameter.domain);
+	if (grid.parameter.apikey == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("API Keyを入力してください",
 			SCRIPT_NAME);
 		return false;
 	}
-	PropertiesService.getUserProperties().setProperty("bti.username", grid.parameter.username);
+ 	PropertiesService.getUserProperties().setProperty("bti.apikey", grid.parameter.apikey);
+	// 	PropertiesService.getUserProperties().setProperty("bti.username", grid.parameter.username);
 
 	// パスワードはUserPropertiesには格納しない
-	if (grid.parameter.password == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("パスワード を入力してください",
-			SCRIPT_NAME);
-		return false;
-	}
-	parameter.PASSWORD = grid.parameter.password;
+	// if (grid.parameter.password == "") {
+	//	SpreadsheetApp.getActiveSpreadsheet().toast("パスワード を入力してください",
+	//		SCRIPT_NAME);
+	//	return false;
+	//}
+	//parameter.PASSWORD = grid.parameter.password;
 
 	if (grid.parameter.projectKey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
@@ -244,7 +307,7 @@ function checkParameters_() {
 	var project;
 
 	try {
-		project = getProject(PropertiesService.getUserProperties().getProperty("bti.projectKey"));
+		project = getProjectV2(PropertiesService.getUserProperties().getProperty("bti.projectKey"));
 	} catch (e) {
 		throw "ログインに失敗しました";
 	}
@@ -257,9 +320,12 @@ function checkParameters_() {
 function getTemplateIssues_() {
 	var issues = [];
 
-	var project = getProject(PropertiesService.getUserProperties().getProperty("bti.projectKey"));
+	var project = getProjectV2(PropertiesService.getUserProperties().getProperty("bti.projectKey"));
 
-	backlogRegistry.users = getUsers(project.id);
+	backlogRegistry.users = getUsersV2(project.id);
+	backlogRegistry.issueTypes = getIssueTypesV2(project.id);	
+	backlogRegistry.categories = getCategoriesV2(project.id);
+	backlogRegistry.versions = getVersionsV2(project.id);
 
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
@@ -284,50 +350,87 @@ function getTemplateIssues_() {
 
 function convertValue_(i, name, value) {
 	if (value.constructor == Date) {
-		return Utilities.formatDate(value, "JST", "yyyyMMdd");
-
-	} else if (CONVERT_NAME[name] == "assignerId") {
-		var user = getRegisteredUser_(value);
-		if (user == null) {
-			SpreadsheetApp.getActiveSpreadsheet().toast(
-					"ユーザ '" + value + "' は登録されていません", SCRIPT_NAME);
-			return 0;
-		}
-		return user.id;
-
-	} else if (CONVERT_NAME[name] == "parent_issue_id") {
-		if (value === "*") {
-			if (i == 0) {
-				SpreadsheetApp.getActiveSpreadsheet().toast(
-					"1行目の親課題に '*' は使用できません", SCRIPT_NAME);
-				return "";
-			} else {
-				return value;
-			}
-		} else {
-			if (value.indexOf(PropertiesService.getUserProperties().getProperty("bti.projectKey")) != 0) {
-				SpreadsheetApp.getActiveSpreadsheet().toast(
-						"課題 '" + value + "' はプロジェクト '" + PropertiesService.getUserProperties().getProperty("bti.projectKey") + "' と異なっています", SCRIPT_NAME);
-				return "";
-			}
-			var issue = getIssue(value);
-			if (issue == null || !issue['id']) {
-				SpreadsheetApp.getActiveSpreadsheet().toast(
-						"課題 '" + value + "' は存在しません", SCRIPT_NAME);
-				return "";
-			}
-			if (issue['parent_issue_id']) {
-				SpreadsheetApp.getActiveSpreadsheet().toast(
-						"課題 '" + value + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
-				return "";
-			}
-
-			return issue["id"];
-		}
+		return Utilities.formatDate(value, "JST", "yyyy-MM-dd");
 
 	} else {
-		return value;
+		switch (CONVERT_NAME[name]) {
+			case "assigneeId":
+				var user = getRegisteredUser_(value);
+				if (user == null) {
+					SpreadsheetApp.getActiveSpreadsheet().toast(
+						"ユーザ '" + value + "' は登録されていません", SCRIPT_NAME);
+					return 0;
+				}
+				return user.id;
+				break;
+			case "parentIssueId":
+				if (value === "*") {
+					if (i == 0) {
+						SpreadsheetApp.getActiveSpreadsheet().toast(
+							"1行目の親課題に '*' は使用できません", SCRIPT_NAME);
+						return "";
+					} else {
+						return value;
+					}
+				} else {
+					if (value.indexOf(PropertiesService.getUserProperties().getProperty("bti.projectKey")) != 0) {
+						SpreadsheetApp.getActiveSpreadsheet().toast(
+							"課題 '" + value + "' はプロジェクト '" + PropertiesService.getUserProperties().getProperty("bti.projectKey") + "' と異なっています", SCRIPT_NAME);
+						return "";
+					}
+					var issue = getIssueV2(value);
+					if (issue == null || !issue['id']) {
+						SpreadsheetApp.getActiveSpreadsheet().toast(
+								"課題 '" + value + "' は存在しません", SCRIPT_NAME);
+						return "";
+					}
+					if (issue['parentIssueId']) {
+						SpreadsheetApp.getActiveSpreadsheet().toast(
+							"課題 '" + value + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+						return "";
+					}
+					return issue["id"];
+				}
+				break;
+			case "issueTypeId":
+				var issueType = getRegisteredIssueType_(value);
+				if (issueType == null) {
+					SpreadsheetApp.getActiveSpreadsheet().toast(
+						" 種別名'" + value + "' は登録されていません", SCRIPT_NAME);
+					return 0;
+				}
+				return issueType.id;
+				break;
+			case "categoryId[]":
+				var category = getRegisteredCategory_(value);
+				if (category == null) {
+					SpreadsheetApp.getActiveSpreadsheet().toast(
+						" カテゴリ名'" + value + "' は登録されていません", SCRIPT_NAME);
+					return 0;
+				}
+				return category.id;
+				break;				
+			case "versionId[]":
+				var version = getRegisteredVersion_(value);
+				if (version == null) {
+					SpreadsheetApp.getActiveSpreadsheet().toast(
+						" 発生バージョン名'" + value + "' は登録されていません", SCRIPT_NAME);
+					return 0;
+				}
+				return version.id;
+				break;					
+			case "milestoneId[]":
+				var milestone = getRegisteredVersion_(value);
+				if (milestone == null) {
+					SpreadsheetApp.getActiveSpreadsheet().toast(
+						" マイルストーン名'" + value + "' は登録されていません", SCRIPT_NAME);
+					return 0;
+				}
+				return milestone.id;
+				break;	
+		}			
 	}
+	return value;			
 }
 
 function getRegisteredUser_(userName) {
@@ -339,6 +442,31 @@ function getRegisteredUser_(userName) {
 	return null;
 }
 
+function getRegisteredIssueType_(issueTypeName) {
+	for ( var i = 0; i < backlogRegistry.issueTypes.length; i++) {
+		if (backlogRegistry.issueTypes[i].name == issueTypeName)
+			return backlogRegistry.issueTypes[i];
+	}
+
+	return null;
+}
+
+function getRegisteredCategory_(categoryName) {
+	for ( var i = 0; i < backlogRegistry.categories.length; i++) {
+		if (backlogRegistry.categories[i].name == categoryName)
+			return backlogRegistry.categories[i];
+	}
+	return null;
+}
+
+function getRegisteredVersion_(versionName) {
+	for ( var i = 0; i < backlogRegistry.versions.length; i++) {
+		if (backlogRegistry.versions[i].name == versionName)
+			return backlogRegistry.versions[i];
+	}
+	return null;
+}
+
 function createIssuesAndLog_(newIssues, logSheet) {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
@@ -346,19 +474,18 @@ function createIssuesAndLog_(newIssues, logSheet) {
 	var previousIssue = null;
 	for ( var i = 0; i < newIssues.length; i++) {
 		var isTakenOverParentIssueId = false;
-		if (newIssues[i]['parent_issue_id'] === "*") {
-			if (previousIssue && previousIssue['parent_issue_id']) {
+		if (newIssues[i]['parentIssueId'] === "*") {
+			if (previousIssue && previousIssue['parentIssueId']) {
 				SpreadsheetApp.getActiveSpreadsheet().toast(
-						"課題 '" + previousIssue.key + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
-				newIssues[i]['parent_issue_id'] = "";
+						"課題 '" + previousIssue.issueKey + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+				newIssues[i]['parentIssueId'] = "";
 			} else {
-				newIssues[i]['parent_issue_id'] = previousIssue.id;
+				newIssues[i]['parentIssueId'] = previousIssue.id;
 				isTakenOverParentIssueId = true;
 			}
 		}
-		var issue = createIssue(newIssues[i]);
-
-		keyLength = Math.max(keyLength, getLength_(issue.key));
+		var issue = createIssueV2(newIssues[i]);
+		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
 		logKey_(logSheet, keyLength, i, issue);
 
 		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
@@ -381,7 +508,9 @@ function createLogSheet_() {
 }
 
 function logKey_(logSheet, keyLength, i, issue) {
-	var linkKey = '=hyperlink("' + issue.url + '";"' + issue.key + '")';
+	var linkKey = '=hyperlink("' + PropertiesService.getUserProperties().getProperty("bti.space") 
+		+ ".backlog.jp/" 
+		+ "view/" + issue.issueKey + '";"' + issue.issueKey + '")';
 	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
 		.setFontColor("blue").setFontLine("underline");
 
