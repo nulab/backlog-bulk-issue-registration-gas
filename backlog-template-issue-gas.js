@@ -41,6 +41,9 @@ var CONVERT_NAME = {
 	"親課題" : "parentIssueId"
 };
 
+/** 優先度IDのデフォルト値 */
+var DEFAULT_PRIORITYID = "3";
+
 // ------------------------- グローバルオブジェクト -------------------------
 
 /** 入力パラメータ */
@@ -103,7 +106,10 @@ function getUsersV2(projectId) {
  */
 
 function createIssueV2(issue) {
-	
+	if (issue["prorityId"] == undefined) {
+		issue["priorityId"] = DEFAULT_PRIORITYID;
+	}
+
 	var query = "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey") + "&" + build_query(issue);
 
 	var uri = getRequestUri_V2() + "issues";
