@@ -26,13 +26,13 @@ var ADJUST_WIDTH_FACTOR = 0.75;
 
 /** ヘッダ行の項目名 */
 var CONVERT_NAME = {
-	"件名" : "summary",
+	"件名（必須）" : "summary",
 	"詳細" : "description",
 	"開始日" : "startDate",
 	"期限日" : "dueDate",
 	"予定時間" : "estimatedHours",
 	"実績時間" : "actualHours",
-	"種別名" : "issueTypeId",
+	"種別名（必須）" : "issueTypeId",
 	"カテゴリ名" : "categoryId[]",
 	"発生バージョン名" : "versionId[]",
 	"マイルストーン名" : "milestoneId[]",
@@ -40,6 +40,7 @@ var CONVERT_NAME = {
 	"担当者ユーザ名" : "assigneeId",
 	"親課題" : "parentIssueId"
 };
+
 
 /** 優先度IDのデフォルト値 */
 var DEFAULT_PRIORITYID = "3";
