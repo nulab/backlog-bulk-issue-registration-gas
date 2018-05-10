@@ -1,5 +1,13 @@
+import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse;
+import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions;
+
 export class BacklogAPI {
-  constructor(uri: String, apiKey: String) {}
+  private uri: string;
+  private apiKey: string;
+  constructor(spaceName: string, domain: string, apiKey: string) {
+    this.uri = 'https://' + spaceName + '.backlog' + domain + '/api/v2/';
+    this.apiKey = apiKey;
+  }
 
   /**
    * プロジェクトキーを指定して、プロジェクトを取得します。
@@ -8,110 +16,93 @@ export class BacklogAPI {
    *
    */
   public getProjectV2(projectKey) {
-    var uri = uri + 'projects/' + projectKey;
-    var response = httpGet(uri, apiKey);
+    return this.get('projects/' + projectKey);
+  }
 
+  /**
+   * プロジェクトの参加メンバーを返します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project-user-list/
+   *
+   */
+  public getUsersV2(apiKey, projectId) {
+    return this.get('projects/' + projectId + '/users');
+  }
+
+  /**
+   * 課題キーを指定して、課題を取得します。※親課題に*ではなく具体的な課題キーを指定した場合
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue/
+   *
+   */
+  public getIssueV2(apiKey, issueId) {
+    return this.get('issues/' + issueId);
+  }
+
+  /**
+   * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/add-issue/
+   *
+   */
+  public createIssueV2(apiKey, issue) {
+    // TODO
+    // if (issue["prorityId"] == undefined) {
+    //   issue["priorityId"] = DEFAULT_PRIORITYID;
+    // }
+    return this.post('issues', issue);
+  }
+
+  /**
+   * プロジェクトの種別一覧を取得します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
+   *
+   */
+  public getIssueTypesV2(projectId) {
+    return this.get('projects/' + projectId + '/issueTypes');
+  }
+
+  /**
+   * プロジェクトのカテゴリ一覧を取得します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
+   *
+   */
+  public getCategoriesV2(projectId) {
+    return this.get('projects/' + projectId + '/categories');
+  }
+
+  /**
+   * プロジェクトのマイルストーン一覧を取得します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
+   *
+   */
+  public getVersionsV2(projectId) {
+    return this.get('projects/' + projectId + '/versions');
+  }
+
+  private get(resource: string): any {
+    let httpResponse = this.doRequest(resource);
+    return this.parseResponse(httpResponse);
+  }
+
+  private post(resource: string, data: any): any {
+    let options: URLFetchRequestOptions = {
+      method: 'post',
+      payload: data
+    };
+    let httpResponse = this.doRequest(resource, options);
+
+    return this.parseResponse(httpResponse);
+  }
+
+  private doRequest(resource: string, options?: URLFetchRequestOptions): HTTPResponse {
+    return UrlFetchApp.fetch(this.uri + resource + '?apiKey=' + this.apiKey, options);
+  }
+
+  private parseResponse(response: HTTPResponse): any {
     return JSON.parse(response.getContentText());
   }
-
-  private static doRequest(resource: String, param: HttpParam): String {
-    return UrlFetchApp.fetch(url, param);
-  }
-}
-
-class HttpParam {
-
-}
-
-
-/**
-* プロジェクトの参加メンバーを返します。
-*
-* @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project-user-list/
-*
-*/
-
-function getUsersV2(apiKey, projectId) {
-  var uri = getRequestUri_V2() + "projects/" + projectId + "/users";
-  var response = httpGet(uri, apiKey);
-
-  return JSON.parse(response.getContentText());
-}
-
-/**
-* 課題を追加します。追加に成功した場合は、追加された課題が返ります。
-*
-* @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/add-issue/
-*
-*/
-
-function createIssueV2(apiKey, issue) {
-  if (issue["prorityId"] == undefined) {
-    issue["priorityId"] = DEFAULT_PRIORITYID;
-  }
-
-  var uri = getRequestUri_V2() + "issues";  
-  var response = httpPost(uri, apiKey, issue);
-
-  return JSON.parse(response.getContentText());
-}
-
-/**
-* 課題キーを指定して、課題を取得します。※親課題に*ではなく具体的な課題キーを指定した場合
-*
-* @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue/
-*
-*/
-
-function getIssueV2(apiKey, issueId) {
-  var uri = getRequestUri_V2() + "issues/" + issueId;
-  var response = httpGet(uri, apiKey);
-
-  return JSON.parse(response.getContentText());
-}
-
-/**
-* プロジェクトの種別一覧を取得します。
-*
-* @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
-*
-*/
-
-function getIssueTypesV2(apiKey, projectId) {
-  var uri = getRequestUri_V2() + "projects/" + projectId + "/issueTypes";
-  var response = httpGet(uri, apiKey);
-
-  return JSON.parse(response.getContentText()); 
-}
-
-/**
-* プロジェクトのカテゴリ一覧を取得します。
-*
-* @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
-*
-*/
-
-function getCategoriesV2(apiKey, projectId) {
-  var uri = getRequestUri_V2() + "projects/" + projectId + "/categories";
-  var response = httpGet(uri, apiKey);
-
-  return JSON.parse(response.getContentText());
-}
-
-/**
-* プロジェクトのマイルストーン一覧を取得します。
-*
-* @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
-*
-*/
-
-function getVersionsV2(apiKey, projectId) {
-  var uri = getRequestUri_V2() + "projects/" + projectId + "/versions";
-  var response = httpGet(uri, apiKey);
-
-  return JSON.parse(response.getContentText());
-}
-
-function getRequestUri_V2() {
-  return "https://" + getUserProperty("space") + ".backlog"+ getUserProperty("domain") + "/api/v2/";
 }
