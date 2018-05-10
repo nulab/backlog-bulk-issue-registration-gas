@@ -1,16 +1,28 @@
-/**
- * プロジェクトキーを指定して、プロジェクトを取得します。
- *
- * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
- *
- */
+export class BacklogAPI {
+  constructor(uri: String, apiKey: String) {}
 
-function getProjectV2(apiKey, projectKey) {
-  var uri = getRequestUri_V2() + "projects/" + projectKey;
-  var response = httpGet(uri, apiKey);
+  /**
+   * プロジェクトキーを指定して、プロジェクトを取得します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
+   *
+   */
+  public getProjectV2(projectKey) {
+    var uri = uri + 'projects/' + projectKey;
+    var response = httpGet(uri, apiKey);
 
-  return JSON.parse(response.getContentText());
+    return JSON.parse(response.getContentText());
+  }
+
+  private static doRequest(resource: String, param: HttpParam): String {
+    return UrlFetchApp.fetch(url, param);
+  }
 }
+
+class HttpParam {
+
+}
+
 
 /**
 * プロジェクトの参加メンバーを返します。
