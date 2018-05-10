@@ -63,7 +63,7 @@ function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var menuEntries = [ {
 		name : SCRIPT_NAME,
-		functionName : "createIssues"
+		functionName : "main"
 	} ];
 
 	spreadSheet.addMenu("Backlog", menuEntries);
@@ -72,14 +72,7 @@ function onOpen() {
 /**
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
-function createIssues() {
-	showInputDialog_();
-}
-
-/**
- * パラメータ入力ダイアログを表示します
- */
-function showInputDialog_() {
+function main() {
 	var app = UiApp.createApplication();
 	app.setTitle('Backlog 課題一括登録');
 	app.setWidth(360);
@@ -146,22 +139,21 @@ function inputParameters_(grid) {
 			SCRIPT_NAME);
 		return false;
 	}
-	PropertiesService.getUserProperties().setProperty("bti.space", grid.parameter.space);
-	PropertiesService.getUserProperties().setProperty("bti.domain", grid.parameter.domain);
+	setUserProperty("space", grid.parameter.space);
+	setUserProperty("domain", grid.parameter.domain);
 	if (grid.parameter.apikey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("API Keyを入力してください",
 			SCRIPT_NAME);
 		return false;
 	}
- 	PropertiesService.getUserProperties().setProperty("bti.apikey", grid.parameter.apikey);
+ 	setUserProperty("apikey", grid.parameter.apikey);
 
 	if (grid.parameter.projectKey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
 			SCRIPT_NAME);
 		return false;
 	}
-	PropertiesService.getUserProperties().setProperty("bti.projectKey", grid.parameter.projectKey
-			.toUpperCase());
+	setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
 
 	return true;
 }
@@ -404,4 +396,24 @@ function getLength_(text) {
 	}
 
 	return count;
+}
+
+/**
+ * ユーザープロパティをキーで取得します
+ *
+ * @param {string} key 取得したいプロパティキー名
+ * @return {string} value 対応する値 
+ */
+function getUserProperty(key) {
+  return PropertiesService.getUserProperties().getProperty("bti." + key);
+}
+
+/**
+ * ユーザープロパティをキーで設定します
+ *
+ * @param {string} key 設定したいプロパティキー名
+ * @return {string} value 対応する値 
+ */
+function setUserProperty(key, value) {
+  PropertiesService.getUserProperties().setProperty("bti." + key, value);
 }
