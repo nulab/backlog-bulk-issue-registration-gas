@@ -114,11 +114,10 @@ function main() {
 function submit_(grid) {
 	var app = UiApp.getActiveApplication();
 
-	if (inputParameters_(grid) == false) {
-		return;
-	}
+	if (validateParameters_(grid) == false) return;
 
 	try {
+		setParametersAsProperty_(grid);
 		checkParameters_();
 	} catch (e) {
 		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
@@ -133,29 +132,27 @@ function submit_(grid) {
 	return app.close();
 }
 
-function inputParameters_(grid) {
+function validateParameters_(grid) {
 	if (grid.parameter.space == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("スペースURL を入力してください",
-			SCRIPT_NAME);
+		SpreadsheetApp.getActiveSpreadsheet().toast("スペースURL を入力してください", SCRIPT_NAME);
 		return false;
 	}
+	if (grid.parameter.apikey == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("API Keyを入力してください", SCRIPT_NAME);
+		return false;
+	}
+	if (grid.parameter.projectKey == "") {
+		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください", SCRIPT_NAME);
+		return false;
+	}
+	return true;
+}
+
+function setParametersAsProperty_(grid) {
 	setUserProperty("space", grid.parameter.space);
 	setUserProperty("domain", grid.parameter.domain);
-	if (grid.parameter.apikey == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("API Keyを入力してください",
-			SCRIPT_NAME);
-		return false;
-	}
- 	setUserProperty("apikey", grid.parameter.apikey);
-
-	if (grid.parameter.projectKey == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
-			SCRIPT_NAME);
-		return false;
-	}
-	setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
-
-	return true;
+	setUserProperty("apikey", grid.parameter.apikey);
+    setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
 }
 
 function checkParameters_() {
@@ -405,7 +402,7 @@ function getLength_(text) {
  * @return {string} value 対応する値 
  */
 function getUserProperty(key) {
-  return PropertiesService.getUserProperties().getProperty("bti." + key);
+    return PropertiesService.getUserProperties().getProperty("bti." + key);
 }
 
 /**
@@ -415,5 +412,5 @@ function getUserProperty(key) {
  * @return {string} value 対応する値 
  */
 function setUserProperty(key, value) {
-  PropertiesService.getUserProperties().setProperty("bti." + key, value);
+     PropertiesService.getUserProperties().setProperty("bti." + key, value);
 }
