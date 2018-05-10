@@ -46,11 +46,6 @@ var DEFAULT_PRIORITYID = "3";
 
 // ------------------------- グローバルオブジェクト -------------------------
 
-/** 入力パラメータ */
-var parameter = {
-	PASSWORD : ""
-};
-
 /** Backlogに登録されているデータ */
 var backlogRegistry = {
 	users : [],
@@ -106,8 +101,6 @@ function showInputDialog_() {
 	grid.setWidget(1, 0, app.createLabel('APIキー'));
 	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(
 		lastUsername));
-//	grid.setWidget(2, 0, app.createLabel('パスワード'));
-//	grid.setWidget(2, 1, app.createPasswordTextBox().setName("password"));
 	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
 	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(
 		lastProjectKey));
@@ -161,15 +154,6 @@ function inputParameters_(grid) {
 		return false;
 	}
  	PropertiesService.getUserProperties().setProperty("bti.apikey", grid.parameter.apikey);
-	// 	PropertiesService.getUserProperties().setProperty("bti.username", grid.parameter.username);
-
-	// パスワードはUserPropertiesには格納しない
-	// if (grid.parameter.password == "") {
-	//	SpreadsheetApp.getActiveSpreadsheet().toast("パスワード を入力してください",
-	//		SCRIPT_NAME);
-	//	return false;
-	//}
-	//parameter.PASSWORD = grid.parameter.password;
 
 	if (grid.parameter.projectKey == "") {
 		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください",
