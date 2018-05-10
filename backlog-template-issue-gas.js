@@ -60,16 +60,6 @@ var backlogRegistry = {
 	versions : []
 };
 
-
-// ------------------------- URLクエリ作成 ------------------------
-function build_query(param) {
-	var params = [];
-	for(var name in param){ 
-		params.push(name + "=" + encodeURIComponent(param[name]));
-	}
-	query = params.join("&");
-	return query;
-}
 // ------------------------- Backlog API -------------------------
 
 /**
@@ -111,14 +101,13 @@ function createIssueV2(issue) {
 		issue["priorityId"] = DEFAULT_PRIORITYID;
 	}
 
-	var query = "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey") + "&" + build_query(issue);
-
-	var uri = getRequestUri_V2() + "issues";
+	var uri = getRequestUri_V2() + "issues" + "?apiKey=" + PropertiesService.getUserProperties().getProperty("bti.apikey");
 	var param = {
-		"method" : "post"
+		"method" : "post",
+        "payload" : issue
 	};
-	Logger.log(uri+query);
-	var request = UrlFetchApp.fetch(uri + query, param);
+	Logger.log(uri);
+	var request = UrlFetchApp.fetch(uri, param);
 
 	return JSON.parse(request.getContentText());
 }
