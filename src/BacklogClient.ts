@@ -1,7 +1,7 @@
 import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse;
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions;
 
-export class BacklogAPI {
+export class BacklogClient {
   private uri: string;
   private apiKey: string;
   constructor(spaceName: string, domain: string, apiKey: string) {

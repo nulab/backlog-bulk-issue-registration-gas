@@ -117,7 +117,13 @@ function submit_(grid) {
 	if (validateParameters_(grid) == false) return;
 
 	try {
-		setParametersAsProperty_(grid);
+		var space = grid.parameter.space;
+		var domain = grid.parameter.domain;
+		var apiKey = grid.parameter.apikey;
+		var projectKey = grid.parameter.projectKey.toUpperCase();
+		var backlogClient = createBacklogClient(space, domain, apiKey);
+
+		setParametersAsProperty_(grid); // TODO: Remove later
 		checkParameters_();
 	} catch (e) {
 		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
