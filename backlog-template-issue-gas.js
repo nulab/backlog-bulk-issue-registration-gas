@@ -127,7 +127,11 @@ function submit_(grid) {
 	}
 
 	var logSheet = createLogSheet_();
-	createIssuesAndLog_(apiKey, getTemplateIssues_(), logSheet);
+	var backlogData = getBacklogData(backlogClient, projectKey);
+	var templateIssues = getTemplateIssues_(apiKey, backlogData.project);
+
+	backlogRegistry = backlogData; // TODO: Remove later
+	createIssuesAndLog_(apiKey, templateIssues, logSheet);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
@@ -139,17 +143,9 @@ function setParametersAsProperty_(grid) {
     setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
 }
 
-function getTemplateIssues_() {
+function getTemplateIssues_(apiKey, project) {
 	var issues = [];
-    var apiKey = getUserProperty("apikey");
-	var project = getProjectV2(apiKey, getUserProperty("projectKey"));
-    
-	backlogRegistry.users = getUsersV2(apiKey, project.id);
-	backlogRegistry.issueTypes = getIssueTypesV2(apiKey, project.id);	
-	backlogRegistry.categories = getCategoriesV2(apiKey, project.id);
-	backlogRegistry.versions = getVersionsV2(apiKey, project.id);
-
-	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+    var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
 	var values = sheet.getSheetValues(ROW_START_INDEX, COLUMN_START_INDEX,
 			sheet.getLastRow() - 1, sheet.getLastColumn());
