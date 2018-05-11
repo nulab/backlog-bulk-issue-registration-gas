@@ -116,12 +116,13 @@ function submit_(grid) {
 	var projectKey = grid.parameter.projectKey.toUpperCase();
 	var backlogClient = createBacklogClient(space, domain, apiKey);
 
-	if (validateParameters_(grid) == false) return;
+	var validateParamsResult = validateParameters(space, apiKey, projectKey);
+	if (!validateParamsResult.success) return;
 	setParametersAsProperty_(grid); // TODO: Remove later
 
-	var validationResult = validateApiAccess(backlogClient, projectKey);
-	if (!validationResult.success) {
-		showMessage_(validationResult.message);
+	var validateApiResult = validateApiAccess(backlogClient, projectKey);
+	if (!validateApiResult.success) {
+		showMessage_(validateApiResult.message);
 		return app.close();
 	}
 
@@ -129,22 +130,6 @@ function submit_(grid) {
 	createIssuesAndLog_(apiKey, getTemplateIssues_(), logSheet);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
-}
-
-function validateParameters_(grid) {
-	if (grid.parameter.space == "") {
-		showMessage_("スペースURL を入力してください");
-		return false;
-	}
-	if (grid.parameter.apikey == "") {
-		showMessage_("API Keyを入力してください");
-		return false;
-	}
-	if (grid.parameter.projectKey == "") {
-		showMessage_("プロジェクト を入力してください");
-		return false;
-	}
-	return true;
 }
 
 function setParametersAsProperty_(grid) {
