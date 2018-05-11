@@ -85,8 +85,11 @@ export class BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
    *
    */
-  public getVersionsV2(projectId) {
-    return this.get('projects/' + projectId + '/versions');
+  public getVersionsV2(projectId): Version[] {
+    let json = this.get('projects/' + projectId + '/versions');
+    return Object.keys(json).map(function(key) {
+      return new Version(this['id'], this['name']);
+    }, json);
   }
 
   private get(resource: string): any {

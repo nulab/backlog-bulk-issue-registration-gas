@@ -213,7 +213,7 @@ function convertValue_(backlogData, i, name, value) {
 				return category.id;
 				break;				
 			case "versionId[]":
-				var version = getRegisteredVersion_(backlogData, value);
+				var version = backlogData.findVersionByName(value);
 				if (version == null) {
 					showMessage_(" 発生バージョン名'" + value + "' は登録されていません");
 					return 0;
@@ -221,7 +221,7 @@ function convertValue_(backlogData, i, name, value) {
 				return version.id;
 				break;					
 			case "milestoneId[]":
-				var milestone = getRegisteredVersion_(backlogData, value);
+				var milestone = backlogData.findVersionByName(value);
 				if (milestone == null) {
 					showMessage_(" マイルストーン名'" + value + "' は登録されていません");
 					return 0;
@@ -239,14 +239,6 @@ function getRegisteredIssueType_(backlogData, issueTypeName) {
 			return backlogData.issueTypes[i];
 	}
 
-	return null;
-}
-
-function getRegisteredVersion_(backlogData, versionName) {
-	for ( var i = 0; i < backlogData.versions.length; i++) {
-		if (backlogData.versions[i].name == versionName)
-			return backlogData.versions[i];
-	}
 	return null;
 }
 
