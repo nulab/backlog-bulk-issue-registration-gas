@@ -6,8 +6,7 @@
   "scripts": {
     "lint": "tslint --fix src/**/*.ts",
     "test": "jest",
-    "build": "npm run lint && npm run test && rimraf dist && webpack && cpx src/appsscript.json dist",
-    "deploy": "npm run build && clasp push"
+    "build": "npm run lint && npm run test && webpack"
   },
   "repository": {
     "type": "git",
@@ -22,11 +21,9 @@
   "devDependencies": {
     "@types/google-apps-script": "0.0.22",
     "@types/jest": "^22.2.3",
-    "cpx": "^1.5.0",
     "gas-webpack-plugin": "^0.2.1",
     "jest": "^22.4.3",
     "prettier": "^1.12.1",
-    "rimraf": "^2.6.2",
     "ts-jest": "^22.4.3",
     "ts-loader": "^4.2.0",
     "tslint": "^5.9.1",
