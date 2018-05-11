@@ -15,7 +15,7 @@ export class BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
    *
    */
-  public getProjectV2(projectKey) {
+  public getProjectV2(projectKey: string): any {
     return this.get('projects/' + projectKey);
   }
 
@@ -99,7 +99,9 @@ export class BacklogClient {
   }
 
   private doRequest(resource: string, options?: URLFetchRequestOptions): HTTPResponse {
-    return UrlFetchApp.fetch(this.uri + resource + '?apiKey=' + this.apiKey, options);
+    let requestUri = this.uri + resource + '?apiKey=' + this.apiKey;
+    if (options == null) return UrlFetchApp.fetch(requestUri);
+    else return UrlFetchApp.fetch(requestUri, options);
   }
 
   private parseResponse(response: HTTPResponse): any {
