@@ -162,7 +162,7 @@ function convertValue_(backlogData, i, name, value) {
 	} else {
 		switch (CONVERT_NAME[name]) {
 			case "assigneeId":
-				var user = getRegisteredUser_(backlogData, value);
+				var user = backlogData.findUserByName(value);
 				if (user == null) {
 					showMessage_("ユーザ '" + value + "' は登録されていません");
 					return 0;
@@ -231,15 +231,6 @@ function convertValue_(backlogData, i, name, value) {
 		}			
 	}
 	return value;			
-}
-
-function getRegisteredUser_(backlogData, userName) {
-	for ( var i = 0; i < backlogData.users.length; i++) {
-		if (backlogData.users[i].name == userName)
-			return backlogData.users[i];
-	}
-
-	return null;
 }
 
 function getRegisteredIssueType_(backlogData, issueTypeName) {

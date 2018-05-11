@@ -25,8 +25,11 @@ export class BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project-user-list/
    *
    */
-  public getUsersV2(projectId) {
-    return this.get('projects/' + projectId + '/users');
+  public getUsersV2(projectId): User[] {
+    let json = this.get('projects/' + projectId + '/users');
+    return Object.keys(json).map(function(key) {
+      return new User(this['id'], this['name']);
+    }, json);
   }
 
   /**
