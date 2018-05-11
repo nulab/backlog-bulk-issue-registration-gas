@@ -1,5 +1,6 @@
 import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse;
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions;
+import { User, IssueType, Category, Version, Project } from './datas';
 
 export class BacklogClient {
   private uri: string;
@@ -15,8 +16,9 @@ export class BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
    *
    */
-  public getProjectV2(projectKey: string): any {
-    return this.get('projects/' + projectKey);
+  public getProjectV2(projectKey: string): Project {
+    let json = this.get('projects/' + projectKey);
+    return new Project(json['id'], json['projectKey']);
   }
 
   /**
@@ -62,8 +64,11 @@ export class BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
    *
    */
-  public getIssueTypesV2(projectId) {
-    return this.get('projects/' + projectId + '/issueTypes');
+  public getIssueTypesV2(projectId): IssueType[] {
+    let json = this.get('projects/' + projectId + '/issueTypes');
+    return Object.keys(json).map(function(key) {
+      return new IssueType(this['id'], this['name']);
+    }, json);
   }
 
   /**

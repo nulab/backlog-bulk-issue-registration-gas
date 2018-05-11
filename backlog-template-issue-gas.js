@@ -146,100 +146,13 @@ function getTemplateIssues_(apiKey, backlogData) {
 		for ( var j = 0; j < values[0].length; j++) {
 			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[CONVERT_NAME[name]] = convertValue_(backlogData, i, name, values[i][j]);
+				issue[CONVERT_NAME[name]] = convertValue(backlogData, CONVERT_NAME, i, name, values[i][j]);
 			}
 		}
 		issues[i] = issue;
 	}
 
 	return issues;
-}
-
-function convertValue_(backlogData, i, name, value) {
-	if (value.constructor == Date) {
-		return Utilities.formatDate(value, "JST", "yyyy-MM-dd");
-
-	} else {
-		switch (CONVERT_NAME[name]) {
-			case "assigneeId":
-				var user = backlogData.findUserByName(value);
-				if (user == null) {
-					showMessage_("ユーザ '" + value + "' は登録されていません");
-					return 0;
-				}
-				return user.id;
-				break;
-			case "parentIssueId":
-				if (value === "*") {
-					if (i == 0) {
-						showMessage_("1行目の親課題に '*' は使用できません");
-						return "";
-					} else {
-						return value;
-					}
-				} else {
-                    var projectKey = getProperty("bti.projectKey");
-                  
-					if (value.indexOf(projectKey) != 0) {
-						showMessage_("課題 '" + value + "' はプロジェクト '" + projectKey + "' と異なっています");
-						return "";
-					}
-					var issue = getIssueV2(getUserProperty("apiKey"), value);
-					if (issue == null || !issue['id']) {
-						showMessage_("課題 '" + value + "' は存在しません");
-						return "";
-					}
-					if (issue['parentIssueId']) {
-						showMessage_("課題 '" + value + "' はすでに子課題となっているため、親課題として設定できません");
-						return "";
-					}
-					return issue["id"];
-				}
-				break;
-			case "issueTypeId":
-				var issueType = getRegisteredIssueType_(backlogData, value);
-				if (issueType == null) {
-					showMessage_(" 種別名'" + value + "' は登録されていません");
-					return 0;
-				}
-				return issueType.id;
-				break;
-			case "categoryId[]":
-				var category = backlogData.findCategoryByName(value);
-				if (category == null) {
-					showMessage_(" カテゴリ名'" + value + "' は登録されていません");
-					return 0;
-				}
-				return category.id;
-				break;				
-			case "versionId[]":
-				var version = backlogData.findVersionByName(value);
-				if (version == null) {
-					showMessage_(" 発生バージョン名'" + value + "' は登録されていません");
-					return 0;
-				}
-				return version.id;
-				break;					
-			case "milestoneId[]":
-				var milestone = backlogData.findVersionByName(value);
-				if (milestone == null) {
-					showMessage_(" マイルストーン名'" + value + "' は登録されていません");
-					return 0;
-				}
-				return milestone.id;
-				break;	
-		}			
-	}
-	return value;			
-}
-
-function getRegisteredIssueType_(backlogData, issueTypeName) {
-	for ( var i = 0; i < backlogData.issueTypes.length; i++) {
-		if (backlogData.issueTypes[i].name == issueTypeName)
-			return backlogData.issueTypes[i];
-	}
-
-	return null;
 }
 
 function createIssuesAndLog_(apiKey, newIssues, logSheet) {
