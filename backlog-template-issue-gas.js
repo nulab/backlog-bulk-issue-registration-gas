@@ -86,17 +86,14 @@ function main() {
 
 	var grid = app.createGrid(3, 4);
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
-	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(
-		lastSpace));
+	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(0, 2, app.createLabel('.backlog'));
 	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
 	// grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(1, 0, app.createLabel('APIキー'));
-	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(
-		lastUsername));
+	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(lastUsername));
 	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
-	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(
-		lastProjectKey));
+	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(lastProjectKey));
 
 	var button = app.createButton('一括登録');
 	var handler = app.createServerClickHandler('submit_');
@@ -113,42 +110,38 @@ function main() {
 
 function submit_(grid) {
 	var app = UiApp.getActiveApplication();
+	var space = grid.parameter.space;
+	var domain = grid.parameter.domain;
+	var apiKey = grid.parameter.apikey;
+	var projectKey = grid.parameter.projectKey.toUpperCase();
+	var backlogClient = createBacklogClient(space, domain, apiKey);
 
 	if (validateParameters_(grid) == false) return;
+	setParametersAsProperty_(grid); // TODO: Remove later
 
-	try {
-		var space = grid.parameter.space;
-		var domain = grid.parameter.domain;
-		var apiKey = grid.parameter.apikey;
-		var projectKey = grid.parameter.projectKey.toUpperCase();
-		var backlogClient = createBacklogClient(space, domain, apiKey);
-
-		setParametersAsProperty_(grid); // TODO: Remove later
-		checkParameters_();
-	} catch (e) {
-		SpreadsheetApp.getActiveSpreadsheet().toast(e, SCRIPT_NAME);
+	var validationResult = validateApiAccess(backlogClient, projectKey);
+	if (!validationResult.success) {
+		showMessage_(validationResult.message);
 		return app.close();
 	}
 
 	var logSheet = createLogSheet_();
-	createIssuesAndLog_(grid.parameter.apikey, getTemplateIssues_(), logSheet);
-
-	SpreadsheetApp.getActiveSpreadsheet().toast(SCRIPT_NAME + " が正常に行われました",
-		SCRIPT_NAME);
+	createIssuesAndLog_(apiKey, getTemplateIssues_(), logSheet);
+	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
 
 function validateParameters_(grid) {
 	if (grid.parameter.space == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("スペースURL を入力してください", SCRIPT_NAME);
+		showMessage_("スペースURL を入力してください");
 		return false;
 	}
 	if (grid.parameter.apikey == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("API Keyを入力してください", SCRIPT_NAME);
+		showMessage_("API Keyを入力してください");
 		return false;
 	}
 	if (grid.parameter.projectKey == "") {
-		SpreadsheetApp.getActiveSpreadsheet().toast("プロジェクト を入力してください", SCRIPT_NAME);
+		showMessage_("プロジェクト を入力してください");
 		return false;
 	}
 	return true;
@@ -159,20 +152,6 @@ function setParametersAsProperty_(grid) {
 	setUserProperty("domain", grid.parameter.domain);
 	setUserProperty("apikey", grid.parameter.apikey);
     setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
-}
-
-function checkParameters_() {
-    var project;
-  
-	try {
-		project = getProjectV2(getUserProperty("apikey"), getUserProperty("projectKey"));
-	} catch (e) {    
-		throw "ログインに失敗しました." + e;
-	}
-
-	if (project.id == undefined) {
-		throw "プロジェクトの取得に失敗しました";
-	}
 }
 
 function getTemplateIssues_() {
@@ -215,8 +194,7 @@ function convertValue_(i, name, value) {
 			case "assigneeId":
 				var user = getRegisteredUser_(value);
 				if (user == null) {
-					SpreadsheetApp.getActiveSpreadsheet().toast(
-						"ユーザ '" + value + "' は登録されていません", SCRIPT_NAME);
+					showMessage_("ユーザ '" + value + "' は登録されていません");
 					return 0;
 				}
 				return user.id;
@@ -224,8 +202,7 @@ function convertValue_(i, name, value) {
 			case "parentIssueId":
 				if (value === "*") {
 					if (i == 0) {
-						SpreadsheetApp.getActiveSpreadsheet().toast(
-							"1行目の親課題に '*' は使用できません", SCRIPT_NAME);
+						showMessage_("1行目の親課題に '*' は使用できません");
 						return "";
 					} else {
 						return value;
@@ -234,19 +211,16 @@ function convertValue_(i, name, value) {
                     var projectKey = getProperty("bti.projectKey");
                   
 					if (value.indexOf(projectKey) != 0) {
-						SpreadsheetApp.getActiveSpreadsheet().toast(
-							"課題 '" + value + "' はプロジェクト '" + projectKey + "' と異なっています", SCRIPT_NAME);
+						showMessage_("課題 '" + value + "' はプロジェクト '" + projectKey + "' と異なっています");
 						return "";
 					}
 					var issue = getIssueV2(getUserProperty("apiKey"), value);
 					if (issue == null || !issue['id']) {
-						SpreadsheetApp.getActiveSpreadsheet().toast(
-								"課題 '" + value + "' は存在しません", SCRIPT_NAME);
+						showMessage_("課題 '" + value + "' は存在しません");
 						return "";
 					}
 					if (issue['parentIssueId']) {
-						SpreadsheetApp.getActiveSpreadsheet().toast(
-							"課題 '" + value + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+						showMessage_("課題 '" + value + "' はすでに子課題となっているため、親課題として設定できません");
 						return "";
 					}
 					return issue["id"];
@@ -255,8 +229,7 @@ function convertValue_(i, name, value) {
 			case "issueTypeId":
 				var issueType = getRegisteredIssueType_(value);
 				if (issueType == null) {
-					SpreadsheetApp.getActiveSpreadsheet().toast(
-						" 種別名'" + value + "' は登録されていません", SCRIPT_NAME);
+					showMessage_(" 種別名'" + value + "' は登録されていません");
 					return 0;
 				}
 				return issueType.id;
@@ -264,8 +237,7 @@ function convertValue_(i, name, value) {
 			case "categoryId[]":
 				var category = getRegisteredCategory_(value);
 				if (category == null) {
-					SpreadsheetApp.getActiveSpreadsheet().toast(
-						" カテゴリ名'" + value + "' は登録されていません", SCRIPT_NAME);
+					showMessage_(" カテゴリ名'" + value + "' は登録されていません");
 					return 0;
 				}
 				return category.id;
@@ -273,8 +245,7 @@ function convertValue_(i, name, value) {
 			case "versionId[]":
 				var version = getRegisteredVersion_(value);
 				if (version == null) {
-					SpreadsheetApp.getActiveSpreadsheet().toast(
-						" 発生バージョン名'" + value + "' は登録されていません", SCRIPT_NAME);
+					showMessage_(" 発生バージョン名'" + value + "' は登録されていません");
 					return 0;
 				}
 				return version.id;
@@ -282,8 +253,7 @@ function convertValue_(i, name, value) {
 			case "milestoneId[]":
 				var milestone = getRegisteredVersion_(value);
 				if (milestone == null) {
-					SpreadsheetApp.getActiveSpreadsheet().toast(
-						" マイルストーン名'" + value + "' は登録されていません", SCRIPT_NAME);
+					showMessage_(" マイルストーン名'" + value + "' は登録されていません");
 					return 0;
 				}
 				return milestone.id;
@@ -336,8 +306,7 @@ function createIssuesAndLog_(apiKey, newIssues, logSheet) {
 		var isTakenOverParentIssueId = false;
 		if (newIssues[i]['parentIssueId'] === "*") {
 			if (previousIssue && previousIssue['parentIssueId']) {
-				SpreadsheetApp.getActiveSpreadsheet().toast(
-						"課題 '" + previousIssue.issueKey + "' はすでに子課題となっているため、親課題として設定できません", SCRIPT_NAME);
+				showMessage_("課題 '" + previousIssue.issueKey + "' はすでに子課題となっているため、親課題として設定できません");
 				newIssues[i]['parentIssueId'] = "";
 			} else {
 				newIssues[i]['parentIssueId'] = previousIssue.id;
@@ -419,4 +388,13 @@ function getUserProperty(key) {
  */
 function setUserProperty(key, value) {
      PropertiesService.getUserProperties().setProperty("bti." + key, value);
+}
+
+/**
+ * アクティブなシートにメッセージを表示します
+ *
+ * @param {string} message 表示するメッセージ
+ */
+function showMessage_(message) {
+	SpreadsheetApp.getActiveSpreadsheet().toast(message, SCRIPT_NAME);
 }
