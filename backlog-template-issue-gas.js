@@ -205,7 +205,7 @@ function convertValue_(backlogData, i, name, value) {
 				return issueType.id;
 				break;
 			case "categoryId[]":
-				var category = getRegisteredCategory_(backlogData, value);
+				var category = backlogData.findCategoryByName(value);
 				if (category == null) {
 					showMessage_(" カテゴリ名'" + value + "' は登録されていません");
 					return 0;
@@ -239,14 +239,6 @@ function getRegisteredIssueType_(backlogData, issueTypeName) {
 			return backlogData.issueTypes[i];
 	}
 
-	return null;
-}
-
-function getRegisteredCategory_(backlogData, categoryName) {
-	for ( var i = 0; i < backlogData.categories.length; i++) {
-		if (backlogData.categories[i].name == categoryName)
-			return backlogData.categories[i];
-	}
 	return null;
 }
 
