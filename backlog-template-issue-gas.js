@@ -44,16 +44,6 @@ var CONVERT_NAME = {
 /** 優先度IDのデフォルト値 */
 var DEFAULT_PRIORITYID = "3";
 
-// ------------------------- グローバルオブジェクト -------------------------
-
-/** Backlogに登録されているデータ */
-var backlogRegistry = {
-	users : [],
-	issueTypes : [],
-	categories : [],
-	versions : []
-};
-
 // ------------------------- 関数 -------------------------
 
 /**
@@ -128,9 +118,8 @@ function submit_(grid) {
 
 	var logSheet = createLogSheet_();
 	var backlogData = getBacklogData(backlogClient, projectKey);
-	var templateIssues = getTemplateIssues_(apiKey, backlogData.project);
+	var templateIssues = getTemplateIssues_(apiKey, backlogData);
 
-	backlogRegistry = backlogData; // TODO: Remove later
 	createIssuesAndLog_(apiKey, templateIssues, logSheet);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
@@ -143,7 +132,7 @@ function setParametersAsProperty_(grid) {
     setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
 }
 
-function getTemplateIssues_(apiKey, project) {
+function getTemplateIssues_(apiKey, backlogData) {
 	var issues = [];
     var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
@@ -152,12 +141,12 @@ function getTemplateIssues_(apiKey, project) {
 
 	for ( var i = 0; i < values.length; i++) {
 		var issue = {
-			projectId : project.id
+			projectId : backlogData.project.id
 		};
 		for ( var j = 0; j < values[0].length; j++) {
 			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
 			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[CONVERT_NAME[name]] = convertValue_(i, name, values[i][j]);
+				issue[CONVERT_NAME[name]] = convertValue_(backlogData, i, name, values[i][j]);
 			}
 		}
 		issues[i] = issue;
@@ -166,14 +155,14 @@ function getTemplateIssues_(apiKey, project) {
 	return issues;
 }
 
-function convertValue_(i, name, value) {
+function convertValue_(backlogData, i, name, value) {
 	if (value.constructor == Date) {
 		return Utilities.formatDate(value, "JST", "yyyy-MM-dd");
 
 	} else {
 		switch (CONVERT_NAME[name]) {
 			case "assigneeId":
-				var user = getRegisteredUser_(value);
+				var user = getRegisteredUser_(backlogData, value);
 				if (user == null) {
 					showMessage_("ユーザ '" + value + "' は登録されていません");
 					return 0;
@@ -208,7 +197,7 @@ function convertValue_(i, name, value) {
 				}
 				break;
 			case "issueTypeId":
-				var issueType = getRegisteredIssueType_(value);
+				var issueType = getRegisteredIssueType_(backlogData, value);
 				if (issueType == null) {
 					showMessage_(" 種別名'" + value + "' は登録されていません");
 					return 0;
@@ -216,7 +205,7 @@ function convertValue_(i, name, value) {
 				return issueType.id;
 				break;
 			case "categoryId[]":
-				var category = getRegisteredCategory_(value);
+				var category = getRegisteredCategory_(backlogData, value);
 				if (category == null) {
 					showMessage_(" カテゴリ名'" + value + "' は登録されていません");
 					return 0;
@@ -224,7 +213,7 @@ function convertValue_(i, name, value) {
 				return category.id;
 				break;				
 			case "versionId[]":
-				var version = getRegisteredVersion_(value);
+				var version = getRegisteredVersion_(backlogData, value);
 				if (version == null) {
 					showMessage_(" 発生バージョン名'" + value + "' は登録されていません");
 					return 0;
@@ -232,7 +221,7 @@ function convertValue_(i, name, value) {
 				return version.id;
 				break;					
 			case "milestoneId[]":
-				var milestone = getRegisteredVersion_(value);
+				var milestone = getRegisteredVersion_(backlogData, value);
 				if (milestone == null) {
 					showMessage_(" マイルストーン名'" + value + "' は登録されていません");
 					return 0;
@@ -244,36 +233,36 @@ function convertValue_(i, name, value) {
 	return value;			
 }
 
-function getRegisteredUser_(userName) {
-	for ( var i = 0; i < backlogRegistry.users.length; i++) {
-		if (backlogRegistry.users[i].name == userName)
-			return backlogRegistry.users[i];
+function getRegisteredUser_(backlogData, userName) {
+	for ( var i = 0; i < backlogData.users.length; i++) {
+		if (backlogData.users[i].name == userName)
+			return backlogData.users[i];
 	}
 
 	return null;
 }
 
-function getRegisteredIssueType_(issueTypeName) {
-	for ( var i = 0; i < backlogRegistry.issueTypes.length; i++) {
-		if (backlogRegistry.issueTypes[i].name == issueTypeName)
-			return backlogRegistry.issueTypes[i];
+function getRegisteredIssueType_(backlogData, issueTypeName) {
+	for ( var i = 0; i < backlogData.issueTypes.length; i++) {
+		if (backlogData.issueTypes[i].name == issueTypeName)
+			return backlogData.issueTypes[i];
 	}
 
 	return null;
 }
 
-function getRegisteredCategory_(categoryName) {
-	for ( var i = 0; i < backlogRegistry.categories.length; i++) {
-		if (backlogRegistry.categories[i].name == categoryName)
-			return backlogRegistry.categories[i];
+function getRegisteredCategory_(backlogData, categoryName) {
+	for ( var i = 0; i < backlogData.categories.length; i++) {
+		if (backlogData.categories[i].name == categoryName)
+			return backlogData.categories[i];
 	}
 	return null;
 }
 
-function getRegisteredVersion_(versionName) {
-	for ( var i = 0; i < backlogRegistry.versions.length; i++) {
-		if (backlogRegistry.versions[i].name == versionName)
-			return backlogRegistry.versions[i];
+function getRegisteredVersion_(backlogData, versionName) {
+	for ( var i = 0; i < backlogData.versions.length; i++) {
+		if (backlogData.versions[i].name == versionName)
+			return backlogData.versions[i];
 	}
 	return null;
 }
