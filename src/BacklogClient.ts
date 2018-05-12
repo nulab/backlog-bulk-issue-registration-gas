@@ -2,6 +2,22 @@ import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse;
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions;
 import { User, IssueType, Category, Version, Project } from './datas';
 
+export interface Http {
+  get: (uri: string) => Promise<any>;
+  post: (uri: string, payload: JSON) => Promise<any>
+}
+
+export interface BacklogClientT {
+  getProjectV2: (projectKey: string) => Promise<Project>
+}
+
+type Key<T> = string;
+
+export const BacklogClientT = (http: Http, uri: string, apiKey: string): BacklogClientT => ({
+  getProjectV2: (key: Key<Project>): Promise<Project> =>
+    http.get(uri).then(json => new Project(json['id'], json['projectKey']))
+});
+
 export class BacklogClient {
   private uri: string;
   private apiKey: string;

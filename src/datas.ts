@@ -58,6 +58,35 @@ export class Category {
   }
 }
 
+export interface Versiont {
+  readonly id: number;
+  readonly name: string;
+}
+export const VersionT = (id: number, name: string) => ({id, name})
+
+const version = VersionT(1, '');
+
+export type Action = String | number | undefined;
+export type Maybe<T> = T | undefined;
+
+export interface ClientModule {
+  getVersion: (id: number) => Maybe<Versiont>;
+}
+
+export const ClientModule = (apiKey: string): ClientModule => {
+  const somethingPrivate = `test`;
+
+  return {
+    getVersion: (id: number): Maybe<Versiont> => {
+      console.log(somethingPrivate);
+      return version;
+    }
+  };
+}
+
+const client = ClientModule(`apiKey`);
+
+
 export class Version {
   private _id: number;
   private _name: string;
@@ -132,3 +161,14 @@ export class ConvertResult {
     return this._valueOrError;
   }
 }
+
+export const success = <T>(value: T): ConvertResult => new ConvertResult(true, value);
+export const error = <E>(error: E): ConvertResult => new ConvertResult(false, error);
+
+export const validate = <T, U>(f: (t: T) => boolean, t: T, onError: U): ConvertResult =>
+  f(t) ? success(t) : error(onError);
+
+export const recover = <T>(result: ConvertResult, fallback: () => ConvertResult): ConvertResult =>
+  result.success ? result : fallback();
+
+export const notNull = <T, U>(t: T): boolean => t != null;
