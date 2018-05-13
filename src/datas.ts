@@ -1,3 +1,5 @@
+import { Maybe } from "./Maybe";
+
 export type Id<T> = number
 export type Key<T> = string
 
@@ -9,8 +11,38 @@ export const Project = (id: number, projectKey: string) => ({id, projectKey})
 
 export interface Issue {
   readonly id: number
+  readonly projectId: number
+  readonly summary: string
+  readonly description: Maybe<string>
+  readonly startDate: Maybe<Date>
+  readonly dueDate: Maybe<Date>
+  readonly estimatedHours: Maybe<number>
+  readonly actualHours: Maybe<number>
+  readonly issueTypeId: number
+  readonly categories: Category[]
+  readonly versions: Version[]
+  readonly milestones: Version[]
+  readonly priority: Priority
+  readonly assignee: Maybe<User>
+  readonly parentIssueId: Maybe<number>
 }
-export const Issue = (id: number) => ({id})
+export const Issue = (
+  id: number, 
+  projectId: number, 
+  summary: string,
+  description: Maybe<string>,
+  startDate: Maybe<Date>,
+  dueDate: Maybe<Date>,
+  estimatedHours: Maybe<number>,
+  actualHours: Maybe<number>,
+  issueTypeId: number,
+  categories: Category[],
+  versions: Version[],
+  milestones: Version[],
+  priority: Priority,
+  assignee: Maybe<User>,
+  parentIssueId: Maybe<number>
+) => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueTypeId, categories, versions, milestones, priority, assignee, parentIssueId})
 
 export interface User {
   readonly id: number
@@ -35,6 +67,12 @@ export interface Version {
   readonly name: string
 }
 export const Version = (id: number, name: string) => ({id, name})
+
+export interface Priority {
+  readonly id: number
+  readonly name: string
+}
+export const Priority = (id: number, name: string) => ({id, name})
 
 export type Action = String | number | undefined
 

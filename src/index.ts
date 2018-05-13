@@ -3,13 +3,13 @@ import {BacklogData, ValidationResult, ConvertResult, success, error, validate, 
 import {Http} from "./Http"
 import {Maybe} from "./Maybe"
 
-let global: any = window;
-(window as any).BacklogScript = {}
+declare var global: any
 
 interface BacklogScript {
   createBacklogClient: (http: Http, space: string, domain: string, apiKey: string) => BacklogClient
   validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
   validateApiAccess: (client: BacklogClient, projectKey: string) => ValidationResult
+  getProjectId: (client: BacklogClient, projectKey: string) => number
   // getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
 }
 
@@ -32,6 +32,9 @@ const BacklogScript = (): BacklogScript => ({
     return maybeProject.map(function (project) {
       return new ValidationResult(true, "")
     }).getOrElse(new ValidationResult(false, "ログインに失敗しました."))
+  },
+  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number => {
+    return backlogClient.getProjectV2(projectKey).getOrElse(Project(-1, projectKey)).id
   }
   // getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
   //   let project = backlogClient.getProjectV2(projectKey)
@@ -43,7 +46,7 @@ const BacklogScript = (): BacklogScript => ({
   // }
 });
 
-(window as any).BacklogScript = BacklogScript()
+(global as any).BacklogScript = BacklogScript()
 
 export enum HeaderName {
   AssigneeId = "assigneeId",

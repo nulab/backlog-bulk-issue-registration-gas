@@ -24,23 +24,6 @@ var DEFAULT_FONT_SIZE = 10;
 /** 列幅調整時の係数 */
 var ADJUST_WIDTH_FACTOR = 0.75;
 
-/** ヘッダ行の項目名 */
-var CONVERT_NAME = {
-	"件名（必須）" : "summary",
-	"詳細" : "description",
-	"開始日" : "startDate",
-	"期限日" : "dueDate",
-	"予定時間" : "estimatedHours",
-	"実績時間" : "actualHours",
-	"種別名（必須）" : "issueTypeId",
-	"カテゴリ名" : "categoryId[]",
-	"発生バージョン名" : "versionId[]",
-	"マイルストーン名" : "milestoneId[]",
-	"優先度ID" : "priorityId",
-	"担当者ユーザ名" : "assigneeId",
-	"親課題" : "parentIssueId"
-};
-
 /** 優先度IDのデフォルト値 */
 var DEFAULT_PRIORITYID = "3";
 
@@ -125,21 +108,22 @@ function submit_(grid) {
 	var domain = grid.parameter.domain;
 	var apiKey = grid.parameter.apikey;
 	var projectKey = grid.parameter.projectKey.toUpperCase();
-	var backlogClient = createBacklogClient(space, domain, apiKey);
+	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
 
-	var validateParamsResult = validateParameters(space, apiKey, projectKey);
+	var validateParamsResult = BacklogScript.validateParameters(space, apiKey, projectKey);
 	if (!validateParamsResult.success) return;
 	setParametersAsProperty_(space, domain, apiKey, projectKey);
 
-	var validateApiResult = validateApiAccess(backlogClient, projectKey);
+	var validateApiResult = BacklogScript.validateApiAccess(backlogClient, projectKey);
 	if (!validateApiResult.success) {
 		showMessage_(validateApiResult.message);
 		return app.close();
 	}
 
 	var logSheet = createLogSheet_();
-	var backlogData = getBacklogData(backlogClient, projectKey);
-	var templateIssues = getTemplateIssues_(apiKey, backlogData);
+	// var backlogData = getBacklogData(backlogClient, projectKey);
+	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
+	var templateIssues = getTemplateIssuesFromSpreadSheet_(apiKey, projectId);
 
 	createIssuesAndLog_(apiKey, templateIssues, logSheet);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
@@ -153,26 +137,36 @@ function setParametersAsProperty_(space, domain, apiKey, projectKey) {
     setUserProperty("projectKey", projectKey.toUpperCase());
 }
 
-function getTemplateIssues_(apiKey, backlogData) {
+function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
 	var issues = [];
     var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
-	var values = sheet.getSheetValues(ROW_START_INDEX, COLUMN_START_INDEX,
-			sheet.getLastRow() - 1, sheet.getLastColumn());
+	var values = sheet.getSheetValues(
+		ROW_START_INDEX, 
+		COLUMN_START_INDEX,
+		sheet.getLastRow() - 1, 
+		sheet.getLastColumn()
+	);
 
 	for ( var i = 0; i < values.length; i++) {
 		var issue = {
-			projectId : backlogData.project.id
+			projectId: projectId,
+			summary: values[0],
+			description: values[1],
+			startDate: values[2],
+			dueDate: values[3],
+			estimatedHours: values[4],
+			actualHours: values[5],
+			issueTypeId: values[6],
+			categoryIds: values[7],
+			versionIds: values[8],
+			milestoneIds: values[9],
+			priorityId: values[10],
+			assigneeId: values[11],
+			parentIssueId: values[12]
 		};
-		for ( var j = 0; j < values[0].length; j++) {
-			var name = sheet.getRange(ROW_HEADER_INDEX, j + 1).getValue();
-			if (values[i][j] != undefined && values[i][j] != "") {
-				issue[CONVERT_NAME[name]] = convertValue(backlogData, CONVERT_NAME, i, name, values[i][j]);
-			}
-		}
 		issues[i] = issue;
 	}
-
 	return issues;
 }
 

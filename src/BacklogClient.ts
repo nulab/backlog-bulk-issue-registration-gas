@@ -1,4 +1,4 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority} from "./datas"
 import {Http} from "./Http"
 import {Maybe} from "./Maybe"
 
@@ -69,7 +69,25 @@ export const BacklogClient = (http: Http, spaceName: string, domain: string, api
   getIssueV2: (id: Id<Issue>): Maybe<Issue> =>  {
     try {
       const json = http.get(`issues/${id}`)
-      return Maybe.some(Issue(json["id"]))
+      return Maybe.some(
+        Issue(
+          json["id"],
+          json["projectId"],
+          json["summary"],
+          Maybe.fromValue(json["description"]),
+          Maybe.fromValue(json["startDate"]),
+          Maybe.fromValue(json["dueDate"]),
+          Maybe.fromValue(json["estimatedHours"]),
+          Maybe.fromValue(json["actualHours"]),
+          json["issueTypeId"],
+          json["category"].map(item => Category(item["id"], item["name"])),
+          json["versions"].map(item => Version(item["id"], item["name"])),
+          json["milestone"].map(item => Version(item["id"], item["name"])),
+          Priority(json["id"], json["name"]),
+          Maybe.fromValue(json["assignee"]).map(item => User(item["id"], item["name"])),
+          Maybe.fromValue(json["parentIssueId"])
+        )
+      )
     } catch (e) {
       return Maybe.none()
     }
