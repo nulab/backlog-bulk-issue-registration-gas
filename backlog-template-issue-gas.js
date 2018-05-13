@@ -264,8 +264,11 @@ function showMessage_(message) {
 * @param {string} value 2列目に出力したい文字列
 */
 function logToSheet(type, value) {
+	var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('log');
 	var logMsg = new Array();
 	  
+	if (sheet == null)
+		SpreadsheetApp.getActiveSpreadsheet().insertSheet('log');
 	logMsg.push(new Date());
 	logMsg.push(type);
 	logMsg.push(value);
