@@ -1,7 +1,7 @@
 import {BacklogClient} from "./BacklogClient"
 import {BacklogData, ValidationResult, ConvertResult, success, error, validate, User, recover, IssueType, notNull} from "./datas"
 
-let global: any = window
+let global: any = window;
 (window as any).BacklogScript = {}
 
 interface BacklogScript {
@@ -41,10 +41,9 @@ const BacklogScript = (): BacklogScript => ({
     let issueTypes = backlogClient.getIssueTypesV2(project.id)
     let categories = backlogClient.getCategoriesV2(project.id)
     let versions = backlogClient.getVersionsV2(project.id)
-
     return new BacklogData(project, users, issueTypes, categories, versions)
   }
-})
+});
 (window as any).BacklogScript = BacklogScript()
 
 
