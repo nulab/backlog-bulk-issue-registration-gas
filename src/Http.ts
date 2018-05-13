@@ -2,15 +2,15 @@ import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
 
 export interface Http {
-  get: (uri: string) => any,
-  post: (uri: string, payload: JSON) => any
+  get: (uri: string) => JSON,
+  post: (uri: string, payload: any) => JSON
   doRequest: (uri: string) => HTTPResponse
   toJson: (response: HTTPResponse) => JSON
 }
 
 export const Http = (): Http => ({
 
-  get: (uri: string): any => {
+  get: (uri: string): JSON => {
     let httpResponse = this.doRequest(uri)
     return this.toJson(httpResponse)
   },

@@ -1,6 +1,7 @@
 import {BacklogClient} from "./BacklogClient"
 import {BacklogData, ValidationResult, ConvertResult, success, error, validate, User, recover, IssueType, notNull, Key, Project} from "./datas"
 import {Http} from "./Http"
+import {Maybe} from "./Maybe"
 
 let global: any = window;
 (window as any).BacklogScript = {}
@@ -27,14 +28,10 @@ const BacklogScript = (): BacklogScript => ({
     return new ValidationResult(true, "")
   },
   validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): ValidationResult => {
-    try {
-      let project = backlogClient.getProjectV2(projectKey)
-      if (project.id === undefined)
-        return new ValidationResult(false, "プロジェクトの取得に失敗しました")
-    } catch (e) {
-      return new ValidationResult(false, "ログインに失敗しました." + e)
-    }
-    return new ValidationResult(true, "")
+    const maybeProject = backlogClient.getProjectV2(projectKey)
+    return maybeProject.map(function (project) {
+      return new ValidationResult(true, "")
+    }).getOrElse(new ValidationResult(false, "ログインに失敗しました."))
   },
   getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
     let project = backlogClient.getProjectV2(projectKey)
@@ -45,6 +42,7 @@ const BacklogScript = (): BacklogScript => ({
     return new BacklogData(project, users, issueTypes, categories, versions)
   }
 });
+
 (window as any).BacklogScript = BacklogScript()
 
 global.validateParameters = function(

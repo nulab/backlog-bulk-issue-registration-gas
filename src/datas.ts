@@ -1,3 +1,4 @@
+export type Id<T> = number
 export type Key<T> = string
 
 export interface Project {
@@ -36,7 +37,6 @@ export interface Version {
 export const Version = (id: number, name: string) => ({id, name})
 
 export type Action = String | number | undefined
-export type Maybe<T> = T | undefined
 
 // export interface ClientModule {
 //   getVersion: (id: number) => Maybe<Version>
