@@ -1,9 +1,9 @@
-import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse;
-import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions;
-import { User, IssueType, Category, Version, Project } from './datas';
+import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
+import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
+import {User, IssueType, Category, Version, Project} from "./datas"
 
 export interface Http {
-  get: (uri: string) => Promise<any>;
+  get: (uri: string) => Promise<any>,
   post: (uri: string, payload: JSON) => Promise<any>
 }
 
@@ -11,19 +11,19 @@ export interface BacklogClientT {
   getProjectV2: (projectKey: string) => Promise<Project>
 }
 
-type Key<T> = string;
+type Key<T> = string
 
 export const BacklogClientT = (http: Http, uri: string, apiKey: string): BacklogClientT => ({
   getProjectV2: (key: Key<Project>): Promise<Project> =>
-    http.get(uri).then(json => new Project(json['id'], json['projectKey']))
-});
+    http.get(uri).then(json => new Project(json["id"], json["projectKey"]))
+})
 
 export class BacklogClient {
-  private uri: string;
-  private apiKey: string;
+  private uri: string
+  private apiKey: string
   constructor(spaceName: string, domain: string, apiKey: string) {
-    this.uri = 'https://' + spaceName + '.backlog' + domain + '/api/v2/';
-    this.apiKey = apiKey;
+    this.uri = "https://" + spaceName + ".backlog" + domain + "/api/v2/"
+    this.apiKey = apiKey
   }
 
   /**
@@ -33,8 +33,8 @@ export class BacklogClient {
    *
    */
   public getProjectV2(projectKey: string): Project {
-    let json = this.get('projects/' + projectKey);
-    return new Project(json['id'], json['projectKey']);
+    let json = this.get("projects/" + projectKey)
+    return new Project(json["id"], json["projectKey"])
   }
 
   /**
@@ -44,10 +44,10 @@ export class BacklogClient {
    *
    */
   public getUsersV2(projectId): User[] {
-    let json = this.get('projects/' + projectId + '/users');
+    let json = this.get("projects/" + projectId + "/users")
     return Object.keys(json).map(function(key) {
-      return new User(this['id'], this['name']);
-    }, json);
+      return new User(this["id"], this["name"])
+    }, json)
   }
 
   /**
@@ -57,7 +57,7 @@ export class BacklogClient {
    *
    */
   public getIssueV2(apiKey, issueId) {
-    return this.get('issues/' + issueId);
+    return this.get("issues/" + issueId)
   }
 
   /**
@@ -69,9 +69,9 @@ export class BacklogClient {
   public createIssueV2(apiKey, issue) {
     // TODO
     // if (issue["prorityId"] == undefined) {
-    //   issue["priorityId"] = DEFAULT_PRIORITYID;
+    //   issue["priorityId"] = DEFAULT_PRIORITYID
     // }
-    return this.post('issues', issue);
+    return this.post("issues", issue)
   }
 
   /**
@@ -81,10 +81,10 @@ export class BacklogClient {
    *
    */
   public getIssueTypesV2(projectId): IssueType[] {
-    let json = this.get('projects/' + projectId + '/issueTypes');
+    let json = this.get("projects/" + projectId + "/issueTypes")
     return Object.keys(json).map(function(key) {
-      return new IssueType(this['id'], this['name']);
-    }, json);
+      return new IssueType(this["id"], this["name"])
+    }, json)
   }
 
   /**
@@ -94,10 +94,10 @@ export class BacklogClient {
    *
    */
   public getCategoriesV2(projectId): Category[] {
-    let json = this.get('projects/' + projectId + '/categories');
+    let json = this.get("projects/" + projectId + "/categories")
     return Object.keys(json).map(function(key) {
-      return new Category(this['id'], this['name']);
-    }, json);
+      return new Category(this["id"], this["name"])
+    }, json)
   }
 
   /**
@@ -107,34 +107,34 @@ export class BacklogClient {
    *
    */
   public getVersionsV2(projectId): Version[] {
-    let json = this.get('projects/' + projectId + '/versions');
+    let json = this.get("projects/" + projectId + "/versions")
     return Object.keys(json).map(function(key) {
-      return new Version(this['id'], this['name']);
-    }, json);
+      return new Version(this["id"], this["name"])
+    }, json)
   }
 
   private get(resource: string): any {
-    let httpResponse = this.doRequest(resource);
-    return this.parseResponse(httpResponse);
+    let httpResponse = this.doRequest(resource)
+    return this.parseResponse(httpResponse)
   }
 
   private post(resource: string, data: any): any {
     let options: URLFetchRequestOptions = {
-      method: 'post',
+      method: "post",
       payload: data
-    };
-    let httpResponse = this.doRequest(resource, options);
+    }
+    let httpResponse = this.doRequest(resource, options)
 
-    return this.parseResponse(httpResponse);
+    return this.parseResponse(httpResponse)
   }
 
   private doRequest(resource: string, options?: URLFetchRequestOptions): HTTPResponse {
-    let requestUri = this.uri + resource + '?apiKey=' + this.apiKey;
-    if (options == null) return UrlFetchApp.fetch(requestUri);
-    else return UrlFetchApp.fetch(requestUri, options);
+    let requestUri = this.uri + resource + "?apiKey=" + this.apiKey
+    if (options == null) return UrlFetchApp.fetch(requestUri)
+    else return UrlFetchApp.fetch(requestUri, options)
   }
 
   private parseResponse(response: HTTPResponse): any {
-    return JSON.parse(response.getContentText());
+    return JSON.parse(response.getContentText())
   }
 }
