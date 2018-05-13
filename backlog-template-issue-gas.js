@@ -63,18 +63,34 @@ function onOpen() {
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
 function main() {
-	var app = UiApp.createApplication();
-	app.setTitle('Backlog 課題一括登録');
-	app.setWidth(360);
-	app.setHeight(160);
+	var app = createApplication_('Backlog 課題一括登録', 360, 160);
+	var grid = createGrid_(app);
+	showInputDialog_(app, grid);
+}
 
+/**
+ * UIアプリケーションオブジェクトを作成します
+ */
+function createApplication_(title, width, height) {
+	var app = UiApp.createApplication();
+	
+	app.setTitle(title);
+	app.setWidth(width);
+	app.setHeight(height);
+	return app;
+}
+
+/**
+ * パラメータ入力ダイアログを作成します
+ */
+function createGrid_(app) {
 	var lastSpace = getUserProperty("space") ? getUserProperty("space") : "";
 	var lastDomain = getUserProperty("domain") ? getUserProperty("domain") : ".com";
 	var anotherDomain = (lastDomain === ".com") ? ".jp" : ".com";
 	var lastUsername = getUserProperty("apikey") ? getUserProperty("apikey") : "";
 	var lastProjectKey = getUserProperty("projectKey") ? getUserProperty("projectKey") : "";
-
 	var grid = app.createGrid(3, 4);
+
 	grid.setWidget(0, 0, app.createLabel('スペースID'));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(0, 2, app.createLabel('.backlog'));
@@ -84,17 +100,22 @@ function main() {
 	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(lastUsername));
 	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
 	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(lastProjectKey));
+	return grid;
+}
 
+/**
+ * パラメータ入力ダイアログを表示します
+ */
+function showInputDialog_(app, grid) {
+	var panel = app.createVerticalPanel();
 	var button = app.createButton('一括登録');
 	var handler = app.createServerClickHandler('submit_');
+	
 	handler.addCallbackElement(grid);
 	button.addClickHandler(handler);
-
-	var panel = app.createVerticalPanel();
 	panel.add(grid);
 	panel.add(button);
 	app.add(panel);
-
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
 
@@ -108,7 +129,7 @@ function submit_(grid) {
 
 	var validateParamsResult = validateParameters(space, apiKey, projectKey);
 	if (!validateParamsResult.success) return;
-	setParametersAsProperty_(grid); // TODO: Remove later
+	setParametersAsProperty_(space, domain, apiKey, projectKey);
 
 	var validateApiResult = validateApiAccess(backlogClient, projectKey);
 	if (!validateApiResult.success) {
@@ -125,11 +146,11 @@ function submit_(grid) {
 	return app.close();
 }
 
-function setParametersAsProperty_(grid) {
-	setUserProperty("space", grid.parameter.space);
-	setUserProperty("domain", grid.parameter.domain);
-	setUserProperty("apikey", grid.parameter.apikey);
-    setUserProperty("projectKey", grid.parameter.projectKey.toUpperCase());
+function setParametersAsProperty_(space, domain, apiKey, projectKey) {
+	setUserProperty("space", space);
+	setUserProperty("domain", domain);
+	setUserProperty("apikey", apiKey);
+    setUserProperty("projectKey", projectKey.toUpperCase());
 }
 
 function getTemplateIssues_(apiKey, backlogData) {

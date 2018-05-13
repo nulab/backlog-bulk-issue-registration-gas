@@ -10,7 +10,7 @@ interface BacklogScript {
   createBacklogClient: (http: Http, space: string, domain: string, apiKey: string) => BacklogClient
   validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
   validateApiAccess: (client: BacklogClient, projectKey: string) => ValidationResult
-  getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
+  // getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
 }
 
 const BacklogScript = (): BacklogScript => ({
@@ -32,35 +32,18 @@ const BacklogScript = (): BacklogScript => ({
     return maybeProject.map(function (project) {
       return new ValidationResult(true, "")
     }).getOrElse(new ValidationResult(false, "ログインに失敗しました."))
-  },
-  getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
-    let project = backlogClient.getProjectV2(projectKey)
-    let users = backlogClient.getUsersV2(project.id)
-    let issueTypes = backlogClient.getIssueTypesV2(project.id)
-    let categories = backlogClient.getCategoriesV2(project.id)
-    let versions = backlogClient.getVersionsV2(project.id)
-    return new BacklogData(project, users, issueTypes, categories, versions)
   }
+  // getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
+  //   let project = backlogClient.getProjectV2(projectKey)
+  //   let users = backlogClient.getUsersV2(project.id)
+  //   let issueTypes = backlogClient.getIssueTypesV2(project.id)
+  //   let categories = backlogClient.getCategoriesV2(project.id)
+  //   let versions = backlogClient.getVersionsV2(project.id)
+  //   return new BacklogData(project, users, issueTypes, categories, versions)
+  // }
 });
 
 (window as any).BacklogScript = BacklogScript()
-
-global.validateParameters = function(
-  space: string,
-  apiKey: string,
-  projectKey: string
-): ValidationResult {
-  if (space === "") {
-    return new ValidationResult(false, "スペースURL を入力してください")
-  }
-  if (apiKey === "") {
-    return new ValidationResult(false, "API Keyを入力してください")
-  }
-  if (projectKey === "") {
-    return new ValidationResult(false, "プロジェクト を入力してください")
-  }
-  return new ValidationResult(true, "")
-}
 
 export enum HeaderName {
   AssigneeId = "assigneeId",
