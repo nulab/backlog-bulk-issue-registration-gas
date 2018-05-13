@@ -1,106 +1,59 @@
-export class Project {
-  private _id: number
-  private _projectKey: string
-  constructor(id: number, projectKey: string) {
-    this._id = id
-    this._projectKey = projectKey
-  }
-  public id(): number {
-    return this._id
-  }
-  public projectKey(): string {
-    return this._projectKey
-  }
-}
+export type Key<T> = string
 
-export class User {
-  private _id: number
-  private _name: string
-  constructor(id: number, name: string) {
-    this._id = id
-    this._name = name
-  }
-  public id(): number {
-    return this._id
-  }
-  public name(): string {
-    return this._name
-  }
+export interface Project {
+  readonly id: number
+  readonly projectKey: string
 }
+export const Project = (id: number, projectKey: string) => ({id, projectKey})
 
-export class IssueType {
-  private _id: number
-  private _name: string
-  constructor(id: number, name: string) {
-    this._id = id
-    this._name = name
-  }
-  public id(): number {
-    return this._id
-  }
-  public name(): string {
-    return this._name
-  }
+export interface Issue {
+  readonly id: number
 }
+export const Issue = (id: number) => ({id})
 
-export class Category {
-  private _id: number
-  private _name: string
-  constructor(id: number, name: string) {
-    this._id = id
-    this._name = name
-  }
-  public id(): number {
-    return this._id
-  }
-  public name(): string {
-    return this._name
-  }
-}
-
-export interface Versiont {
+export interface User {
   readonly id: number
   readonly name: string
 }
-export const VersionT = (id: number, name: string) => ({id, name})
+export const User = (id: number, name: string) => ({id, name})
 
-const version = VersionT(1, "")
+export interface IssueType {
+  readonly id: number
+  readonly name: string
+}
+export const IssueType = (id: number, name: string) => ({id, name})
+
+export interface Category {
+  readonly id: number
+  readonly name: string
+}
+export const Category = (id: number, name: string) => ({id, name})
+
+export interface Version {
+  readonly id: number
+  readonly name: string
+}
+export const Version = (id: number, name: string) => ({id, name})
 
 export type Action = String | number | undefined
 export type Maybe<T> = T | undefined
 
-export interface ClientModule {
-  getVersion: (id: number) => Maybe<Versiont>
-}
+// export interface ClientModule {
+//   getVersion: (id: number) => Maybe<Version>
+// }
 
-export const ClientModule = (apiKey: string): ClientModule => {
-  const somethingPrivate = `test`
+// export const ClientModule = (apiKey: string): ClientModule => {
+//   const somethingPrivate = `test`
 
-  return {
-    getVersion: (id: number): Maybe<Versiont> => {
-      console.log(somethingPrivate)
-      return version
-    }
-  }
-}
+//   return {
+//     getVersion: (id: number): Maybe<Version> => {
+//       console.log(somethingPrivate)
+//       return version
+//     }
+//   }
+// }
 
-const client = ClientModule(`apiKey`)
-
-
-export class Version {
-  private _id: number
-  private _name: string
-  constructor(id: number, name: string) {
-    this._id = id
-    this._name = name
-  }
-  public id(): number {
-    return this._id
-  }
-  public name(): string {
-    return this._name
-  }
-}
+// const client = ClientModule(`apiKey`)
 
 export class BacklogData {
   private _project: Project
@@ -116,7 +69,7 @@ export class BacklogData {
     this.versions = versions
   }
   public findUserByName(name: string): User {
-    return this.users.filter(item => item.name() === name)[0]
+    return this.users.filter(item => item.name === name)[0]
   }
   public findIssueTypeByName(name: string): IssueType {
     return this.categories.filter(function(value) {
