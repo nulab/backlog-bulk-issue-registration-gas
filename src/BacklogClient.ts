@@ -73,14 +73,13 @@ export class BacklogClientImpl implements BacklogClient {
       const json = this.http.get(this.buildUri(`projects/${key}`))
       return Maybe.some(Project(json["id"], json["projectKey"]))
     } catch (e) {
-      throw Error(e)
-      // return Maybe.none()
+      return Maybe.none()
     }
   }
 
   public getIssueV2(id: Id<Issue>): Maybe<Issue> {
     try {
-      const json = this.http.get(`issues/${id}`)
+      const json = this.http.get(this.buildUri(`issues/${id}`))
       const issue = this.jsonToIssue(json)
       return Maybe.some(issue)
     } catch (e) {
@@ -100,30 +99,22 @@ export class BacklogClientImpl implements BacklogClient {
 
   public getUsersV2(id: Id<Project>): User[] {
     const json = this.http.get(this.buildUri(`projects/${id}/users`))
-    return Object.keys(json).map(function(key) {
-      return User(this["id"], this["name"])
-    }, json)
+    return Object.keys(json).map(key => this.jsonToUser(json[key]))
   }
 
   public getIssueTypesV2(id: Id<Project>): IssueType[] {
-    const json = this.http.get(`projects/${id}/issueTypes`)
-    return Object.keys(json).map(function(key) {
-      return IssueType(this["id"], this["name"])
-    }, json)
+    const json = this.http.get(this.buildUri(`projects/${id}/issueTypes`))
+    return Object.keys(json).map(key => this.jsonToIssueType(json[key]))
   }
 
   public getCategoriesV2(id: Id<Project>): Category[] {
-    const json = this.http.get(`projects/${id}/categories`)
-    return Object.keys(json).map(function(key) {
-      return Category(this["id"], this["name"])
-    }, json)
+    const json = this.http.get(this.buildUri(`projects/${id}/categories`))
+    return Object.keys(json).map(key => this.jsonToCategory(json[key]))
   }
 
   public getVersionsV2(id: Id<Project>): Version[] {
-    const json = this.http.get(`projects/${id}/versions`)
-    return Object.keys(json).map(function(key) {
-      return Version(this["id"], this["name"])
-    }, json)
+    const json = this.http.get(this.buildUri(`projects/${id}/versions`))
+    return Object.keys(json).map(key => this.jsonToVersion(json[key]))
   }
 
   private buildUri(resource: string): string {
@@ -140,13 +131,35 @@ export class BacklogClientImpl implements BacklogClient {
       Maybe.fromValue(json["dueDate"]),
       Maybe.fromValue(json["estimatedHours"]),
       Maybe.fromValue(json["actualHours"]),
-      json["issueTypeId"],
-      json["category"].map(item => Category(item["id"], item["name"])),
-      json["versions"].map(item => Version(item["id"], item["name"])),
-      json["milestone"].map(item => Version(item["id"], item["name"])),
-      Priority(json["id"], json["name"]),
-      Maybe.fromValue(json["assignee"]).map(item => User(item["id"], item["name"])),
+      this.jsonToIssueType(json["issueType"]),
+      json["category"].map(this.jsonToCategory),
+      json["versions"].map(this.jsonToVersion),
+      json["milestone"].map(this.jsonToVersion),
+      this.jsonToPriority(json["priority"]),
+      Maybe.fromValue(json["assignee"]).map(this.jsonToUser),
       Maybe.fromValue(json["parentIssueId"])
     )
   }
+
+  private jsonToUser(json: JSON): User {
+    return User(json["id"], json["name"])
+  }
+
+  private jsonToIssueType(json: JSON): IssueType {
+    return IssueType(json["id"], json["name"])
+  }
+
+  private jsonToCategory(json: JSON): Category {
+    return Category(json["id"], json["name"])
+  }
+
+  private jsonToVersion(json: JSON): Version {
+    return Version(json["id"], json["name"])
+  }
+
+  private jsonToPriority(json: JSON): Priority {
+    return Priority(json["id"], json["name"])
+  }
+
+
 }

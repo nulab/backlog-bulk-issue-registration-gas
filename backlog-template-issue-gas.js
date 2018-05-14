@@ -151,19 +151,19 @@ function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
 	for ( var i = 0; i < values.length; i++) {
 		var issue = {
 			projectId: projectId,
-			summary: values[0],
-			description: values[1],
-			startDate: values[2],
-			dueDate: values[3],
-			estimatedHours: values[4],
-			actualHours: values[5],
-			issueTypeId: values[6],
-			categoryIds: values[7],
-			versionIds: values[8],
-			milestoneIds: values[9],
-			priorityId: values[10],
-			assigneeId: values[11],
-			parentIssueId: values[12]
+			summary: values[i][0],
+			description: values[i][1],
+			startDate: values[i][2],
+			dueDate: values[i][3],
+			estimatedHours: values[i][4],
+			actualHours: values[i][5],
+			issueTypeId: values[i][6],
+			categoryIds: values[i][7],
+			versionIds: values[i][8],
+			milestoneIds: values[i][9],
+			priorityId: values[i][10],
+			assigneeId: values[i][11],
+			parentIssueId: values[i][12]
 		};
 		issues[i] = issue;
 	}

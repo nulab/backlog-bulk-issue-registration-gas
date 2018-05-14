@@ -1,4 +1,4 @@
-import { Maybe } from "./Maybe";
+import {Maybe} from "./Maybe"
 
 export type Id<T> = number
 export type Key<T> = string
@@ -18,7 +18,7 @@ export interface Issue {
   readonly dueDate: Maybe<Date>
   readonly estimatedHours: Maybe<number>
   readonly actualHours: Maybe<number>
-  readonly issueTypeId: number
+  readonly issueType: IssueType
   readonly categories: Category[]
   readonly versions: Version[]
   readonly milestones: Version[]
@@ -27,22 +27,22 @@ export interface Issue {
   readonly parentIssueId: Maybe<number>
 }
 export const Issue = (
-  id: number, 
-  projectId: number, 
+  id: number,
+  projectId: number,
   summary: string,
   description: Maybe<string>,
   startDate: Maybe<Date>,
   dueDate: Maybe<Date>,
   estimatedHours: Maybe<number>,
   actualHours: Maybe<number>,
-  issueTypeId: number,
+  issueType: IssueType,
   categories: Category[],
   versions: Version[],
   milestones: Version[],
   priority: Priority,
   assignee: Maybe<User>,
   parentIssueId: Maybe<number>
-) => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueTypeId, categories, versions, milestones, priority, assignee, parentIssueId})
+) => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
 
 export interface User {
   readonly id: number
