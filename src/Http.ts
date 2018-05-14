@@ -4,33 +4,30 @@ import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOption
 export interface Http {
   get: (uri: string) => JSON,
   post: (uri: string, payload: any) => JSON
-  doRequest: (uri: string) => HTTPResponse
-  toJson: (response: HTTPResponse) => JSON
 }
 
-export const Http = (): Http => ({
+export class HttpClient implements Http {
 
-  get: (uri: string): JSON => {
+  public get(uri: string): JSON {
     let httpResponse = this.doRequest(uri)
     return this.toJson(httpResponse)
-  },
+  }
 
-  post: (uri: string, data: any): JSON => {
+  public post(uri: string, data: any): JSON {
     const options: URLFetchRequestOptions = {
       method: "post",
       payload: data
     }
     const httpResponse = this.doRequest(uri, options)
-
     return this.toJson(httpResponse)
-  },
+  }
 
-  doRequest: (uri: string, options?: URLFetchRequestOptions): HTTPResponse => {
+  private doRequest(uri: string, options?: URLFetchRequestOptions): HTTPResponse {
     if (options == null) return UrlFetchApp.fetch(uri)
     else return UrlFetchApp.fetch(uri, options)
-  },
+  }
 
-  toJson(response: HTTPResponse): JSON {
+  private toJson(response: HTTPResponse): JSON {
     return JSON.parse(response.getContentText())
   }
-})
+}

@@ -33,4 +33,14 @@ export class Maybe<T> {
   getOrElse(defaultValue: T) {
     return this.value === null ? defaultValue : this.value
   }
+
+  get() {
+    if (!this.isDefined())
+      throw Error("Cannot get the value. It is null")
+    return this.value
+  }
+
+  isDefined() {
+    return this.value !== null
+  }
 }

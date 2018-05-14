@@ -1,12 +1,12 @@
-import {BacklogClient} from "./BacklogClient"
+import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
 import {BacklogData, ValidationResult, ConvertResult, success, error, validate, User, recover, IssueType, notNull, Key, Project} from "./datas"
-import {Http} from "./Http"
+import {Http, HttpClient} from "./Http"
 import {Maybe} from "./Maybe"
 
 declare var global: any
 
 interface BacklogScript {
-  createBacklogClient: (http: Http, space: string, domain: string, apiKey: string) => BacklogClient
+  createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
   validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
   validateApiAccess: (client: BacklogClient, projectKey: string) => ValidationResult
   getProjectId: (client: BacklogClient, projectKey: string) => number
@@ -14,7 +14,7 @@ interface BacklogScript {
 }
 
 const BacklogScript = (): BacklogScript => ({
-  createBacklogClient: (http: Http, space: string, domain: string, apiKey: string): BacklogClient => BacklogClient(http, space, domain, apiKey),
+  createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient => new BacklogClientImpl(new HttpClient, space, domain, apiKey),
   validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult => {
     if (space === "") {
       return new ValidationResult(false, "スペースURL を入力してください")
