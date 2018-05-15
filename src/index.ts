@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {BacklogData, ValidationResult, ConvertResult, success, error, validate, User, recover, IssueType, notNull, Key, Project} from "./datas"
+import {BacklogData, ValidationResult, User, IssueType, notNull, Key, Project} from "./datas"
 import {Http, HttpClient} from "./Http"
 import {Option} from "./Option"
 import {Validation, ApiValidation} from "./ApiValidation"
@@ -18,12 +18,10 @@ interface BacklogScript {
 const BacklogScript = (): BacklogScript => ({
   createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient =>
     new BacklogClientImpl(new HttpClient, space, domain, apiKey),
-  validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult => {
-    return ApiValidation().parameters(space, apiKey, projectKey).toValidationResult()
-  },
+  validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult =>
+    ApiValidation().parameters(space, apiKey, projectKey).toValidationResult(),
   validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, Project> =>
     ApiValidation().apiAccess(backlogClient, projectKey),
-
   getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, number> =>
     backlogClient.getProjectV2(projectKey).map(project => project.id)
 

@@ -135,29 +135,14 @@ export interface ValidationResult {
 }
 export const ValidationResult = (success: boolean, message: string): ValidationResult => ({success, message})
 
-export class ConvertResult {
-  private _success: boolean
-  private _valueOrError: any
-  constructor(success: boolean, valueOrError: any) {
-    this._success = success
-    this._valueOrError = valueOrError
-  }
-  public success(): boolean {
-    return this._success
-  }
-  public valueOrError(): any {
-    return this._valueOrError
-  }
-}
+// export const success = <T>(value: T): ConvertResult => new ConvertResult(true, value)
+// export const error = <E>(error: E): ConvertResult => new ConvertResult(false, error)
 
-export const success = <T>(value: T): ConvertResult => new ConvertResult(true, value)
-export const error = <E>(error: E): ConvertResult => new ConvertResult(false, error)
+// export const validate = <T, U>(f: (t: T) => boolean, t: T, onError: U): ConvertResult =>
+//   f(t) ? success(t) : error(onError)
 
-export const validate = <T, U>(f: (t: T) => boolean, t: T, onError: U): ConvertResult =>
-  f(t) ? success(t) : error(onError)
-
-export const recover = <T>(result: ConvertResult, fallback: () => ConvertResult): ConvertResult =>
-  result.success ? result : fallback()
+// export const recover = <T>(result: ConvertResult, fallback: () => ConvertResult): ConvertResult =>
+//   result.success ? result : fallback()
 
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""
