@@ -1,6 +1,7 @@
 import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority} from "./datas"
 import {Http} from "./Http"
-import {Maybe} from "./Maybe"
+import {Option, Some, None} from "./Option"
+import {Either, Right, Left} from "./Either"
 
 export interface BacklogClient {
 
@@ -9,7 +10,7 @@ export interface BacklogClient {
    *
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-project/
    */
-  getProjectV2: (projectKey: Key<Project>) => Maybe<Project>,
+  getProjectV2: (projectKey: Key<Project>) => Either<Error, Project>,
 
   /**
    * 課題キーを指定して、課題を取得します。※親課題に*ではなく具体的な課題キーを指定した場合
@@ -17,7 +18,7 @@ export interface BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue/
    *
    */
-  getIssueV2: (id: Id<Issue>) => Maybe<Issue>,
+  getIssueV2: (id: Id<Issue>) => Option<Issue>,
 
   /**
    * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
@@ -68,22 +69,22 @@ export class BacklogClientImpl implements BacklogClient {
     this.apiKey = apiKey
   }
 
-  public getProjectV2(key: Key<Project>): Maybe<Project> {
+  public getProjectV2(key: Key<Project>): Either<Error, Project> {
     try {
       const json = this.http.get(this.buildUri(`projects/${key}`))
-      return Maybe.some(Project(json["id"], json["projectKey"]))
+      return Right(Project(json["id"], json["projectKey"]))
     } catch (e) {
-      return Maybe.none()
+      return Left(e)
     }
   }
 
-  public getIssueV2(id: Id<Issue>): Maybe<Issue> {
+  public getIssueV2(id: Id<Issue>): Option<Issue> {
     try {
       const json = this.http.get(this.buildUri(`issues/${id}`))
       const issue = this.jsonToIssue(json)
-      return Maybe.some(issue)
+      return Option(issue)
     } catch (e) {
-      return Maybe.none()
+      return None()
     }
   }
 
@@ -126,18 +127,18 @@ export class BacklogClientImpl implements BacklogClient {
       json["id"],
       json["projectId"],
       json["summary"],
-      Maybe.fromValue(json["description"]),
-      Maybe.fromValue(json["startDate"]),
-      Maybe.fromValue(json["dueDate"]),
-      Maybe.fromValue(json["estimatedHours"]),
-      Maybe.fromValue(json["actualHours"]),
+      Option(json["description"]),
+      Option(json["startDate"]),
+      Option(json["dueDate"]),
+      Option(json["estimatedHours"]),
+      Option(json["actualHours"]),
       this.jsonToIssueType(json["issueType"]),
       json["category"].map(this.jsonToCategory),
       json["versions"].map(this.jsonToVersion),
       json["milestone"].map(this.jsonToVersion),
       this.jsonToPriority(json["priority"]),
-      Maybe.fromValue(json["assignee"]).map(this.jsonToUser),
-      Maybe.fromValue(json["parentIssueId"])
+      Option(json["assignee"]).map(this.jsonToUser),
+      Option(json["parentIssueId"])
     )
   }
 

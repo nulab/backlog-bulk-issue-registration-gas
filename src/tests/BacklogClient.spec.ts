@@ -2,6 +2,7 @@ import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
 import {Http, HttpClient} from "../Http"
 import {BacklogClient, BacklogClientImpl} from "../BacklogClient"
+import {Either} from "../Either"
 
 describe("BacklogClient", function () {
 
@@ -201,10 +202,12 @@ describe("BacklogClient", function () {
   const client = new BacklogClientImpl(new FakeHttp(), "testspace", ".jp", "testapikeystring")
 
   test("Get project", function () {
-    const maybeProject = client.getProjectV2("SPR")
-    expect(maybeProject.isDefined()).toBe(true)
-    expect(maybeProject.get().projectKey).toBe("SPR")
-    expect(maybeProject.get().id).toBe(12345)
+    const result = client.getProjectV2("SPR")
+    expect(result.isRight).toBe(true)
+    result.map(project => {
+      expect(project.projectKey).toBe("SPR")
+      expect(project.id).toBe(12345)
+    })
   })
 
   test("Get users", function () {
@@ -241,20 +244,23 @@ describe("BacklogClient", function () {
 
   test("Get an issue", function () {
     const maybeIssue = client.getIssueV2(1234567890)
-    expect(maybeIssue.isDefined()).toBe(true)
-    expect(maybeIssue.get().id).toBe(1234567890)
-    expect(maybeIssue.get().summary).toBe("This is a test issue")
-    expect(maybeIssue.get().description.get()).toBe("- [ ] aa - [ ] bb")
-    expect(maybeIssue.get().startDate.isDefined()).toBe(false)
-    expect(maybeIssue.get().dueDate.isDefined()).toBe(true)
-    expect(maybeIssue.get().estimatedHours.isDefined()).toBe(false)
-    expect(maybeIssue.get().actualHours.isDefined()).toBe(false)
-    expect(maybeIssue.get().issueType.name).toBe("Task")
-    expect(maybeIssue.get().categories.length).toBe(0)
-    expect(maybeIssue.get().versions.length).toBe(0)
-    expect(maybeIssue.get().milestones.length).toBe(0)
-    expect(maybeIssue.get().priority.name).toBe("Normal")
-    expect(maybeIssue.get().assignee.isDefined()).toBe(true)
-    expect(maybeIssue.get().parentIssueId.get()).toBe(7777777)
+    expect(maybeIssue.isDefined).toBe(true)
+    maybeIssue.map(issue => {
+      expect(issue.id).toBe(1234567890)
+      expect(issue.summary).toBe("This is a test issue")
+      issue.description.map(description => expect(description).toBe("- [ ] aa - [ ] bb"))
+      expect(issue.startDate.isDefined).toBe(false)
+      expect(issue.dueDate.isDefined).toBe(true)
+      expect(issue.estimatedHours.isDefined).toBe(false)
+      expect(issue.actualHours.isDefined).toBe(false)
+      expect(issue.issueType.name).toBe("Task")
+      expect(issue.categories.length).toBe(0)
+      expect(issue.versions.length).toBe(0)
+      expect(issue.milestones.length).toBe(0)
+      expect(issue.priority.name).toBe("Normal")
+      expect(issue.assignee.isDefined).toBe(true)
+      expect(issue.parentIssueId.isDefined).toBe(true)
+      issue.parentIssueId.map(parentIssueId => expect(parentIssueId).toBe(7777777))
+    })
   })
 })

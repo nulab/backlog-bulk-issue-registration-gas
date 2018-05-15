@@ -1,29 +1,31 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
 import {BacklogData, ValidationResult, ConvertResult, success, error, validate, User, recover, IssueType, notNull, Key, Project} from "./datas"
 import {Http, HttpClient} from "./Http"
-import {Maybe} from "./Maybe"
-import {Validation} from "./Validation"
-import { Either } from "./Either";
+import {Option} from "./Option"
+import {Validation, ApiValidation} from "./ApiValidation"
+import {Either} from "./Either"
 
 declare var global: any
 
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
-  validateParameters: (space: string, apiKey: string, projectKey: string) => Either<Error, boolean>
-  validateApiAccess: (client: BacklogClient, projectKey: string) => Either<Error, boolean>
-  getProjectId: (client: BacklogClient, projectKey: string) => number
+  validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
+  validateApiAccess: (client: BacklogClient, projectKey: string) => Either<Error, Project>
+  getProjectId: (client: BacklogClient, projectKey: string) => Either<Error, number>
   // getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
 }
 
 const BacklogScript = (): BacklogScript => ({
   createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient =>
     new BacklogClientImpl(new HttpClient, space, domain, apiKey),
-  validateParameters: (space: string, apiKey: string, projectKey: string): Either<Error, boolean> =>
-    Validation().parameters(space, apiKey, projectKey),
-  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, boolean> =>
-    Validation().apiAccess(backlogClient, projectKey),
-  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number =>
-    backlogClient.getProjectV2(projectKey).getOrElse(Project(-1, projectKey)).id
+  validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult => {
+    return ApiValidation().parameters(space, apiKey, projectKey).toValidationResult()
+  },
+  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, Project> =>
+    ApiValidation().apiAccess(backlogClient, projectKey),
+
+  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, number> =>
+    backlogClient.getProjectV2(projectKey).map(project => project.id)
 
   // getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
   //   let project = backlogClient.getProjectV2(projectKey)

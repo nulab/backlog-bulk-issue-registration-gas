@@ -1,4 +1,4 @@
-import {Maybe} from "./Maybe"
+import {Option} from "./Option"
 
 export type Id<T> = number
 export type Key<T> = string
@@ -13,35 +13,35 @@ export interface Issue {
   readonly id: number
   readonly projectId: number
   readonly summary: string
-  readonly description: Maybe<string>
-  readonly startDate: Maybe<Date>
-  readonly dueDate: Maybe<Date>
-  readonly estimatedHours: Maybe<number>
-  readonly actualHours: Maybe<number>
+  readonly description: Option<string>
+  readonly startDate: Option<Date>
+  readonly dueDate: Option<Date>
+  readonly estimatedHours: Option<number>
+  readonly actualHours: Option<number>
   readonly issueType: IssueType
   readonly categories: Category[]
   readonly versions: Version[]
   readonly milestones: Version[]
   readonly priority: Priority
-  readonly assignee: Maybe<User>
-  readonly parentIssueId: Maybe<number>
+  readonly assignee: Option<User>
+  readonly parentIssueId: Option<number>
 }
 export const Issue = (
   id: number,
   projectId: number,
   summary: string,
-  description: Maybe<string>,
-  startDate: Maybe<Date>,
-  dueDate: Maybe<Date>,
-  estimatedHours: Maybe<number>,
-  actualHours: Maybe<number>,
+  description: Option<string>,
+  startDate: Option<Date>,
+  dueDate: Option<Date>,
+  estimatedHours: Option<number>,
+  actualHours: Option<number>,
   issueType: IssueType,
   categories: Category[],
   versions: Version[],
   milestones: Version[],
   priority: Priority,
-  assignee: Maybe<User>,
-  parentIssueId: Maybe<number>
+  assignee: Option<User>,
+  parentIssueId: Option<number>
 ) => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
 
 export interface User {
@@ -129,14 +129,11 @@ export class BacklogData {
   }
 }
 
-export class ValidationResult {
-  private success: boolean
-  private message: string
-  constructor(success: boolean, message: string) {
-    this.success = success
-    this.message = message
-  }
+export interface ValidationResult {
+  readonly success: boolean
+  readonly message: string
 }
+export const ValidationResult = (success: boolean, message: string): ValidationResult => ({success, message})
 
 export class ConvertResult {
   private _success: boolean
