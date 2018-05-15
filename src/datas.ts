@@ -163,3 +163,4 @@ export const recover = <T>(result: ConvertResult, fallback: () => ConvertResult)
   result.success ? result : fallback()
 
 export const notNull = <T, U>(t: T): boolean => t != null
+export const isEmpty = (str: string): boolean => str === ""

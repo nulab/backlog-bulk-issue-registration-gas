@@ -2,40 +2,29 @@ import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
 import {BacklogData, ValidationResult, ConvertResult, success, error, validate, User, recover, IssueType, notNull, Key, Project} from "./datas"
 import {Http, HttpClient} from "./Http"
 import {Maybe} from "./Maybe"
+import {Validation} from "./Validation"
+import { Either } from "./Either";
 
 declare var global: any
 
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
-  validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
-  validateApiAccess: (client: BacklogClient, projectKey: string) => ValidationResult
+  validateParameters: (space: string, apiKey: string, projectKey: string) => Either<Error, boolean>
+  validateApiAccess: (client: BacklogClient, projectKey: string) => Either<Error, boolean>
   getProjectId: (client: BacklogClient, projectKey: string) => number
   // getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
 }
 
 const BacklogScript = (): BacklogScript => ({
-  createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient => new BacklogClientImpl(new HttpClient, space, domain, apiKey),
-  validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult => {
-    if (space === "") {
-      return new ValidationResult(false, "スペースURL を入力してください")
-    }
-    if (apiKey === "") {
-      return new ValidationResult(false, "API Keyを入力してください")
-    }
-    if (projectKey === "") {
-      return new ValidationResult(false, "プロジェクト を入力してください")
-    }
-    return new ValidationResult(true, "")
-  },
-  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): ValidationResult => {
-    const maybeProject = backlogClient.getProjectV2(projectKey)
-    return maybeProject.map(function (project) {
-      return new ValidationResult(true, "")
-    }).getOrElse(new ValidationResult(false, "ログインに失敗しました."))
-  },
-  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number => {
-    return backlogClient.getProjectV2(projectKey).getOrElse(Project(-1, projectKey)).id
-  }
+  createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient =>
+    new BacklogClientImpl(new HttpClient, space, domain, apiKey),
+  validateParameters: (space: string, apiKey: string, projectKey: string): Either<Error, boolean> =>
+    Validation().parameters(space, apiKey, projectKey),
+  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, boolean> =>
+    Validation().apiAccess(backlogClient, projectKey),
+  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number =>
+    backlogClient.getProjectV2(projectKey).getOrElse(Project(-1, projectKey)).id
+
   // getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
   //   let project = backlogClient.getProjectV2(projectKey)
   //   let users = backlogClient.getUsersV2(project.id)
