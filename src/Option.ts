@@ -1,5 +1,5 @@
 import {F1, Lazy} from "./types"
-import { Either, Right, Left } from "./Either";
+import {Either, Right, Left} from "./Either"
 
 export interface Option<A> {
   flatMap<B>(f: F1<A, Option<B>>): Option<B>

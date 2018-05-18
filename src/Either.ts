@@ -1,7 +1,7 @@
 import {F1, Lazy, F3, F4, F5, F6, F7} from "./types"
 import {Option, Some, None} from "./Option"
 import {ValidationResult} from "./datas"
-import { List } from "./List";
+import {List} from "./List"
 
 export interface Either<E, A> {
   map<B>(f: F1<A, B>): Either<E, B>

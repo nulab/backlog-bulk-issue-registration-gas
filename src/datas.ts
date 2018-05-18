@@ -1,5 +1,5 @@
 import {Option} from "./Option"
-import { List } from "./List";
+import {List} from "./List"
 
 export type Id<T> = number
 export type Key<T> = string
