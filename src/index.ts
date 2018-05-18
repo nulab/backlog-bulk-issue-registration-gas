@@ -10,8 +10,8 @@ declare var global: any
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
   validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
-  validateApiAccess: (client: BacklogClient, projectKey: string) => Either<Error, Project>
-  getProjectId: (client: BacklogClient, projectKey: string) => Either<Error, number>
+  validateApiAccess: (client: BacklogClient, projectKey: string) => ValidationResult
+  getProjectId: (client: BacklogClient, projectKey: string) => number
   // getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
 }
 
@@ -20,10 +20,10 @@ const BacklogScript = (): BacklogScript => ({
     new BacklogClientImpl(new HttpClient, space, domain, apiKey),
   validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult =>
     ApiValidation().parameters(space, apiKey, projectKey).toValidationResult(),
-  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, Project> =>
-    ApiValidation().apiAccess(backlogClient, projectKey),
-  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, number> =>
-    backlogClient.getProjectV2(projectKey).map(project => project.id)
+  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): ValidationResult =>
+    ApiValidation().apiAccess(backlogClient, projectKey).toValidationResult(),
+  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number =>
+    backlogClient.getProjectV2(projectKey).map(project => project.id).getOrElse(() => -1)
 
   // getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
   //   let project = backlogClient.getProjectV2(projectKey)

@@ -1,7 +1,12 @@
 import {Option} from "./Option"
+import { List } from "./List";
 
 export type Id<T> = number
 export type Key<T> = string
+
+export interface WithName {
+  readonly name: String
+}
 
 export interface Project {
   readonly id: number
@@ -19,9 +24,9 @@ export interface Issue {
   readonly estimatedHours: Option<number>
   readonly actualHours: Option<number>
   readonly issueType: IssueType
-  readonly categories: Category[]
-  readonly versions: Version[]
-  readonly milestones: Version[]
+  readonly categories: List<Category>
+  readonly versions: List<Version>
+  readonly milestones: List<Version>
   readonly priority: Priority
   readonly assignee: Option<User>
   readonly parentIssueId: Option<number>
@@ -36,39 +41,39 @@ export const Issue = (
   estimatedHours: Option<number>,
   actualHours: Option<number>,
   issueType: IssueType,
-  categories: Category[],
-  versions: Version[],
-  milestones: Version[],
+  categories: List<Category>,
+  versions: List<Version>,
+  milestones: List<Version>,
   priority: Priority,
   assignee: Option<User>,
   parentIssueId: Option<number>
-) => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
+): Issue => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
 
-export interface User {
+export interface User extends WithName {
   readonly id: number
   readonly name: string
 }
 export const User = (id: number, name: string) => ({id, name})
 
-export interface IssueType {
+export interface IssueType extends WithName {
   readonly id: number
   readonly name: string
 }
 export const IssueType = (id: number, name: string) => ({id, name})
 
-export interface Category {
+export interface Category extends WithName {
   readonly id: number
   readonly name: string
 }
 export const Category = (id: number, name: string) => ({id, name})
 
-export interface Version {
+export interface Version extends WithName {
   readonly id: number
   readonly name: string
 }
 export const Version = (id: number, name: string) => ({id, name})
 
-export interface Priority {
+export interface Priority extends WithName {
   readonly id: number
   readonly name: string
 }
