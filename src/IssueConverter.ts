@@ -1,30 +1,37 @@
 import {Either, Left, Right} from "./Either"
 import {Option, Some, None} from "./Option"
-import {Issue, Project, Id, IssueType, Category, WithName, Version, Priority, User} from "./datas"
+import {Issue, Project, Id, IssueType, Category, WithName, Version, Priority, User, WithId} from "./datas"
 import {Predicate, List, find} from "./List"
 
 export interface IssueConverter {
-  convert(issue: JSON): Either<Error, Issue>
+  convert(issue: any): Either<Error, Issue>
 }
 
 // "itemA\n\nitemB" => ["itemA", "itemB"]
 const lines = (str: string): string[] =>
-  str.split("\n").filter(item => item !== "")
+  str.split("\n").filter(item => item !== "").map(s => s.trim())
 
+const withId = (id: number): Predicate<WithId> =>
+  (item: WithId) => item.id === id
 
 const withName = (name: string): Predicate<WithName> =>
   (item: WithName) => item.name === name
 
-const findWithName = <A extends WithName>(name: string, items: ReadonlyArray<A>): Option<A> =>
+const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> => {
+  console.log(id)
+  console.log(items)
+  return find<A>(withId(id), items)
+}
+const findWithName = <A extends WithName>(name: string, items: List<A>): Option<A> =>
   find<A>(withName(name), items)
 
 export const IssueConverter = (
-  issueTypes: IssueType[],
-  categories: Category[],
-  versions: Version[],
-  priorities: Priority[],
-  users: User[]): IssueConverter => ({
-  convert: (issue: JSON): Either<Error, Issue> => {
+  issueTypes: List<IssueType>,
+  categories: List<Category>,
+  versions: List<Version>,
+  priorities: List<Priority>,
+  users: List<User>): IssueConverter => ({
+  convert: (issue: any): Either<Error, Issue> => {
     const foundCategories = Either.sequence(
       lines(issue["categoryNames"]).map(
         item => findWithName(item, categories).orError(Error(`Cateogry not found. name: ${item}`))
@@ -39,8 +46,8 @@ export const IssueConverter = (
     ))
     const foundIssueType = findWithName(issue["issueTypeName"], issueTypes)
       .orError(Error(`IssueType not found. name: ${issue["issueTypeName"]}`))
-    const foundPriority = findWithName(issue["priorityName"], priorities)
-      .orError(Error(`Priority not found. name: ${issue["priorityName"]}`))
+    const foundPriority = findWithId(issue["priorityId"], priorities)
+      .orError(Error(`Priority not found. id: ${issue["priorityId"]}`))
     const foundOptUser = Either.sequenceOption(
       Option(issue["assigneeName"])
         .map(
