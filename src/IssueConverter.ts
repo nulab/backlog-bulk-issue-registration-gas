@@ -61,7 +61,7 @@ export const IssueConverter = (
       (categories, versions, milestones, issueType, priority, optUser) => {
         return Right(
           Issue(
-            issue["id"], // always `undefined`
+            undefined,
             issue["projectId"],
             issue["summary"],
             Option(issue["description"]),
@@ -75,7 +75,7 @@ export const IssueConverter = (
             milestones,
             priority,
             optUser,
-            Option(issue["parentIssueId"])
+            Option(issue["parentIssueKey"])
           )
         )
     })

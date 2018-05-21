@@ -33,7 +33,7 @@ export interface Issue extends WithId {
   readonly milestones: List<Version>
   readonly priority: Priority
   readonly assignee: Option<User>
-  readonly parentIssueId: Option<number>
+  readonly parentIssueId: Option<string>
 }
 export const Issue = (
   id: number,
@@ -50,7 +50,7 @@ export const Issue = (
   milestones: List<Version>,
   priority: Priority,
   assignee: Option<User>,
-  parentIssueId: Option<number>
+  parentIssueId: Option<string>
 ): Issue => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
 
 export interface User extends WithId, WithName {

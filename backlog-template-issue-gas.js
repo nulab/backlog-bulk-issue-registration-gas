@@ -175,7 +175,7 @@ function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
 			milestoneNames: values[i][9],
 			priorityId: values[i][10] === "" ? DEFAULT_PRIORITYID : values[i][10],
 			assigneeName: values[i][11] === "" ? undefined : values[i][11],
-			parentIssueId: values[i][12] === "" ? undefined : values[i][12]
+			parentIssueKey: values[i][12] === "" ? undefined : values[i][12]
 		};
 		issues[i] = issue;
 	}
