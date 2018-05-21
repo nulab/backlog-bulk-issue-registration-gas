@@ -7,9 +7,12 @@ export interface IssueConverter {
   convert(issue: any): Either<Error, Issue>
 }
 
+const isEmpty = (str: string): boolean =>
+  str === "" ? true : false
+
 // "itemA\n\nitemB" => ["itemA", "itemB"]
 const lines = (str: string): string[] =>
-  str.split("\n").filter(item => item !== "").map(s => s.trim())
+  str.split("\n").filter(item => !isEmpty(item)).map(s => s.trim())
 
 const withId = (id: number): Predicate<WithId> =>
   (item: WithId) => item.id === id
@@ -22,11 +25,6 @@ const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> =>
 
 const findWithName = <A extends WithName>(name: string, items: List<A>): Option<A> =>
   find<A>(withName(name), items)
-
-const isEmpty = (str: string): boolean =>
-  str === "" ? true : false
-
-const getPriority = (priorityId: string): number 
 
 export const IssueConverter = (
   issueTypes: List<IssueType>,
@@ -49,7 +47,7 @@ export const IssueConverter = (
     ))
     const foundIssueType = findWithName(issue["issueTypeName"], issueTypes)
       .orError(Error(`IssueType not found. name: ${issue["issueTypeName"]}`))
-    const foundPriority = findWithId(issue["priorityId"], priorities)
+    const foundPriority = findWithId(+issue["priorityId"], priorities)
       .orError(Error(`Priority not found. id: ${issue["priorityId"]}`))
     const foundOptUser = Either.sequenceOption(
       Option(issue["assigneeName"])
@@ -63,14 +61,14 @@ export const IssueConverter = (
       (categories, versions, milestones, issueType, priority, optUser) => {
         return Right(
           Issue(
-            issue["id"], // TODO
+            issue["id"], // always `undefined`
             issue["projectId"],
             issue["summary"],
             Option(issue["description"]),
-            Option(issue["startDate"]),
-            Option(issue["dueDate"]),
-            Option(issue["estimatedHours"]),
-            Option(issue["actualHours"]),
+            Option(issue["startDate"]).map(item => new Date(item)),
+            Option(issue["dueDate"]).map(item => new Date(item)),
+            Option(issue["estimatedHours"]).map(item => +item),
+            Option(issue["actualHours"]).map(item => +item),
             issueType,
             categories,
             versions,

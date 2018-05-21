@@ -32,13 +32,39 @@ describe("IssueConverter", function () {
   ]
   const converter = IssueConverter(issueTypes, categories, versions, priorities, users)
 
-  test("test1", function () {
-    const data = {projectId: 86095, summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "", actualHours : "", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "", milestoneNames: "", priorityId: "3", assigneeName: "shomatan", parentIssueId: "*"}
+  test("convert: input all", function () {
+    const data = {projectId: 86095, summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityId: "1", assigneeName: "user 3", parentIssueId: "*"}
     const actual = converter.convert(data)
     actual.recover(function(error) {
-      console.log(error)
       return Left(error)
     })
     expect(actual.isRight).toBe(true)
+    actual.map(function (issue) {
+      expect(issue.projectId).toBe(86095)
+      expect(issue.summary).toBe("データファイルを作成する")
+      issue.description.map(description => expect(description).toBe("step1\r\n\r\nstep2"))
+      issue.startDate.map(startDate => expect(startDate).toEqual(new Date("2018-04-16T15:00:00.000Z")))
+      issue.dueDate.map(dueDate => expect(dueDate).toEqual(new Date("2018-04-30T15:00:00.000Z")))
+      issue.estimatedHours.map(estimatedHours => expect(estimatedHours).toBe(3))
+      issue.actualHours.map(actualHours => expect(actualHours).toBe(1.5))
+      expect(issue.issueType.id).toBe(3)
+      expect(issue.categories.map(category => category.id)).toEqual([1,2])
+      expect(issue.versions.map(version => version.id)).toEqual([1])
+      expect(issue.categories.map(category => category.id)).toEqual([1,2])
+      expect(issue.milestones.map(milestone => milestone.id)).toEqual([2])
+      expect(issue.priority.id).toBe(1)
+      issue.assignee.map(assignee => expect(assignee.id).toBe(3))
+      issue.parentIssueId.map(parentIssueId => expect(parentIssueId).toBe("*"))
+    })
+  })
+
+  test("convert: invalid issue type", function () {
+    const data = {projectId: 77777, summary: "課題を追加する", issueTypeName: "issue type 999", categoryNames: "", versionNames: "", milestoneNames: "", priorityId: "3"}
+    const actual = converter.convert(data)
+    expect(actual.isLeft).toBe(true)
+    actual.recover(error => {
+      expect(error.message).toEqual("IssueType not found. name: issue type 999")
+      return Left(error)
+    })
   })
 })
