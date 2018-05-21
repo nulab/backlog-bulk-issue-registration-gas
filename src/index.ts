@@ -1,38 +1,41 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {BacklogData, ValidationResult, User, IssueType, notNull, Key, Project} from "./datas"
+import {BacklogResult, User, IssueType, notNull, Key, Project, Issue} from "./datas"
 import {Http, HttpClient} from "./Http"
 import {Option} from "./Option"
 import {Validation, ApiValidation} from "./ApiValidation"
 import {Either} from "./Either"
+import {IssueConverter} from "./IssueConverter"
 
 declare var global: any
 
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
-  validateParameters: (space: string, apiKey: string, projectKey: string) => ValidationResult
-  validateApiAccess: (client: BacklogClient, projectKey: string) => ValidationResult
+  validateParameters: (space: string, apiKey: string, projectKey: string) => BacklogResult
+  validateApiAccess: (client: BacklogClient, projectKey: string) => BacklogResult
   getProjectId: (client: BacklogClient, projectKey: string) => number
-  // getBacklogData: (client: BacklogClient, projectKey: string) => BacklogData
+  createIssueConverter: (client: BacklogClient, projectId: number) => IssueConverter
+  convertIssue: (converter: IssueConverter, issue: any) => BacklogResult
 }
 
 const BacklogScript = (): BacklogScript => ({
   createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient =>
     new BacklogClientImpl(new HttpClient, space, domain, apiKey),
-  validateParameters: (space: string, apiKey: string, projectKey: string): ValidationResult =>
-    ApiValidation().parameters(space, apiKey, projectKey).toValidationResult(),
-  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): ValidationResult =>
-    ApiValidation().apiAccess(backlogClient, projectKey).toValidationResult(),
+  validateParameters: (space: string, apiKey: string, projectKey: string): BacklogResult =>
+    ApiValidation().parameters(space, apiKey, projectKey).toBacklogResult(),
+  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): BacklogResult =>
+    ApiValidation().apiAccess(backlogClient, projectKey).toBacklogResult(),
   getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number =>
-    backlogClient.getProjectV2(projectKey).map(project => project.id).getOrElse(() => -1)
-
-  // getBacklogData: (backlogClient: BacklogClient, projectKey: string): BacklogData => {
-  //   let project = backlogClient.getProjectV2(projectKey)
-  //   let users = backlogClient.getUsersV2(project.id)
-  //   let issueTypes = backlogClient.getIssueTypesV2(project.id)
-  //   let categories = backlogClient.getCategoriesV2(project.id)
-  //   let versions = backlogClient.getVersionsV2(project.id)
-  //   return new BacklogData(project, users, issueTypes, categories, versions)
-  // }
+    backlogClient.getProjectV2(projectKey).map(project => project.id).getOrElse(() => -1),
+  createIssueConverter: (client: BacklogClient, projectId: number) =>
+    IssueConverter(
+      client.getIssueTypesV2(projectId),
+      client.getCategoriesV2(projectId),
+      client.getVersionsV2(projectId),
+      client.getPrioritiesV2(),
+      client.getUsersV2(projectId)
+    ),
+  convertIssue: (converter: IssueConverter, issue: any): BacklogResult =>
+    converter.convert(issue).toBacklogResult()
 });
 
 (global as any).BacklogScript = BacklogScript()

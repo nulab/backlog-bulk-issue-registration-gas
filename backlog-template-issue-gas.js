@@ -102,6 +102,9 @@ function showInputDialog_(app, grid) {
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
 
+/**
+ * '一括登録'ボタンをクリックすることで呼び出されます
+ */
 function submit_(grid) {
 	var app = UiApp.getActiveApplication();
 	var space = grid.parameter.space;
@@ -121,11 +124,20 @@ function submit_(grid) {
 	}
 
 	var logSheet = createLogSheet_();
-	// var backlogData = getBacklogData(backlogClient, projectKey);
 	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_(apiKey, projectId);
+	var issueConverter = BacklogScript.createIssueConverter(backlogClient, projectId);
+	var convertedIssues = [];
+	for (var i = 0; i < templateIssues.length; i++) {
+		var convertResult = BacklogScript.convertIssue(issueConverter, templateIssues[i]);
+		if (!convertResult.success) {
+			showMessage_(convertResult.message);
+			return app.close();
+		}
+		convertedIssues[i] = convertResult.value;
+	} 
 
-	createIssuesAndLog_(apiKey, templateIssues, logSheet);
+	createIssuesAndLog_(apiKey, convertedIssues, logSheet);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
@@ -152,18 +164,18 @@ function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
 		var issue = {
 			projectId: projectId,
 			summary: values[i][0],
-			description: values[i][1],
-			startDate: values[i][2],
-			dueDate: values[i][3],
-			estimatedHours: values[i][4],
-			actualHours: values[i][5],
-			issueTypeName: values[i][6],
+			description: values[i][1] === "" ? undefined : values[i][1],
+			startDate: values[i][2] === "" ? undefined : values[i][2],
+			dueDate: values[i][3] === "" ? undefined : values[i][3],
+			estimatedHours: values[i][4] === "" ? undefined : values[i][4],
+			actualHours: values[i][5] === "" ? undefined : values[i][5],
+			issueTypeName: values[i][6] === "" ? undefined : values[i][6],
 			categoryNames: values[i][7],
 			versionNames: values[i][8],
 			milestoneNames: values[i][9],
 			priorityId: values[i][10] === "" ? DEFAULT_PRIORITYID : values[i][10],
-			assigneeName: values[i][11],
-			parentIssueId: values[i][12]
+			assigneeName: values[i][11] === "" ? undefined : values[i][11],
+			parentIssueId: values[i][12] === "" ? undefined : values[i][12]
 		};
 		issues[i] = issue;
 	}

@@ -1,4 +1,4 @@
-import {ValidationResult, Project, Key} from "./datas"
+import {BacklogResult, Project, Key} from "./datas"
 import {BacklogClient} from "./BacklogClient"
 import {Either, Right, Left} from "./Either"
 import {Nullable} from "./Option"

@@ -55,6 +55,13 @@ export interface BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue-type-list/
    */
   getVersionsV2(id: Id<Project>): Version[],
+
+  /**
+   * プロジェクトの優先度一覧を取得します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-priority-list/
+   */
+  getPrioritiesV2(): Priority[]
 }
 
 export class BacklogClientImpl implements BacklogClient {
@@ -116,6 +123,11 @@ export class BacklogClientImpl implements BacklogClient {
   public getVersionsV2(id: Id<Project>): Version[] {
     const json = this.http.get(this.buildUri(`projects/${id}/versions`))
     return Object.keys(json).map(key => this.jsonToVersion(json[key]))
+  }
+
+  public getPrioritiesV2(): Priority[] {
+    const json = this.http.get(this.buildUri(`priorities`))
+    return Object.keys(json).map(key => this.jsonToPriority(json[key]))
   }
 
   private buildUri(resource: string): string {

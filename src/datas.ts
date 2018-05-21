@@ -85,11 +85,12 @@ export const Priority = (id: number, name: string) => ({id, name})
 
 export type Action = String | number | undefined
 
-export interface ValidationResult {
+export interface BacklogResult {
   readonly success: boolean
   readonly message: string
+  readonly value: any
 }
-export const ValidationResult = (success: boolean, message: string): ValidationResult => ({success, message})
+export const BacklogResult = (success: boolean, message: string, value: any): BacklogResult => ({success, message, value})
 
 // export const success = <T>(value: T): ConvertResult => new ConvertResult(true, value)
 // export const error = <E>(error: E): ConvertResult => new ConvertResult(false, error)
