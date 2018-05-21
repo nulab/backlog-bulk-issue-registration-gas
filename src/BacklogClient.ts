@@ -26,7 +26,7 @@ export interface BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/add-issue/
    *
    */
-  createIssueV2: (issue: Issue) => Issue,
+  createIssueV2: (issue: Issue) => Either<Error, Issue>,
 
   /**
    * プロジェクトの参加メンバーを返します。
@@ -64,6 +64,12 @@ export interface BacklogClient {
   getPrioritiesV2(): Priority[]
 }
 
+const padding2 = (num: number): string =>
+  (`0` + num).slice(-2)
+
+const formatToDate = (date: Date): string =>
+  `${date.getFullYear()}-${padding2(date.getMonth())}-${padding2(date.getDay())}`
+
 export class BacklogClientImpl implements BacklogClient {
   private http: Http
   private spaceName: string
@@ -95,14 +101,30 @@ export class BacklogClientImpl implements BacklogClient {
     }
   }
 
-  public createIssueV2(issue: Issue): Issue {
-    // TODO
-    // if (issue["prorityId"] == undefined) {
-    //   issue["priorityId"] = DEFAULT_PRIORITYID
-    // }
-    const json = this.http.post("issues", issue)
-    const createdIssue = this.jsonToIssue(json)
-    return createdIssue
+  public createIssueV2(issue: Issue): Either<Error, Issue> {
+    try {
+      const payload = {
+        projectId: issue.projectId,
+        summary: issue.summary,
+        description: issue.description.getOrElse(() => undefined),
+        startDate: issue.startDate.map(formatToDate).getOrElse(() => undefined),
+        dueDate: issue.dueDate.map(formatToDate).getOrElse(() => undefined),
+        estimatedHours: issue.estimatedHours.getOrElse(() => undefined),
+        actualHours: issue.actualHours.getOrElse(() => undefined),
+        issueTypeId: issue.issueType.id,
+        categoryId: issue.categories.map(item => item.id),
+        versionId: issue.versions.map(item => item.id),
+        milestoneId: issue.milestones.map(item => item.id),
+        priorityId: issue.priority.id,
+        assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
+        parentIssueId: issue.parentIssueId.getOrElse(() => undefined)
+      }
+      const json = this.http.post(this.buildUri("issues"), payload)
+      const createdIssue = this.jsonToIssue(json)
+      return Right(createdIssue)
+    } catch (e) {
+      return Left(e)
+    }
   }
 
   public getUsersV2(id: Id<Project>): User[] {

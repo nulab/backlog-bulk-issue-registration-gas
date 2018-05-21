@@ -15,6 +15,8 @@ interface BacklogScript {
   getProjectId: (client: BacklogClient, projectKey: string) => number
   createIssueConverter: (client: BacklogClient, projectId: number) => IssueConverter
   convertIssue: (converter: IssueConverter, issue: any) => BacklogResult
+  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>) => BacklogResult
+  getParentIssueIdOrNull: (issue: Issue) => any
 }
 
 const BacklogScript = (): BacklogScript => ({
@@ -35,7 +37,30 @@ const BacklogScript = (): BacklogScript => ({
       client.getUsersV2(projectId)
     ),
   convertIssue: (converter: IssueConverter, issue: any): BacklogResult =>
-    converter.convert(issue).toBacklogResult()
+    converter.convert(issue).toBacklogResult(),
+  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): BacklogResult => {
+    const createIssue = Issue(
+      issue.id,
+      issue.issueKey,
+      issue.projectId,
+      issue.summary,
+      issue.description,
+      issue.startDate,
+      issue.dueDate,
+      issue.estimatedHours,
+      issue.actualHours,
+      issue.issueType,
+      issue.categories,
+      issue.versions,
+      issue.milestones,
+      issue.priority,
+      issue.assignee,
+      optParentIssueId
+    )
+    return client.createIssueV2(createIssue).toBacklogResult()
+  },
+  getParentIssueIdOrNull: (issue: Issue): any =>
+    issue.parentIssueId.getOrElse(() => undefined)
 });
 
 (global as any).BacklogScript = BacklogScript()
