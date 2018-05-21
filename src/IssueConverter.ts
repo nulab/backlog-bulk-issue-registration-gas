@@ -62,6 +62,7 @@ export const IssueConverter = (
         return Right(
           Issue(
             undefined,
+            "",
             issue["projectId"],
             issue["summary"],
             Option(issue["description"]),

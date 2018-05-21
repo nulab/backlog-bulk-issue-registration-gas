@@ -20,6 +20,7 @@ export const Project = (id: number, projectKey: string) => ({id, projectKey})
 
 export interface Issue extends WithId {
   readonly id: number
+  readonly issueKey: string
   readonly projectId: number
   readonly summary: string
   readonly description: Option<string>
@@ -37,6 +38,7 @@ export interface Issue extends WithId {
 }
 export const Issue = (
   id: number,
+  issueKey: string,
   projectId: number,
   summary: string,
   description: Option<string>,
@@ -51,7 +53,7 @@ export const Issue = (
   priority: Priority,
   assignee: Option<User>,
   parentIssueId: Option<string>
-): Issue => ({id, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
+): Issue => ({id, issueKey, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
 
 export interface User extends WithId, WithName {
   readonly id: number

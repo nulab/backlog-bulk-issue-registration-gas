@@ -137,6 +137,7 @@ export class BacklogClientImpl implements BacklogClient {
   private jsonToIssue(json: JSON): Issue {
     return Issue(
       json["id"],
+      json["issueKey"],
       json["projectId"],
       json["summary"],
       Option(json["description"]),
