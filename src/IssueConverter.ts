@@ -17,13 +17,16 @@ const withId = (id: number): Predicate<WithId> =>
 const withName = (name: string): Predicate<WithName> =>
   (item: WithName) => item.name === name
 
-const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> => {
-  console.log(id)
-  console.log(items)
-  return find<A>(withId(id), items)
-}
+const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> =>
+  find<A>(withId(id), items)
+
 const findWithName = <A extends WithName>(name: string, items: List<A>): Option<A> =>
   find<A>(withName(name), items)
+
+const isEmpty = (str: string): boolean =>
+  str === "" ? true : false
+
+const getPriority = (priorityId: string): number 
 
 export const IssueConverter = (
   issueTypes: List<IssueType>,
