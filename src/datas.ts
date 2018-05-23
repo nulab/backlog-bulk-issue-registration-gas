@@ -55,37 +55,20 @@ export const Issue = (
   parentIssueId: Option<string>
 ): Issue => ({id, issueKey, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
 
-export interface User extends WithId, WithName {
-  readonly id: number
-  readonly name: string
-}
+export interface User extends WithId, WithName {}
 export const User = (id: number, name: string) => ({id, name})
 
-export interface IssueType extends WithId, WithName {
-  readonly id: number
-  readonly name: string
-}
+export interface IssueType extends WithId, WithName {}
 export const IssueType = (id: number, name: string) => ({id, name})
 
-export interface Category extends WithId, WithName {
-  readonly id: number
-  readonly name: string
-}
+export interface Category extends WithId, WithName {}
 export const Category = (id: number, name: string) => ({id, name})
 
-export interface Version extends WithId, WithName {
-  readonly id: number
-  readonly name: string
-}
+export interface Version extends WithId, WithName {}
 export const Version = (id: number, name: string) => ({id, name})
 
-export interface Priority extends WithId, WithName {
-  readonly id: number
-  readonly name: string
-}
+export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
-
-export type Action = String | number | undefined
 
 export interface BacklogResult {
   readonly success: boolean

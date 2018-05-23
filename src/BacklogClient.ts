@@ -1,4 +1,4 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName} from "./datas"
 import {Http} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -103,22 +103,7 @@ export class BacklogClientImpl implements BacklogClient {
 
   public createIssueV2(issue: Issue): Either<Error, Issue> {
     try {
-      const payload = {
-        projectId: issue.projectId,
-        summary: issue.summary,
-        description: issue.description.getOrElse(() => undefined),
-        startDate: issue.startDate.map(formatToDate).getOrElse(() => undefined),
-        dueDate: issue.dueDate.map(formatToDate).getOrElse(() => undefined),
-        estimatedHours: issue.estimatedHours.getOrElse(() => undefined),
-        actualHours: issue.actualHours.getOrElse(() => undefined),
-        issueTypeId: issue.issueType.id,
-        categoryId: issue.categories.map(item => item.id),
-        versionId: issue.versions.map(item => item.id),
-        milestoneId: issue.milestones.map(item => item.id),
-        priorityId: issue.priority.id,
-        assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
-        parentIssueId: issue.parentIssueId.getOrElse(() => undefined)
-      }
+      const payload = this.issueToObject(issue)
       const json = this.http.post(this.buildUri("issues"), payload)
       const createdIssue = this.jsonToIssue(json)
       return Right(createdIssue)
@@ -129,27 +114,27 @@ export class BacklogClientImpl implements BacklogClient {
 
   public getUsersV2(id: Id<Project>): User[] {
     const json = this.http.get(this.buildUri(`projects/${id}/users`))
-    return Object.keys(json).map(key => this.jsonToUser(json[key]))
+    return Object.keys(json).map(key => this.jsonTo(json[key]))
   }
 
   public getIssueTypesV2(id: Id<Project>): IssueType[] {
     const json = this.http.get(this.buildUri(`projects/${id}/issueTypes`))
-    return Object.keys(json).map(key => this.jsonToIssueType(json[key]))
+    return Object.keys(json).map(key => this.jsonTo(json[key]))
   }
 
   public getCategoriesV2(id: Id<Project>): Category[] {
     const json = this.http.get(this.buildUri(`projects/${id}/categories`))
-    return Object.keys(json).map(key => this.jsonToCategory(json[key]))
+    return Object.keys(json).map(key => this.jsonTo(json[key]))
   }
 
   public getVersionsV2(id: Id<Project>): Version[] {
     const json = this.http.get(this.buildUri(`projects/${id}/versions`))
-    return Object.keys(json).map(key => this.jsonToVersion(json[key]))
+    return Object.keys(json).map(key => this.jsonTo(json[key]))
   }
 
   public getPrioritiesV2(): Priority[] {
     const json = this.http.get(this.buildUri(`priorities`))
-    return Object.keys(json).map(key => this.jsonToPriority(json[key]))
+    return Object.keys(json).map(key => this.jsonTo(json[key]))
   }
 
   private buildUri(resource: string): string {
@@ -163,39 +148,40 @@ export class BacklogClientImpl implements BacklogClient {
       json["projectId"],
       json["summary"],
       Option(json["description"]),
-      Option(json["startDate"]),
-      Option(json["dueDate"]),
+      Option(json["startDate"]).map(d => new Date(d)),
+      Option(json["dueDate"]).map(d => new Date(d)),
       Option(json["estimatedHours"]),
       Option(json["actualHours"]),
-      this.jsonToIssueType(json["issueType"]),
-      json["category"].map(this.jsonToCategory),
-      json["versions"].map(this.jsonToVersion),
-      json["milestone"].map(this.jsonToVersion),
-      this.jsonToPriority(json["priority"]),
-      Option(json["assignee"]).map(this.jsonToUser),
+      this.jsonTo(json["issueType"]),
+      json["category"].map(this.jsonTo),
+      json["versions"].map(this.jsonTo),
+      json["milestone"].map(this.jsonTo),
+      this.jsonTo(json["priority"]),
+      Option(json["assignee"]).map(a => this.jsonTo(a)),
       Option(json["parentIssueId"])
     )
   }
 
-  private jsonToUser(json: JSON): User {
-    return User(json["id"], json["name"])
+  protected issueToObject(issue: Issue): any {
+    return {
+      projectId: issue.projectId,
+      summary: issue.summary,
+      description: issue.description.getOrElse(() => undefined),
+      startDate: issue.startDate.map(formatToDate).getOrElse(() => undefined),
+      dueDate: issue.dueDate.map(formatToDate).getOrElse(() => undefined),
+      estimatedHours: issue.estimatedHours.getOrElse(() => undefined),
+      actualHours: issue.actualHours.getOrElse(() => undefined),
+      issueTypeId: issue.issueType.id,
+      categoryId: issue.categories.map(item => item.id),
+      versionId: issue.versions.map(item => item.id),
+      milestoneId: issue.milestones.map(item => item.id),
+      priorityId: issue.priority.id,
+      assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
+      parentIssueId: issue.parentIssueId.getOrElse(() => undefined)
+    }
   }
 
-  private jsonToIssueType(json: JSON): IssueType {
-    return IssueType(json["id"], json["name"])
-  }
-
-  private jsonToCategory(json: JSON): Category {
-    return Category(json["id"], json["name"])
-  }
-
-  private jsonToVersion(json: JSON): Version {
-    return Version(json["id"], json["name"])
-  }
-
-  private jsonToPriority(json: JSON): Priority {
-    return Priority(json["id"], json["name"])
-  }
-
+  private jsonTo = (json: any): WithId & WithName =>
+    ({id: json["id"], name: json["name"]})
 
 }
