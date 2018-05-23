@@ -1,8 +1,10 @@
 import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
 import {Http, HttpClient} from "../Http"
-import {BacklogClient, BacklogClientImpl} from "../BacklogClient"
-import {Either} from "../Either"
+import {BacklogClient, BacklogClientImpl, issueToObject} from "../BacklogClient"
+import {Either, Right, Left} from "../Either"
+import {Issue, IssueType, Priority, User, Category} from "../datas"
+import {None, Some} from "../Option"
 
 describe("BacklogClient", function () {
 
@@ -262,5 +264,40 @@ describe("BacklogClient", function () {
       expect(issue.parentIssueId.isDefined).toBe(true)
       issue.parentIssueId.map(parentIssueId => expect(parentIssueId).toBe(7777777))
     })
+  })
+})
+
+describe("BacklogClient", function () {
+
+  test("issue to object", function () {
+    const issue = Issue(
+      0,
+      "",
+      123,
+      "test summary",
+      Some("description"),
+      Some(new Date("2018-04-16T15:00:00.000Z")), // startDate
+      Some(new Date("2018-01-01T02:00:00.000Z")), // dueDate
+      Some(1.25), // estimatedHours
+      Some(3.3), // actualHours
+      IssueType(1, "issue type"),
+      [Category(1, "cat1"), Category(2, "cat2")], // category
+      [], // version
+      [], // milestone
+      Priority(2, "priority"),
+      Some(User(3, "user")),
+      Some("*")
+    )
+    const actual = issueToObject(issue)
+    expect(actual.projectId).toBe(123)
+    expect(actual.summary).toBe("test summary")
+    expect(actual.description).toBe("description")
+    expect(actual.startDate).toEqual("2018-04-16")
+    expect(actual.dueDate).toEqual("2018-01-01")
+    expect(actual.estimatedHours).toEqual(1.25)
+    expect(actual.actualHours).toEqual(3.3)
+    expect(actual.issueTypeId).toEqual(1)
+    expect(actual.categories)
+
   })
 })
