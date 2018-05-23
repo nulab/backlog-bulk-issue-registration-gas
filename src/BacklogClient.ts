@@ -2,6 +2,7 @@ import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, W
 import {Http} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
+import { List } from "./List";
 
 export interface BacklogClient {
 
@@ -70,7 +71,13 @@ const padding2 = (num: number): string =>
 const formatToDate = (date: Date): string =>
   `${date.getUTCFullYear()}-${padding2(date.getUTCMonth() + 1)}-${padding2(date.getUTCDate())}`
 
+const nullOrArray = <A>(items: List<A>): List<A> =>
+  items.length > 0 ? items : undefined
+
 export const issueToObject = (issue: Issue): any => {
+  const categoryIds = issue.categories.map(item => item.id)
+  const versionIds = issue.versions.map(item => item.id)
+  const milestoneIds = issue.milestones.map(item => item.id),
   return {
       projectId: issue.projectId,
       summary: issue.summary,
@@ -80,9 +87,9 @@ export const issueToObject = (issue: Issue): any => {
       estimatedHours: issue.estimatedHours.getOrElse(() => undefined),
       actualHours: issue.actualHours.getOrElse(() => undefined),
       issueTypeId: issue.issueType.id,
-      categoryId: issue.categories.map(item => item.id),
-      versionId: issue.versions.map(item => item.id),
-      milestoneId: issue.milestones.map(item => item.id),
+      categoryIds: nullOrArray(categoryIds),
+      versionIds: nullOrArray(versionIds),
+      milestoneIds: nullOrArray(milestoneIds),
       priorityId: issue.priority.id,
       assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
       parentIssueId: issue.parentIssueId.getOrElse(() => undefined)

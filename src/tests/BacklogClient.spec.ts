@@ -3,7 +3,7 @@ import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOption
 import {Http, HttpClient} from "../Http"
 import {BacklogClient, BacklogClientImpl, issueToObject} from "../BacklogClient"
 import {Either, Right, Left} from "../Either"
-import {Issue, IssueType, Priority, User, Category} from "../datas"
+import {Issue, IssueType, Priority, User, Category, Version} from "../datas"
 import {None, Some} from "../Option"
 
 describe("BacklogClient", function () {
@@ -270,7 +270,7 @@ describe("BacklogClient", function () {
 describe("BacklogClient", function () {
 
   test("issue to object", function () {
-    const issue = Issue(
+    const issue1 = Issue(
       0,
       "",
       123,
@@ -281,23 +281,61 @@ describe("BacklogClient", function () {
       Some(1.25), // estimatedHours
       Some(3.3), // actualHours
       IssueType(1, "issue type"),
-      [Category(1, "cat1"), Category(2, "cat2")], // category
-      [], // version
-      [], // milestone
+      [Category(11, "cat1"), Category(12, "cat2")], // category
+      [Version(23, "v1"), Version(24, "v2"), Version(44, "v3")], // version
+      [Version(50, "m1")], // milestone
       Priority(2, "priority"),
       Some(User(3, "user")),
       Some("*")
     )
-    const actual = issueToObject(issue)
-    expect(actual.projectId).toBe(123)
-    expect(actual.summary).toBe("test summary")
-    expect(actual.description).toBe("description")
-    expect(actual.startDate).toEqual("2018-04-16")
-    expect(actual.dueDate).toEqual("2018-01-01")
-    expect(actual.estimatedHours).toEqual(1.25)
-    expect(actual.actualHours).toEqual(3.3)
-    expect(actual.issueTypeId).toEqual(1)
-    expect(actual.categories)
+    const actual1 = issueToObject(issue1)
+    expect(actual1.projectId).toBe(123)
+    expect(actual1.summary).toBe("test summary")
+    expect(actual1.description).toBe("description")
+    expect(actual1.startDate).toEqual("2018-04-16")
+    expect(actual1.dueDate).toEqual("2018-01-01")
+    expect(actual1.estimatedHours).toEqual(1.25)
+    expect(actual1.actualHours).toEqual(3.3)
+    expect(actual1.issueTypeId).toEqual(1)
+    expect(actual1.categoryIds).toEqual([11, 12])
+    expect(actual1.versionIds).toEqual([23, 24, 44])
+    expect(actual1.milestoneIds).toEqual([50])
+    expect(actual1.priorityId).toEqual(2)
+    expect(actual1.assigneeId).toEqual(3)
+    expect(actual1.parentIssueId).toEqual("*")
 
+    const issue2 = Issue(
+      0,
+      "",
+      12345,
+      "test 1",
+      None(),
+      None(), // startDate
+      None(), // dueDate
+      None(), // estimatedHours
+      None(), // actualHours
+      IssueType(12, "issue type12"),
+      [], // category
+      [], // version
+      [], // milestone
+      Priority(100, "priority100"),
+      None(),
+      None()
+    )
+    const actual2 = issueToObject(issue2)
+    expect(actual2.projectId).toBe(12345)
+    expect(actual2.summary).toBe("test 1")
+    expect(actual2.description).toBe(undefined)
+    expect(actual2.startDate).toEqual(undefined)
+    expect(actual2.dueDate).toEqual(undefined)
+    expect(actual2.estimatedHours).toEqual(undefined)
+    expect(actual2.actualHours).toEqual(undefined)
+    expect(actual2.issueTypeId).toEqual(12)
+    expect(actual2.categoryIds).toEqual(undefined)
+    expect(actual2.versionIds).toEqual(undefined)
+    expect(actual2.milestoneIds).toEqual(undefined)
+    expect(actual2.priorityId).toEqual(100)
+    expect(actual2.assigneeId).toEqual(undefined)
+    expect(actual2.parentIssueId).toEqual(undefined)
   })
 })
