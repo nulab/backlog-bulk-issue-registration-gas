@@ -68,7 +68,7 @@ const padding2 = (num: number): string =>
   (`0` + num).slice(-2)
 
 const formatToDate = (date: Date): string =>
-  `${date.getFullYear()}-${padding2(date.getMonth())}-${padding2(date.getDay())}`
+  `${date.getUTCFullYear()}-${padding2(date.getUTCMonth() + 1)}-${padding2(date.getUTCDate())}`
 
 export class BacklogClientImpl implements BacklogClient {
   private http: Http
