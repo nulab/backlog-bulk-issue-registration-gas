@@ -1,7 +1,7 @@
 import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
 import {Http, HttpClient} from "../Http"
-import {BacklogClient, BacklogClientImpl, issueToObject} from "../BacklogClient"
+import {BacklogClient, BacklogClientImpl, issueToObject, objectToPayload} from "../BacklogClient"
 import {Either, Right, Left} from "../Either"
 import {Issue, IssueType, Priority, User, Category, Version} from "../datas"
 import {None, Some} from "../Option"
@@ -268,27 +268,47 @@ describe("BacklogClient", function () {
 })
 
 describe("BacklogClient", function () {
+  const maxIssue = Issue(
+    0,
+    "",
+    123,
+    "test summary",
+    Some("description"),
+    Some(new Date("2018-04-16T15:00:00.000Z")), // startDate
+    Some(new Date("2018-01-01T02:00:00.000Z")), // dueDate
+    Some(1.25), // estimatedHours
+    Some(3.3), // actualHours
+    IssueType(1, "issue type"),
+    [Category(11, "cat1"), Category(12, "cat2")], // category
+    [Version(23, "v1"), Version(24, "v2"), Version(44, "v3")], // version
+    [Version(50, "m1")], // milestone
+    Priority(2, "priority"),
+    Some(User(3, "user")),
+    Some("*")
+  )
+
+  const minIssue = Issue(
+    0,
+    "",
+    12345,
+    "test 1",
+    None(),
+    None(), // startDate
+    None(), // dueDate
+    None(), // estimatedHours
+    None(), // actualHours
+    IssueType(12, "issue type12"),
+    [], // category
+    [], // version
+    [], // milestone
+    Priority(100, "priority100"),
+    None(),
+    None()
+  )
 
   test("issue to object", function () {
-    const issue1 = Issue(
-      0,
-      "",
-      123,
-      "test summary",
-      Some("description"),
-      Some(new Date("2018-04-16T15:00:00.000Z")), // startDate
-      Some(new Date("2018-01-01T02:00:00.000Z")), // dueDate
-      Some(1.25), // estimatedHours
-      Some(3.3), // actualHours
-      IssueType(1, "issue type"),
-      [Category(11, "cat1"), Category(12, "cat2")], // category
-      [Version(23, "v1"), Version(24, "v2"), Version(44, "v3")], // version
-      [Version(50, "m1")], // milestone
-      Priority(2, "priority"),
-      Some(User(3, "user")),
-      Some("*")
-    )
-    const actual1 = issueToObject(issue1)
+
+    const actual1 = issueToObject(maxIssue)
     expect(actual1.projectId).toBe(123)
     expect(actual1.summary).toBe("test summary")
     expect(actual1.description).toBe("description")
@@ -297,32 +317,14 @@ describe("BacklogClient", function () {
     expect(actual1.estimatedHours).toEqual(1.25)
     expect(actual1.actualHours).toEqual(3.3)
     expect(actual1.issueTypeId).toEqual(1)
-    expect(actual1.categoryIds).toEqual([11, 12])
-    expect(actual1.versionIds).toEqual([23, 24, 44])
-    expect(actual1.milestoneIds).toEqual([50])
+    expect(actual1.categoryId).toEqual([11, 12])
+    expect(actual1.versionId).toEqual([23, 24, 44])
+    expect(actual1.milestoneId).toEqual([50])
     expect(actual1.priorityId).toEqual(2)
     expect(actual1.assigneeId).toEqual(3)
     expect(actual1.parentIssueId).toEqual("*")
 
-    const issue2 = Issue(
-      0,
-      "",
-      12345,
-      "test 1",
-      None(),
-      None(), // startDate
-      None(), // dueDate
-      None(), // estimatedHours
-      None(), // actualHours
-      IssueType(12, "issue type12"),
-      [], // category
-      [], // version
-      [], // milestone
-      Priority(100, "priority100"),
-      None(),
-      None()
-    )
-    const actual2 = issueToObject(issue2)
+    const actual2 = issueToObject(minIssue)
     expect(actual2.projectId).toBe(12345)
     expect(actual2.summary).toBe("test 1")
     expect(actual2.description).toBe(undefined)
@@ -337,5 +339,17 @@ describe("BacklogClient", function () {
     expect(actual2.priorityId).toEqual(100)
     expect(actual2.assigneeId).toEqual(undefined)
     expect(actual2.parentIssueId).toEqual(undefined)
+  })
+
+  test("issue to object", function () {
+    const obj1 = issueToObject(minIssue)
+    const actual1 = objectToPayload(obj1)
+    expect(actual1).toEqual("projectId=12345&summary=test 1&issueTypeId=12&priorityId=100")
+
+    const obj2 = issueToObject(maxIssue)
+    const actual2 = objectToPayload(obj2)
+    expect(actual2).toEqual(
+      "projectId=123&summary=test summary&description=description&startDate=2018-04-16&dueDate=2018-01-01&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*"
+    )
   })
 })

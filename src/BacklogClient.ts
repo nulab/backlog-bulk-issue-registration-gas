@@ -2,7 +2,7 @@ import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, W
 import {Http} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
-import { List } from "./List";
+import {List} from "./List"
 
 export interface BacklogClient {
 
@@ -77,7 +77,7 @@ const nullOrArray = <A>(items: List<A>): List<A> =>
 export const issueToObject = (issue: Issue): any => {
   const categoryIds = issue.categories.map(item => item.id)
   const versionIds = issue.versions.map(item => item.id)
-  const milestoneIds = issue.milestones.map(item => item.id),
+  const milestoneIds = issue.milestones.map(item => item.id)
   return {
       projectId: issue.projectId,
       summary: issue.summary,
@@ -87,14 +87,28 @@ export const issueToObject = (issue: Issue): any => {
       estimatedHours: issue.estimatedHours.getOrElse(() => undefined),
       actualHours: issue.actualHours.getOrElse(() => undefined),
       issueTypeId: issue.issueType.id,
-      categoryIds: nullOrArray(categoryIds),
-      versionIds: nullOrArray(versionIds),
-      milestoneIds: nullOrArray(milestoneIds),
+      categoryId: nullOrArray(categoryIds),
+      versionId: nullOrArray(versionIds),
+      milestoneId: nullOrArray(milestoneIds),
       priorityId: issue.priority.id,
       assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
       parentIssueId: issue.parentIssueId.getOrElse(() => undefined)
     }
   }
+
+export const objectToPayload = (obj: any): string => {
+  const arr: string[] = Object.
+    keys(obj)
+    .filter(key => obj[key] !== undefined)
+    .map(function (key) {
+      if (obj[key] instanceof Array) {
+        const items: any[] = obj[key]
+        return items.map(item => `${key}[]=${item}`).join("&")
+      }
+      return `${key}=${obj[key]}`
+    })
+  return arr.join("&")
+}
 
 export class BacklogClientImpl implements BacklogClient {
   private http: Http
