@@ -112,16 +112,24 @@ function submit_(grid) {
 	var apiKey = grid.parameter.apikey;
 	var projectKey = grid.parameter.projectKey.toUpperCase();
 	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
-
-	var validateParamsResult = BacklogScript.validateParameters(space, apiKey, projectKey);
-	if (!validateParamsResult.success) return;
-	setParametersAsProperty_(space, domain, apiKey, projectKey);
-
-	var validateApiResult = BacklogScript.validateApiAccess(backlogClient, projectKey);
-	if (!validateApiResult.success) {
-		showMessage_(validateApiResult.message);
-		return app.close();
+	var onValidateFailed = function (error) {
+		throw error
 	}
+
+	// Validation
+	try {
+		BacklogScript.validateParameters(space, apiKey, projectKey, onValidateFailed);
+		BacklogScript.validateApiAccess(backlogClient, projectKey, onValidateFailed);
+	} catch (e) {
+		showMessage_(e.message);
+		return;
+	}
+
+	// Store user params
+	setUserProperty("space", space);
+	setUserProperty("domain", domain);
+	setUserProperty("apikey", apiKey);
+    setUserProperty("projectKey", projectKey.toUpperCase());
 
 	var logSheet = createLogSheet_();
 	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
@@ -140,13 +148,6 @@ function submit_(grid) {
 	createIssuesAndLog_(app, backlogClient, convertedIssues, logSheet);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
-}
-
-function setParametersAsProperty_(space, domain, apiKey, projectKey) {
-	setUserProperty("space", space);
-	setUserProperty("domain", domain);
-	setUserProperty("apikey", apiKey);
-    setUserProperty("projectKey", projectKey.toUpperCase());
 }
 
 function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {

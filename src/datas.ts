@@ -77,14 +77,5 @@ export interface BacklogResult {
 }
 export const BacklogResult = (success: boolean, message: string, value: any): BacklogResult => ({success, message, value})
 
-// export const success = <T>(value: T): ConvertResult => new ConvertResult(true, value)
-// export const error = <E>(error: E): ConvertResult => new ConvertResult(false, error)
-
-// export const validate = <T, U>(f: (t: T) => boolean, t: T, onError: U): ConvertResult =>
-//   f(t) ? success(t) : error(onError)
-
-// export const recover = <T>(result: ConvertResult, fallback: () => ConvertResult): ConvertResult =>
-//   result.success ? result : fallback()
-
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""

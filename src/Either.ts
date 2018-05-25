@@ -13,7 +13,8 @@ export interface Either<E, A> {
   isRight: boolean
   right(): Option<A>,
   left: () => Option<E>,
-  toBacklogResult: () => BacklogResult
+  toBacklogResult: () => BacklogResult,
+  onError(f: F1<E, void>): void
 }
 
 export const Right = <E, A>(value: A): Either<E, A> => {
@@ -27,7 +28,8 @@ export const Right = <E, A>(value: A): Either<E, A> => {
     isRight: true,
     right: () => Some(value),
     left: () => None(),
-    toBacklogResult: (): BacklogResult => BacklogResult(true, "", value)
+    toBacklogResult: (): BacklogResult => BacklogResult(true, "", value),
+    onError: (f: F1<E, void>): void => {}
   }
   return self
 }
@@ -47,7 +49,8 @@ export const Left = <E, A>(value: E): Either<E, A> => {
       if (value instanceof Error)
         return BacklogResult(false, value.message, undefined)
       return BacklogResult(false, value.toString(), undefined)
-    }
+    },
+    onError: (f: F1<E, void>): void => f(value)
   }
   return self
 }

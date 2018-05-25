@@ -1,4 +1,4 @@
-import {BacklogResult, Project, Key} from "./datas"
+import {Project, Key} from "./datas"
 import {BacklogClient} from "./BacklogClient"
 import {Either, Right, Left} from "./Either"
 import {Nullable} from "./Option"
@@ -20,7 +20,7 @@ export const ApiValidation = (): ApiValidation => ({
   parameters: (space: string, apiKey: string, projectKey: string): Either<Error, any> => {
     return isEmpty(space, Error("スペースURLを入力してください"))
       .flatMap(_ => isEmpty(apiKey, Error("APIキーを入力してください")))
-      .flatMap(_ => isEmpty(projectKey, Error("プロジェクトを入力してください")))
+      .flatMap(_ => isEmpty(projectKey, Error("プロジェクトキーを入力してください")))
   },
   apiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, Project> => {
     const result = backlogClient.getProjectV2(projectKey)
