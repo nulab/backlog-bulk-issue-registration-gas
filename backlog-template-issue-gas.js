@@ -505,7 +505,7 @@ function createLogSheet_() {
 
 function logKey_(logSheet, keyLength, i, issue) {
 	var linkKey = '=hyperlink("' + PropertiesService.getUserProperties().getProperty("bti.space") 
-		+ ".backlog.jp/" 
+		+ ".backlog" + PropertiesService.getUserProperties().getProperty("bti.domain") + "/"
 		+ "view/" + issue.issueKey + '";"' + issue.issueKey + '")';
 	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
 		.setFontColor("blue").setFontLine("underline");
