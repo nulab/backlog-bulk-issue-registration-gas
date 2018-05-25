@@ -103,9 +103,9 @@ export const objectToPayload = (obj: any): string => {
     .map(function (key) {
       if (obj[key] instanceof Array) {
         const items: any[] = obj[key]
-        return items.map(item => `${key}[]=${item}`).join("&")
+        return items.map(item => `${encodeURIComponent(key)}[]=${encodeURIComponent(item)}`).join("&")
       }
-      return `${key}=${obj[key]}`
+      return `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`
     })
   return arr.join("&")
 }
@@ -144,7 +144,8 @@ export class BacklogClientImpl implements BacklogClient {
   public createIssueV2(issue: Issue): Either<Error, Issue> {
     try {
       const obj = issueToObject(issue)
-      const json = this.http.post(this.buildUri("issues"), obj)
+      const payload = objectToPayload(obj)
+      const json = this.http.post(this.buildUri("issues"), payload)
       const createdIssue = this.jsonToIssue(json)
       return Right(createdIssue)
     } catch (e) {

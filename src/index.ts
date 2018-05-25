@@ -38,10 +38,10 @@ const BacklogScript = (): BacklogScript => ({
     ),
   convertIssue: (converter: IssueConverter, issue: any): BacklogResult =>
     converter.convert(issue).toBacklogResult(),
-  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): BacklogResult => {
+  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: any): BacklogResult => {
     const createIssue = Issue(
-      issue.id,
-      issue.issueKey,
+      0,
+      "",
       issue.projectId,
       issue.summary,
       issue.description,
@@ -55,7 +55,7 @@ const BacklogScript = (): BacklogScript => ({
       issue.milestones,
       issue.priority,
       issue.assignee,
-      optParentIssueId
+      Option(optParentIssueId)
     )
     return client.createIssueV2(createIssue).toBacklogResult()
   },

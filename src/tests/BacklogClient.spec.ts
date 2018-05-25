@@ -344,12 +344,12 @@ describe("BacklogClient", function () {
   test("issue to object", function () {
     const obj1 = issueToObject(minIssue)
     const actual1 = objectToPayload(obj1)
-    expect(actual1).toEqual("projectId=12345&summary=test 1&issueTypeId=12&priorityId=100")
+    expect(actual1).toEqual("projectId=12345&summary=test%201&issueTypeId=12&priorityId=100")
 
     const obj2 = issueToObject(maxIssue)
     const actual2 = objectToPayload(obj2)
     expect(actual2).toEqual(
-      "projectId=123&summary=test summary&description=description&startDate=2018-04-16&dueDate=2018-01-01&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*"
+      "projectId=123&summary=test%20summary&description=description&startDate=2018-04-16&dueDate=2018-01-01&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*"
     )
   })
 })
