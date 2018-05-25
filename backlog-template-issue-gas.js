@@ -117,13 +117,8 @@ function submit_(grid) {
 	}
 
 	// Validation
-	try {
-		BacklogScript.validateParameters(space, apiKey, projectKey, onValidateFailed);
-		BacklogScript.validateApiAccess(backlogClient, projectKey, onValidateFailed);
-	} catch (e) {
-		showMessage_(e.message);
-		return;
-	}
+	BacklogScript.validateParameters(space, apiKey, projectKey, onValidateFailed);
+	BacklogScript.validateApiAccess(backlogClient, projectKey, onValidateFailed);
 
 	// Store user params
 	setUserProperty("space", space);

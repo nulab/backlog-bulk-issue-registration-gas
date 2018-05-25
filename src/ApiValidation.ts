@@ -24,6 +24,12 @@ export const ApiValidation = (): ApiValidation => ({
   },
   apiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>): Either<Error, Project> => {
     const result = backlogClient.getProjectV2(projectKey)
-    return result.recover(error => Left(Error(`ログインに失敗しました.`)))
+    return result.recover(error => {
+      if (error.message.indexOf("returned code 404") !== -1)
+        return Left(Error("スペースまたはプロジェクトが見つかりません"))
+      if (error.message.indexOf("returned code 401") !== -1)
+        return Left(Error("認証に失敗しました"))
+      return Left(Error(`APIアクセスエラー ${error.message}`))
+    })
   }
 })
