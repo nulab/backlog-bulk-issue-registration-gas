@@ -64,12 +64,3 @@ const BacklogScript = (): BacklogScript => ({
 });
 
 (global as any).BacklogScript = BacklogScript()
-
-export enum HeaderName {
-  AssigneeId = "assigneeId",
-  ParentIssueId = "parentIssueId",
-  IssueTypeId = "issueTypeId",
-  CategoryIds = "categoryId[]",
-  VersionIds = "versionId[]",
-  MilestoneIds = "milestoneId[]"
-}

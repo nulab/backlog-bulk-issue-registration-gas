@@ -112,13 +112,13 @@ function submit_(grid) {
 	var apiKey = grid.parameter.apikey;
 	var projectKey = grid.parameter.projectKey.toUpperCase();
 	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
-	var onValidateFailed = function (error) {
+	var onFailed = function (error) {
 		throw error
 	}
 
 	// Validation
-	BacklogScript.validateParameters(space, apiKey, projectKey, onValidateFailed);
-	BacklogScript.validateApiAccess(backlogClient, projectKey, onValidateFailed);
+	BacklogScript.validateParameters(space, apiKey, projectKey, onFailed);
+	BacklogScript.validateApiAccess(backlogClient, projectKey, onFailed);
 
 	// Store user params
 	setUserProperty("space", space);
@@ -126,11 +126,11 @@ function submit_(grid) {
 	setUserProperty("apikey", apiKey);
     setUserProperty("projectKey", projectKey.toUpperCase());
 
-	var logSheet = createLogSheet_();
 	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_(apiKey, projectId);
 	var issueConverter = BacklogScript.createIssueConverter(backlogClient, projectId);
 	var convertedIssues = [];
+
 	for (var i = 0; i < templateIssues.length; i++) {
 		var convertResult = BacklogScript.convertIssue(issueConverter, templateIssues[i]);
 		if (!convertResult.success) {
@@ -139,8 +139,7 @@ function submit_(grid) {
 		}
 		convertedIssues[i] = convertResult.value;
 	} 
-
-	createIssuesAndLog_(app, backlogClient, convertedIssues, logSheet);
+	createIssuesAndLog_(app, backlogClient, convertedIssues);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
@@ -178,7 +177,8 @@ function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
 	return issues;
 }
 
-function createIssuesAndLog_(app, backlogClient, newIssues, logSheet) {
+function createIssuesAndLog_(app, backlogClient, newIssues) {
+	var logSheet = createLogSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 
@@ -216,12 +216,12 @@ function createIssuesAndLog_(app, backlogClient, newIssues, logSheet) {
 	}
 }
 
+/**
+ * ログ出力用のシートを作成します
+ */
 function createLogSheet_() {
-	var current = Utilities
-		.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-
-	return SpreadsheetApp.getActiveSpreadsheet().insertSheet(
-			SCRIPT_NAME + " : " + current);
+	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
+	return SpreadsheetApp.getActiveSpreadsheet().insertSheet(SCRIPT_NAME + " : " + current);
 }
 
 function logKey_(logSheet, keyLength, i, issue) {
