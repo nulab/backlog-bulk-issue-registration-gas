@@ -111,24 +111,18 @@ function submit_(grid) {
 	var domain = grid.parameter.domain;
 	var apiKey = grid.parameter.apikey;
 	var projectKey = grid.parameter.projectKey.toUpperCase();
-	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
-	var onFailed = function (error) {
-		throw error
-	}
-
-	// Validation
-	BacklogScript.validateParameters(space, apiKey, projectKey, onFailed);
-	BacklogScript.validateApiAccess(backlogClient, projectKey, onFailed);
 
 	// Store user params
 	setUserProperty("space", space);
 	setUserProperty("domain", domain);
 	setUserProperty("apikey", apiKey);
-    setUserProperty("projectKey", projectKey.toUpperCase());
+	setUserProperty("projectKey", projectKey.toUpperCase());
+	
+	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey); // throwable
+	var projectId = BacklogScript.getProjectId(backlogClient, projectKey); // throwable
 
-	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
-	var templateIssues = getTemplateIssuesFromSpreadSheet_(apiKey, projectId);
-	var issueConverter = BacklogScript.createIssueConverter(backlogClient, projectId);
+	var templateIssues = getTemplateIssuesFromSpreadSheet_();
+	var issueConverter = BacklogScript.createIssueConverter(backlogClient);
 	var convertedIssues = [];
 
 	for (var i = 0; i < templateIssues.length; i++) {
@@ -144,7 +138,7 @@ function submit_(grid) {
 	return app.close();
 }
 
-function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
+function getTemplateIssuesFromSpreadSheet_() {
 	var issues = [];
     var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
@@ -157,7 +151,6 @@ function getTemplateIssuesFromSpreadSheet_(apiKey, projectId) {
 
 	for ( var i = 0; i < values.length; i++) {
 		var issue = {
-			projectId: projectId,
 			summary: values[i][0],
 			description: values[i][1] === "" ? undefined : values[i][1],
 			startDate: values[i][2] === "" ? undefined : values[i][2],

@@ -1,4 +1,4 @@
-import {F1, Lazy, F3, F4, F5, F6, F7} from "./types"
+import {F1, Lazy, F3, F4, F5, F6, F7, F2} from "./types"
 import {Option, Some, None} from "./Option"
 import {BacklogResult} from "./datas"
 import {List} from "./List"
@@ -14,7 +14,7 @@ export interface Either<E, A> {
   right(): Option<A>,
   left: () => Option<E>,
   toBacklogResult: () => BacklogResult,
-  onError(f: F1<E, void>): void
+  getOrError()
 }
 
 export const Right = <E, A>(value: A): Either<E, A> => {
@@ -29,7 +29,7 @@ export const Right = <E, A>(value: A): Either<E, A> => {
     right: () => Some(value),
     left: () => None(),
     toBacklogResult: (): BacklogResult => BacklogResult(true, "", value),
-    onError: (f: F1<E, void>): void => {}
+    getOrError: (): A => value
   }
   return self
 }
@@ -50,7 +50,7 @@ export const Left = <E, A>(value: E): Either<E, A> => {
         return BacklogResult(false, value.message, undefined)
       return BacklogResult(false, value.toString(), undefined)
     },
-    onError: (f: F1<E, void>): void => f(value)
+    getOrError: (): A => { throw value }
   }
   return self
 }
@@ -80,14 +80,17 @@ export const Either = {
       Either.map4(a, b, c, d, (va, vb, vc, vd) => {
         return f.flatMap(vf => g(va, vb, vc, vd, vf))
       }),
-  map3: <E, A, B, C, D>(a: Either<E, A>, b: Either<E, B>, c: Either<E, C>,
-                        f: F3<A, B, C, Either<E, D>>) =>
+  map2: <E, A, B, C>(a: Either<E, A>, b: Either<E, B>,
+                     f: F2<A, B, Either<E, C>>) =>
     a.flatMap(va => {
       return b.flatMap(vb => {
-        return c.flatMap(vc => {
-          return f(va, vb, vc)
-        })
+        return f(va, vb)
       })
+    }),
+  map3: <E, A, B, C, D>(a: Either<E, A>, b: Either<E, B>, c: Either<E, C>,
+                        f: F3<A, B, C, Either<E, D>>): Either<E, D> =>
+    Either.map2(a, b, (va, vb) => {
+      return c.flatMap(vc => f(va, vb, vc))
     }),
   map6: <E, A, B, C, D, F, G, H>(a: Either<E, A>, b: Either<E, B>, c: Either<E, C>,
                                  d: Either<E, D>, f: Either<E, F>, g: Either<E, G>,

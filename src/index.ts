@@ -1,18 +1,20 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {BacklogResult, User, IssueType, notNull, Key, Project, Issue} from "./datas"
+import {BacklogResult, User, IssueType, notNull, Key, Project, Issue, Id} from "./datas"
 import {Http, HttpClient} from "./Http"
 import {Option, Nullable} from "./Option"
-import {Validation, ApiValidation} from "./ApiValidation"
-import {Either} from "./Either"
+import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 
 declare var global: any
 
+type Validation<A> = (a: A, onError: Error) => Either<Error, A>
+
+const isEmpty: Validation<string> = (str: string, onError: Error): Either<Error, string> =>
+  str !== "" ? Right(str) : Left(onError)
+
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
-  validateParameters: (space: string, apiKey: string, projectKey: string, onFail: (e: Error) => void) => void
-  validateApiAccess: (client: BacklogClient, projectKey: string, onFail: (e: Error) => void) => void
-  getProjectId: (client: BacklogClient, projectKey: string) => number
+  getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
   createIssueConverter: (client: BacklogClient, projectId: number) => IssueConverter
   convertIssue: (converter: IssueConverter, issue: any) => BacklogResult
   createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>) => BacklogResult
@@ -20,15 +22,25 @@ interface BacklogScript {
 }
 
 const BacklogScript = (): BacklogScript => ({
-  createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient =>
-    new BacklogClientImpl(new HttpClient, space, domain, apiKey),
-  validateParameters: (space: string, apiKey: string, projectKey: string, onFail: (e: Error) => void): void =>
-    ApiValidation().parameters(space, apiKey, projectKey).onError(onFail),
-  validateApiAccess: (backlogClient: BacklogClient, projectKey: Key<Project>, onFail: (e: Error) => void): void =>
-    ApiValidation().apiAccess(backlogClient, projectKey).onError(onFail),
-  getProjectId: (backlogClient: BacklogClient, projectKey: Key<Project>): number =>
-    backlogClient.getProjectV2(projectKey).map(project => project.id).getOrElse(() => -1),
-  createIssueConverter: (client: BacklogClient, projectId: number) =>
+  createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient => {
+    const spaceResult = isEmpty(space, Error("スペースURLを入力してください"))
+    const apiKeyResult = isEmpty(apiKey, Error("APIキーを入力してください"))
+    const client = Either.map2(spaceResult, apiKeyResult, (s, a) => {
+      return Right(new BacklogClientImpl(new HttpClient, s, domain, a))
+    })
+    return client.getOrError()
+  },
+  getProjectId: (client: BacklogClient, key: Key<Project>): Id<Project> => {
+    const result = client.getProjectV2(key)
+    return result.recover(error => {
+      if (error.message.indexOf("returned code 404") !== -1)
+        return Left(Error("スペースまたはプロジェクトが見つかりません"))
+      if (error.message.indexOf("returned code 401") !== -1)
+        return Left(Error("認証に失敗しました"))
+      return Left(Error(`APIアクセスエラー ${error.message}`))
+    }).getOrError()
+  },
+  createIssueConverter: (client: BacklogClient, projectId: number): IssueConverter =>
     IssueConverter(
       client.getIssueTypesV2(projectId),
       client.getCategoriesV2(projectId),
