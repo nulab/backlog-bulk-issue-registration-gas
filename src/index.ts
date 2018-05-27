@@ -16,9 +16,7 @@ const isEmpty: Validation<string> = (str: string, onError: Error): Either<Error,
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
   getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
-  createIssueConverter: (client: BacklogClient, projectId: number) => IssueConverter
-  convertIssue: (converter: IssueConverter, issue: any) => BacklogResult
-  convertIssues: (converter: IssueConverter, issues: any[], onSuccess: (issue: Issue) => void) => List<Issue>
+  convertIssues: (client: BacklogClient, projectId: Id<Project>, issues: any[]) => List<Issue>
   createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>) => BacklogResult
   getParentIssueIdOrNull: (issue: Issue) => any
 }
@@ -42,23 +40,16 @@ const BacklogScript = (): BacklogScript => ({
       return Left(Error(`APIアクセスエラー ${error.message}`))
     }).getOrError().id
   },
-  createIssueConverter: (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
-    IssueConverter(
+  convertIssues: (client: BacklogClient, projectId: Id<Project>, issues: any[]): List<Issue> => {
+    const converter = IssueConverter(
       projectId,
       client.getIssueTypesV2(projectId),
       client.getCategoriesV2(projectId),
       client.getVersionsV2(projectId),
       client.getPrioritiesV2(),
       client.getUsersV2(projectId)
-    ),
-  convertIssue: (converter: IssueConverter, issue: any): BacklogResult =>
-    converter.convert(issue).toBacklogResult(),
-  convertIssues: (converter: IssueConverter, issues: any[], onSuccess: (issue: Issue) => void): List<Issue> => {
-    const results = issues.map( issue => {
-      const result = converter.convert(issue)
-      result.forEach(onSuccess)
-      return result
-    })
+    )
+    const results = issues.map(converter.convert)
     return Either.sequence(results).getOrError()
   },
   createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>): BacklogResult => {

@@ -118,14 +118,11 @@ function submit_(grid) {
 	setUserProperty("apikey", apiKey);
 	setUserProperty("projectKey", projectKey.toUpperCase());
 	
-	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey); // throwable
-	var projectId = BacklogScript.getProjectId(backlogClient, projectKey); // throwable
+	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey); // maybe throw an exception
+	var projectId = BacklogScript.getProjectId(backlogClient, projectKey); // maybe throw an exception
 
 	var templateIssues = getTemplateIssuesFromSpreadSheet_(projectId);
-	var issueConverter = BacklogScript.createIssueConverter(backlogClient, projectId);
-	var convertedIssues = BacklogScript.convertIssues(issueConverter, templateIssues, function (issue) {
-		// showMessage_(issue.summary)
-	})
+	var convertedIssues = BacklogScript.convertIssues(backlogClient, projectId, templateIssues) // maybe throw an exception
 	
 	var logSheet = createLogSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
@@ -167,6 +164,9 @@ function submit_(grid) {
 	return app.close();
 }
 
+/**
+ * Templateシートからすべての項目を課題配列に格納します
+ */
 function getTemplateIssuesFromSpreadSheet_() {
 	var issues = [];
     var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
