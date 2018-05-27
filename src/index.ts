@@ -4,6 +4,7 @@ import {Http, HttpClient} from "./Http"
 import {Option, Nullable} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
+import {List} from "./List"
 
 declare var global: any
 
@@ -17,6 +18,7 @@ interface BacklogScript {
   getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
   createIssueConverter: (client: BacklogClient, projectId: number) => IssueConverter
   convertIssue: (converter: IssueConverter, issue: any) => BacklogResult
+  convertIssues: (converter: IssueConverter, issues: any[], onSuccess: (issue: Issue) => void) => List<Issue>
   createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>) => BacklogResult
   getParentIssueIdOrNull: (issue: Issue) => any
 }
@@ -38,10 +40,11 @@ const BacklogScript = (): BacklogScript => ({
       if (error.message.indexOf("returned code 401") !== -1)
         return Left(Error("認証に失敗しました"))
       return Left(Error(`APIアクセスエラー ${error.message}`))
-    }).getOrError()
+    }).getOrError().id
   },
-  createIssueConverter: (client: BacklogClient, projectId: number): IssueConverter =>
+  createIssueConverter: (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
     IssueConverter(
+      projectId,
       client.getIssueTypesV2(projectId),
       client.getCategoriesV2(projectId),
       client.getVersionsV2(projectId),
@@ -50,6 +53,14 @@ const BacklogScript = (): BacklogScript => ({
     ),
   convertIssue: (converter: IssueConverter, issue: any): BacklogResult =>
     converter.convert(issue).toBacklogResult(),
+  convertIssues: (converter: IssueConverter, issues: any[], onSuccess: (issue: Issue) => void): List<Issue> => {
+    const results = issues.map( issue => {
+      const result = converter.convert(issue)
+      result.forEach(onSuccess)
+      return result
+    })
+    return Either.sequence(results).getOrError()
+  },
   createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>): BacklogResult => {
     const createIssue = Issue(
       0,

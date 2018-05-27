@@ -30,17 +30,17 @@ describe("IssueConverter", function () {
     User(3, "user 3"),
     User(4, "user 4")
   ]
-  const converter = IssueConverter(issueTypes, categories, versions, priorities, users)
+  const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users)
 
   test("convert: input all", function () {
-    const data = {projectId: 86095, summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityId: "1", assigneeName: "user 3", parentIssueId: "*"}
+    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityId: "1", assigneeName: "user 3", parentIssueId: "*"}
     const actual = converter.convert(data)
     actual.recover(function(error) {
       return Left(error)
     })
     expect(actual.isRight).toBe(true)
     actual.map(function (issue) {
-      expect(issue.projectId).toBe(86095)
+      expect(issue.projectId).toBe(10777)
       expect(issue.summary).toBe("データファイルを作成する")
       issue.description.map(description => expect(description).toBe("step1\r\n\r\nstep2"))
       issue.startDate.map(startDate => expect(startDate).toEqual(new Date("2018-04-16T15:00:00.000Z")))

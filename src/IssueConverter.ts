@@ -27,6 +27,7 @@ const findWithName = <A extends WithName>(name: string, items: List<A>): Option<
   find<A>(withName(name), items)
 
 export const IssueConverter = (
+  projectId: Id<Project>,
   issueTypes: List<IssueType>,
   categories: List<Category>,
   versions: List<Version>,
@@ -63,7 +64,7 @@ export const IssueConverter = (
           Issue(
             undefined,
             "",
-            issue["projectId"],
+            projectId,
             issue["summary"],
             Option(issue["description"]),
             Option(issue["startDate"]).map(item => new Date(item)),
