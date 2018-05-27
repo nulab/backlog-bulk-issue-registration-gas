@@ -118,17 +118,23 @@ function submit_(grid) {
 	setUserProperty("apikey", apiKey);
 	setUserProperty("projectKey", projectKey.toUpperCase());
 	
-	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey); // maybe throw an exception
-	var projectId = BacklogScript.getProjectId(backlogClient, projectKey); // maybe throw an exception
-
+	// BacklogScript throws an exception on error
+	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
+	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_(projectId);
-	var convertedIssues = BacklogScript.convertIssues(backlogClient, projectId, templateIssues) // maybe throw an exception
-	
+	var convertedIssues = BacklogScript.convertIssues(backlogClient, projectId, templateIssues);
 	var logSheet = createLogSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
-
 	var previousIssue = null;
+	var onIssueCreated = function onIssueCreted(issue) {
+		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
+		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
+		logKey_(logSheet, keyLength, i, issue);
+		logSummary_(logSheet, summaryLength, i, issue);
+		SpreadsheetApp.flush();
+	}
+
 	for ( var i = 0; i < convertedIssues.length; i++) {
 		var isTakenOverParentIssueId = false;
 		var parentIssueId = BacklogScript.getParentIssueIdOrNull(convertedIssues[i]);
@@ -141,20 +147,7 @@ function submit_(grid) {
 				isTakenOverParentIssueId = true;
 			}
 		}
-		var result = BacklogScript.createIssue(backlogClient, convertedIssues[i], parentIssueId);
-		if (!result.success) {
-			showMessage_(result.message);
-			return app.close();
-		}
-
-		var issue = result.value;
-		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
-		logKey_(logSheet, keyLength, i, issue);
-
-		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
-		logSummary_(logSheet, summaryLength, i, issue);
-
-		SpreadsheetApp.flush();
+		var issue = BacklogScript.createIssue(backlogClient, convertedIssues[i], parentIssueId, onIssueCreated);
 
 		if (!isTakenOverParentIssueId) {
 			previousIssue = issue;

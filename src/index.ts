@@ -17,7 +17,7 @@ interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
   getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
   convertIssues: (client: BacklogClient, projectId: Id<Project>, issues: any[]) => List<Issue>
-  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>) => BacklogResult
+  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>, onSuccess: (issue: Issue) => void) => Issue
   getParentIssueIdOrNull: (issue: Issue) => any
 }
 
@@ -52,7 +52,7 @@ const BacklogScript = (): BacklogScript => ({
     const results = issues.map(converter.convert)
     return Either.sequence(results).getOrError()
   },
-  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>): BacklogResult => {
+  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>, onSuccess: (issue: Issue) => void): Issue => {
     const createIssue = Issue(
       0,
       "",
@@ -71,7 +71,9 @@ const BacklogScript = (): BacklogScript => ({
       issue.assignee,
       Option(optParentIssueId)
     )
-    return client.createIssueV2(createIssue).toBacklogResult()
+    const result = client.createIssueV2(createIssue)
+    result.forEach(onSuccess)
+    return result.getOrError()
   },
   getParentIssueIdOrNull: (issue: Issue): any =>
     issue.parentIssueId.getOrElse(() => undefined)
