@@ -7,6 +7,7 @@ export interface Option<A> {
   getOrElse(defaultVal: Lazy<A>): A,
   isDefined: boolean,
   orError<E>(error: E): Either<E, A>
+  equals(a: Option<A>): boolean
 }
 
 export const Some = <A>(value: A): Option<A> => {
@@ -18,7 +19,8 @@ export const Some = <A>(value: A): Option<A> => {
     getOrElse: (defaultVal: Lazy<A>): A =>
       value,
     isDefined: true,
-    orError: <E>(_: E): Either<E, A> => Right(value)
+    orError: <E>(_: E): Either<E, A> => Right(value),
+    equals: (a: Option<A>): boolean => a.isDefined && a.getOrElse(() => { throw Error("It never happens") }) === value
   }
   return self
 }
@@ -32,7 +34,8 @@ export const None = <A>(): Option<A> => {
     getOrElse: (defaultVal: Lazy<A>): A =>
       defaultVal(),
     isDefined: false,
-    orError: <E>(error: E): Either<E, A> => Left(error)
+    orError: <E>(error: E): Either<E, A> => Left(error),
+    equals: (a: Option<A>): boolean => !a.isDefined
   }
   return self
 }
