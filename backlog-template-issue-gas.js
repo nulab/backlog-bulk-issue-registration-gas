@@ -116,7 +116,7 @@ function submit_(grid) {
 	setUserProperty("space", space);
 	setUserProperty("domain", domain);
 	setUserProperty("apikey", apiKey);
-	setUserProperty("projectKey", projectKey.toUpperCase());
+	setUserProperty("projectKey", projectKey);
 	
 	// BacklogScript throws an exception on error
 	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
@@ -124,8 +124,13 @@ function submit_(grid) {
 	var templateIssues = getTemplateIssuesFromSpreadSheet_(projectId);
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
-	var logSheet = createLogSheet_();
+	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
 	var onIssueCreated = function onIssueCreted(i, issue) {
+		var sheetName = SCRIPT_NAME + " : " + current;
+		var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+
+		if (logSheet == null)
+			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName);
 		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
 		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
 		logKey_(logSheet, keyLength, i, issue);
@@ -174,14 +179,6 @@ function getTemplateIssuesFromSpreadSheet_() {
 		issues[i] = issue;
 	}
 	return issues;
-}
-
-/**
- * ログ出力用のシートを作成します
- */
-function createLogSheet_() {
-	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-	return SpreadsheetApp.getActiveSpreadsheet().insertSheet(SCRIPT_NAME + " : " + current);
 }
 
 function logKey_(logSheet, keyLength, i, issue) {

@@ -76,7 +76,7 @@ const BacklogScript = (): BacklogScript => ({
   run: (client: BacklogClient, projectId: Id<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
     // Convert issues
     const converter = createIssueConverter(client, projectId)
-    const results = rawIssues.map(convertIssue)
+    const results = rawIssues.map(issue => convertIssue(converter, issue))
     const issues = Either.sequence(results).getOrError()
 
     // Post issues
