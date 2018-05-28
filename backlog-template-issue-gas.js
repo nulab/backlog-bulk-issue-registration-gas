@@ -124,8 +124,8 @@ function submit_(grid) {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
+	var sheetName = SCRIPT_NAME + " : " + current;
 	var onIssueCreated = function onIssueCreted(i, issue) {
-		var sheetName = SCRIPT_NAME + " : " + current;
 		var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 		var issueKey = issue.issueKey;
 		var summary = issue.summary;
