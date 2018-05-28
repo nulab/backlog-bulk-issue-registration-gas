@@ -1,6 +1,5 @@
 import {F1, Lazy, F3, F4, F5, F6, F7, F2} from "./types"
 import {Option, Some, None} from "./Option"
-import {BacklogResult} from "./datas"
 import {List} from "./List"
 
 export interface Either<E, A> {
@@ -13,7 +12,6 @@ export interface Either<E, A> {
   isRight: boolean
   right(): Option<A>,
   left: () => Option<E>,
-  toBacklogResult: () => BacklogResult,
   getOrError()
 }
 
@@ -28,7 +26,6 @@ export const Right = <E, A>(value: A): Either<E, A> => {
     isRight: true,
     right: () => Some(value),
     left: () => None(),
-    toBacklogResult: (): BacklogResult => BacklogResult(true, "", value),
     getOrError: (): A => value
   }
   return self
@@ -45,11 +42,6 @@ export const Left = <E, A>(value: E): Either<E, A> => {
     isRight: false,
     right: () => None(),
     left: () => Some(value),
-    toBacklogResult: (): BacklogResult => {
-      if (value instanceof Error)
-        return BacklogResult(false, value.message, undefined)
-      return BacklogResult(false, value.toString(), undefined)
-    },
     getOrError: (): A => { throw value }
   }
   return self

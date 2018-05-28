@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {BacklogResult, User, IssueType, notNull, Key, Project, Issue, Id} from "./datas"
+import {User, IssueType, notNull, Key, Project, Issue, Id} from "./datas"
 import {Http, HttpClient} from "./Http"
 import {Option, Nullable, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"

@@ -70,12 +70,5 @@ export const Version = (id: number, name: string) => ({id, name})
 export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
-export interface BacklogResult {
-  readonly success: boolean
-  readonly message: string
-  readonly value: any
-}
-export const BacklogResult = (success: boolean, message: string, value: any): BacklogResult => ({success, message, value})
-
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""
