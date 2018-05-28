@@ -216,7 +216,8 @@ function logSummary_(logSheet, length, i, content) {
 /**
  * text の文字数を算出します
  * 
- * @param {string} text 
+ * @param {string} 文字列 
+ * @return {string} 調整済み文字数
  */
 function strLength_(text) {
 	var count = 0;
@@ -235,7 +236,7 @@ function strLength_(text) {
  * ユーザープロパティをキーで取得します
  *
  * @param {string} key 取得したいプロパティキー名
- * @return {string} value 対応する値 
+ * @return {string} 対応する値 
  */
 function getUserProperty(key) {
     return PropertiesService.getUserProperties().getProperty("bti." + key);
@@ -245,7 +246,7 @@ function getUserProperty(key) {
  * ユーザープロパティをキーで設定します
  *
  * @param {string} key 設定したいプロパティキー名
- * @return {string} value 対応する値 
+ * @return {string} 対応する値 
  */
 function setUserProperty(key, value) {
      PropertiesService.getUserProperties().setProperty("bti." + key, value);
