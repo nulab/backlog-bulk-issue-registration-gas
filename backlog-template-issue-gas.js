@@ -78,7 +78,6 @@ function createGrid_(app) {
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(0, 2, app.createLabel('.backlog'));
 	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
-	// grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(1, 0, app.createLabel('APIキー'));
 	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(lastUsername));
 	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
@@ -128,13 +127,16 @@ function submit_(grid) {
 	var onIssueCreated = function onIssueCreted(i, issue) {
 		var sheetName = SCRIPT_NAME + " : " + current;
 		var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-
+		var issueKey = issue.issueKey;
+		var summary = issue.summary;
+		var fomula = '=hyperlink("' + space + ".backlog" + domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
+		
 		if (logSheet == null)
 			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName);
-		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
-		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
-		logKey_(logSheet, keyLength, i, issue);
-		logSummary_(logSheet, summaryLength, i, issue);
+		keyLength = Math.max(keyLength, strLength_(issue.issueKey));
+		summaryLength = Math.max(summaryLength, strLength_(summary));
+		logKey_(logSheet, keyLength, i, fomula);
+		logSummary_(logSheet, summaryLength, i, summary);
 		SpreadsheetApp.flush();
 	}
 	var onWarn = function onWarn(message) {
@@ -181,37 +183,51 @@ function getTemplateIssuesFromSpreadSheet_() {
 	return issues;
 }
 
-function logKey_(logSheet, keyLength, i, issue) {
-	var linkKey = '=hyperlink("' + getUserProperty("space") 
-		+ ".backlog" + getUserProperty("domain")  + "/" 
-		+ "view/" + issue.issueKey + '";"' + issue.issueKey + '")';
-	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(linkKey)
-		.setFontColor("blue").setFontLine("underline");
+/**
+ * 指定されたシートの (i + 1, COLUMN_START_INDEX) に課題URLのリンクを出力します
+ * 
+ * @param {Sheet} logSheet 
+ * @param {number} length 式の文字数
+ * @param {number} i シートの行インデックス
+ * @param {string} fomula セルに出力する式
+ */
+function logKey_(logSheet, length, i, fomula) {
+	var keyWidth = length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
 
-	var keyWidth = keyLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(fomula).setFontColor("blue").setFontLine("underline");
 	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
 }
 
-function logSummary_(logSheet, summaryLength, i, issue) {
-	logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(
-		issue.summary.toString());
+/**
+ * 指定されたシートの (i + 1, COLUMN_START_INDEX + 1) に課題名を出力します
+ * 
+ * @param {Sheet} logSheet 
+ * @param {number} length 内容の文字数
+ * @param {number} i シートの行インデックス
+ * @param {string} content セルに出力する内容
+ */
+function logSummary_(logSheet, length, i, content) {
+	var summaryWidth = length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
 
-	var summaryWidth = summaryLength * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+	logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(content);
 	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
 }
 
-function getLength_(text) {
+/**
+ * text の文字数を算出します
+ * 
+ * @param {string} text 
+ */
+function strLength_(text) {
 	var count = 0;
 
-	for ( var i = 0; i < text.length; i++) {
+	for (var i = 0; i < text.length; i++) {
 		var n = escape(text.charAt(i));
-		if (n.length < 4) {
+		if (n.length < 4)
 			count += 1;
-		} else {
+		else
 			count += 2;
-		}
 	}
-
 	return count;
 }
 
@@ -243,21 +259,3 @@ function setUserProperty(key, value) {
 function showMessage_(message) {
 	SpreadsheetApp.getActiveSpreadsheet().toast(message, SCRIPT_NAME);
 }
-
-/**
-* Log用シートにログを1行追加します
-*
-* @param {string} type 1列目に出力したい文字列
-* @param {string} value 2列目に出力したい文字列
-*/
-function logToSheet(type, value) {
-	var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('log');
-	var logMsg = new Array();
-	  
-	if (sheet == null)
-		SpreadsheetApp.getActiveSpreadsheet().insertSheet('log');
-	logMsg.push(new Date());
-	logMsg.push(type);
-	logMsg.push(value);
-	SpreadsheetApp.getActiveSpreadsheet().getSheetByName('log').appendRow(logMsg);
-  }
