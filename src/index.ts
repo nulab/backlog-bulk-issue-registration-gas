@@ -13,6 +13,19 @@ type Validation<A> = (a: A, onError: Error) => Either<Error, A>
 const isEmpty: Validation<string> = (str: string, onError: Error): Either<Error, string> =>
   str !== "" ? Right(str) : Left(onError)
 
+const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
+  IssueConverter(
+    projectId,
+    client.getIssueTypesV2(projectId),
+    client.getCategoriesV2(projectId),
+    client.getVersionsV2(projectId),
+    client.getPrioritiesV2(),
+    client.getUsersV2(projectId)
+  )
+
+const convertIssue = (converter: IssueConverter, issue: any): Either<Error, Issue> =>
+  converter.convert(issue)
+
 export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<number>): Either<Error, Issue> => {
   const createIssue = Issue(
     0,
@@ -38,8 +51,7 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
   getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
-  convertIssues: (client: BacklogClient, projectId: Id<Project>, issues: any[]) => List<Issue>
-  run: (client: BacklogClient, issues: List<Issue>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
+  run: (client: BacklogClient, projectId: Id<Project>, rawIssues: List<Issue>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
 }
 
 const BacklogScript = (): BacklogScript => ({
@@ -61,19 +73,13 @@ const BacklogScript = (): BacklogScript => ({
       return Left(Error(`APIアクセスエラー ${error.message}`))
     }).getOrError().id
   },
-  convertIssues: (client: BacklogClient, projectId: Id<Project>, issues: any[]): List<Issue> => {
-    const converter = IssueConverter(
-      projectId,
-      client.getIssueTypesV2(projectId),
-      client.getCategoriesV2(projectId),
-      client.getVersionsV2(projectId),
-      client.getPrioritiesV2(),
-      client.getUsersV2(projectId)
-    )
-    const results = issues.map(converter.convert)
-    return Either.sequence(results).getOrError()
-  },
-  run: (client: BacklogClient, issues: List<Issue>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+  run: (client: BacklogClient, projectId: Id<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+    // Convert issues
+    const converter = createIssueConverter(client, projectId)
+    const results = rawIssues.map(convertIssue)
+    const issues = Either.sequence(results).getOrError()
+
+    // Post issues
     let previousIssue = Option<Issue>(null)
     for ( let i = 0; i < issues.length; i++) {
       let isTakenOverParentIssueId = false
@@ -87,13 +93,13 @@ const BacklogScript = (): BacklogScript => ({
           isTakenOverParentIssueId = true
         }
       }
-
-      const issue = createIssue(client, issues[i], optParentIssueId.map(id => +id)).getOrError()
-
-      if (!isTakenOverParentIssueId) {
-        previousIssue = Some(issue)
-      }
-      onSuccess(i, issue)
+      createIssue(client, issues[i], optParentIssueId.map(id => +id)).map(issue => {
+        if (!isTakenOverParentIssueId) {
+          previousIssue = Some(issue)
+        }
+        onSuccess(i, issue)
+      })
+      .getOrError()
     }
   }
 });

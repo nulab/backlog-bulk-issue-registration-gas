@@ -122,10 +122,9 @@ function submit_(grid) {
 	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
 	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_(projectId);
-	var convertedIssues = BacklogScript.convertIssues(backlogClient, projectId, templateIssues);
-	var logSheet = createLogSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
+	var logSheet = createLogSheet_();
 	var onIssueCreated = function onIssueCreted(i, issue) {
 		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
 		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
@@ -137,7 +136,7 @@ function submit_(grid) {
 		showMessage_(message);
 	}
 
-	BacklogScript.run(backlogClient, convertedIssues, onIssueCreated, onWarn);
+	BacklogScript.run(backlogClient, projectId, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
