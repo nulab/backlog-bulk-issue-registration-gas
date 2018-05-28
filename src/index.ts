@@ -1,7 +1,7 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
 import {BacklogResult, User, IssueType, notNull, Key, Project, Issue, Id} from "./datas"
 import {Http, HttpClient} from "./Http"
-import {Option, Nullable} from "./Option"
+import {Option, Nullable, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 import {List} from "./List"
@@ -13,12 +13,33 @@ type Validation<A> = (a: A, onError: Error) => Either<Error, A>
 const isEmpty: Validation<string> = (str: string, onError: Error): Either<Error, string> =>
   str !== "" ? Right(str) : Left(onError)
 
+export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<number>): Either<Error, Issue> => {
+  const createIssue = Issue(
+    0,
+    "",
+    issue.projectId,
+    issue.summary,
+    issue.description,
+    issue.startDate,
+    issue.dueDate,
+    issue.estimatedHours,
+    issue.actualHours,
+    issue.issueType,
+    issue.categories,
+    issue.versions,
+    issue.milestones,
+    issue.priority,
+    issue.assignee,
+    optParentIssueId.map(id => id.toString())
+  )
+  return client.createIssueV2(createIssue)
+}
+
 interface BacklogScript {
   createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
   getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
   convertIssues: (client: BacklogClient, projectId: Id<Project>, issues: any[]) => List<Issue>
-  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>, onSuccess: (issue: Issue) => void) => Issue
-  getParentIssueIdOrNull: (issue: Issue) => any
+  run: (client: BacklogClient, issues: List<Issue>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
 }
 
 const BacklogScript = (): BacklogScript => ({
@@ -52,31 +73,29 @@ const BacklogScript = (): BacklogScript => ({
     const results = issues.map(converter.convert)
     return Either.sequence(results).getOrError()
   },
-  createIssue: (client: BacklogClient, issue: Issue, optParentIssueId: Nullable<string>, onSuccess: (issue: Issue) => void): Issue => {
-    const createIssue = Issue(
-      0,
-      "",
-      issue.projectId,
-      issue.summary,
-      issue.description,
-      issue.startDate,
-      issue.dueDate,
-      issue.estimatedHours,
-      issue.actualHours,
-      issue.issueType,
-      issue.categories,
-      issue.versions,
-      issue.milestones,
-      issue.priority,
-      issue.assignee,
-      Option(optParentIssueId)
-    )
-    const result = client.createIssueV2(createIssue)
-    result.forEach(onSuccess)
-    return result.getOrError()
-  },
-  getParentIssueIdOrNull: (issue: Issue): any =>
-    issue.parentIssueId.getOrElse(() => undefined)
+  run: (client: BacklogClient, issues: List<Issue>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+    let previousIssue = Option<Issue>(null)
+    for ( let i = 0; i < issues.length; i++) {
+      let isTakenOverParentIssueId = false
+      let optParentIssueId = issues[i].parentIssueId
+      if (optParentIssueId.equals(Some("*"))) {
+        if (previousIssue.flatMap(issue => issue.parentIssueId).isDefined) {
+          previousIssue.map(issue => onWarn(`課題 '${issue.issueKey}' はすでに子課題となっているため、親課題として設定できません`))
+          optParentIssueId = None<string>()
+        } else {
+          optParentIssueId = previousIssue.map(issue => issue.id.toString())
+          isTakenOverParentIssueId = true
+        }
+      }
+
+      const issue = createIssue(client, issues[i], optParentIssueId.map(id => +id)).getOrError()
+
+      if (!isTakenOverParentIssueId) {
+        previousIssue = Some(issue)
+      }
+      onSuccess(i, issue)
+    }
+  }
 });
 
 (global as any).BacklogScript = BacklogScript()

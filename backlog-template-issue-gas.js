@@ -126,33 +126,18 @@ function submit_(grid) {
 	var logSheet = createLogSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
-	var previousIssue = null;
-	var onIssueCreated = function onIssueCreted(issue) {
+	var onIssueCreated = function onIssueCreted(i, issue) {
 		keyLength = Math.max(keyLength, getLength_(issue.issueKey));
 		summaryLength = Math.max(summaryLength, getLength_(issue.summary));
 		logKey_(logSheet, keyLength, i, issue);
 		logSummary_(logSheet, summaryLength, i, issue);
 		SpreadsheetApp.flush();
 	}
-
-	for ( var i = 0; i < convertedIssues.length; i++) {
-		var isTakenOverParentIssueId = false;
-		var parentIssueId = BacklogScript.getParentIssueIdOrNull(convertedIssues[i]);
-		if (parentIssueId && parentIssueId === "*") {
-			if (previousIssue && BacklogScript.getParentIssueIdOrNull(previousIssue)) {
-				showMessage_("課題 '" + previousIssue.issueKey + "' はすでに子課題となっているため、親課題として設定できません");
-				parentIssueId = "";
-			} else {
-				parentIssueId = previousIssue.id;
-				isTakenOverParentIssueId = true;
-			}
-		}
-		var issue = BacklogScript.createIssue(backlogClient, convertedIssues[i], parentIssueId, onIssueCreated);
-
-		if (!isTakenOverParentIssueId) {
-			previousIssue = issue;
-		}
+	var onWarn = function onWarn(message) {
+		showMessage_(message);
 	}
+
+	BacklogScript.run(backlogClient, convertedIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
