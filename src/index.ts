@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {User, IssueType, notNull, Key, Project, Issue, Id} from "./datas"
+import {User, IssueType, notNull, Key, Project, Issue, Id, BacklogDefinition} from "./datas"
 import {Http, HttpClient} from "./Http"
 import {Option, Nullable, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -81,6 +81,7 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 
 interface BacklogScript {
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
+  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
 }
 
 const BacklogScript = (): BacklogScript => ({
@@ -113,6 +114,18 @@ const BacklogScript = (): BacklogScript => ({
         onSuccess(i, issue)
       }).getOrError()
     }
+  },
+  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>): BacklogDefinition => {
+    const client = createBacklogClient(space, domain, apiKey).getOrError()
+    const project = getProject(client, key).getOrError()
+
+    return BacklogDefinition(
+      client.getIssueTypesV2(project.id),
+      client.getCategoriesV2(project.id),
+      client.getVersionsV2(project.id),
+      client.getPrioritiesV2(),
+      client.getUsersV2(project.id)
+    )
   }
 });
 

@@ -1,3 +1,5 @@
+// https://developers.google.com/apps-script/reference/spreadsheet/
+
 // ------------------------- 定数 -------------------------
 
 /** スクリプト名 */
@@ -5,6 +7,9 @@ var SCRIPT_NAME = "課題一括登録";
 
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
+
+/** Backlogの定義が記載されているシートの名前 */
+var DEFINITION_SHEET_NAME = "定義一覧";
 
 /** ヘッダ行のインデックス */
 var ROW_HEADER_INDEX = 1;
@@ -90,13 +95,18 @@ function createGrid_(app) {
  */
 function showInputDialog_(app, grid) {
 	var panel = app.createVerticalPanel();
-	var button = app.createButton('一括登録');
-	var handler = app.createServerClickHandler('submit_');
-	
-	handler.addCallbackElement(grid);
-	button.addClickHandler(handler);
+	var submitButton = app.createButton('STEP2: 一括登録を実行します');
+	var submitHandler = app.createServerClickHandler('submit_');	
+	var enumerateButton = app.createButton('STEP1: Backlogからデータを取得します');
+	var enumerateHandler = app.createServerClickHandler('enumerate_');
+  
+	submitHandler.addCallbackElement(grid);
+	submitButton.addClickHandler(submitHandler);
+	enumerateHandler.addCallbackElement(grid);
+	enumerateButton.addClickHandler(enumerateHandler);
 	panel.add(grid);
-	panel.add(button);
+	panel.add(enumerateButton);
+	panel.add(submitButton);
 	app.add(panel);
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
@@ -106,10 +116,7 @@ function showInputDialog_(app, grid) {
  */
 function submit_(grid) {
 	var app = UiApp.getActiveApplication();
-	var space = grid.parameter.space;
-	var domain = grid.parameter.domain;
-	var apiKey = grid.parameter.apikey;
-	var projectKey = grid.parameter.projectKey.toUpperCase();	
+	var param = getParametersFromGrid(grid);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
@@ -119,7 +126,7 @@ function submit_(grid) {
 		var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 		var issueKey = issue.issueKey;
 		var summary = issue.summary;
-		var fomula = '=hyperlink("' + space + ".backlog" + domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
+		var fomula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
 		
 		if (logSheet == null)
 			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName);
@@ -133,15 +140,60 @@ function submit_(grid) {
 		showMessage_(message);
 	}
 
-	// Store user params
-	setUserProperty("space", space);
-	setUserProperty("domain", domain);
-	setUserProperty("apikey", apiKey);
-	setUserProperty("projectKey", projectKey);
-
 	// BacklogScript throws an exception on error
-	BacklogScript.run(space, domain, apiKey, projectKey, templateIssues, onIssueCreated, onWarn);
+	storeUserProperty(param)
+	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
+	return app.close();
+}
+
+/**
+ * Backlogプロジェクトの定義を取得します 
+ */
+function enumerate_(grid) {
+	var app = UiApp.getActiveApplication();
+	var param = getParametersFromGrid(grid);
+	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
+	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DEFINITION_SHEET_NAME);
+
+	if (definitionSheet != null)
+		SpreadsheetApp.getActiveSpreadsheet().deleteSheet(definitionSheet);
+	definitionSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(DEFINITION_SHEET_NAME, 1);
+	definitionSheet.getRange(1, 1).setValue("課題種別：");
+	for (var i = 0; i < definition.issueTypes.length; i++) {
+		var issueType = definition.issueTypes[i];
+		definitionSheet.getRange(1, i + 2).setValue(issueType.name);
+	}
+	definitionSheet.getRange(2, 1).setValue("カテゴリー：");
+	for (var i = 0; i < definition.categories.length; i++) {
+		var category = definition.categories[i];
+		definitionSheet.getRange(2, i + 2).setValue(category.name);
+	}
+	definitionSheet.getRange(3, 1).setValue("バージョン/マイルストーン：");
+	for (var i = 0; i < definition.versions.length; i++) {
+		var version = definition.versions[i];
+		definitionSheet.getRange(3, i + 2).setValue(version.name);
+	}
+	definitionSheet.getRange(4, 1).setValue("優先度：");
+	for (var i = 0; i < definition.priorities.length; i++) {
+		var priority = definition.priorities[i];
+		definitionSheet.getRange(4, i + 2).setValue(priority.name);
+	}
+	definitionSheet.getRange(5, 1).setValue("ユーザー：");
+	for (var i = 0; i < definition.users.length; i++) {
+		var user = definition.users[i];
+		definitionSheet.getRange(5, i + 2).setValue(user.name);
+	}
+
+	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
+	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
+	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
+	var userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build();
+
+	definitionSheet.getRange(2, 7, definitionSheet.getLastRow() - 1).setDataValidation(issueTypeRule); // 7 = G
+	definitionSheet.getRange(2, 11, definitionSheet.getLastRow() - 1).setDataValidation(priorityRule); // 11 = K
+	definitionSheet.getRange(2, 12, definitionSheet.getLastRow() - 1).setDataValidation(userRule); // 12 = L
+	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
 }
 
@@ -178,6 +230,33 @@ function getTemplateIssuesFromSpreadSheet_() {
 		issues[i] = issue;
 	}
 	return issues;
+}
+
+/**
+ * Gridから入力パラメータを取得します
+ * 
+ * @param {*} grid 
+ * @return {object} パラメータ
+ */
+function getParametersFromGrid(grid) {
+	return {
+		space: grid.parameter.space,
+		domain: grid.parameter.domain,
+		apiKey: grid.parameter.apikey,
+		projectKey: grid.parameter.projectKey.toUpperCase()
+	}
+}
+
+/**
+ * User propertyに入力パラメータを保存します
+ * 
+ * @param {object} param パラメータ 
+ */
+function storeUserProperty(param) {
+	setUserProperty("space", param.space);
+	setUserProperty("domain", param.domain);
+	setUserProperty("apikey", param.apiKey);
+	setUserProperty("projectKey", param.projectKey);
 }
 
 /**

@@ -70,5 +70,28 @@ export const Version = (id: number, name: string) => ({id, name})
 export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
+export interface BacklogDefinition {
+  readonly issueTypes: List<IssueType>
+  readonly categories: List<Category>
+  readonly versions: List<Version>
+  readonly priorities: List<Priority>
+  readonly users: List<User>
+  issueTypeNames: () => String[]
+  priorityNames: () => String[]
+  userNames: () => String[]
+}
+export const BacklogDefinition = (
+  issueTypes: List<IssueType>,
+  categories: List<Category>,
+  versions: List<Version>,
+  priorities: List<Priority>,
+  users: List<User>
+): BacklogDefinition => ({
+  issueTypes, categories, versions, priorities, users,
+  issueTypeNames: (): String[] => issueTypes.map(item => item.name),
+  priorityNames: (): String[] => priorities.map(item => item.name),
+  userNames: (): String[] => users.map(item => item.name)
+})
+
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""
