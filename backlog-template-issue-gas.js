@@ -95,9 +95,9 @@ function createGrid_(app) {
  */
 function showInputDialog_(app, grid) {
 	var panel = app.createVerticalPanel();
-	var submitButton = app.createButton('一括登録を実行する');
+	var submitButton = app.createButton('STEP2: 一括登録を実行します');
 	var submitHandler = app.createServerClickHandler('submit_');	
-	var enumerateButton = app.createButton('設定可能な値を列挙する');
+	var enumerateButton = app.createButton('STEP1: Backlogからデータを取得します');
 	var enumerateHandler = app.createServerClickHandler('enumerate_');
   
 	submitHandler.addCallbackElement(grid);
@@ -105,8 +105,8 @@ function showInputDialog_(app, grid) {
 	enumerateHandler.addCallbackElement(grid);
 	enumerateButton.addClickHandler(enumerateHandler);
 	panel.add(grid);
-	panel.add(submitButton);
 	panel.add(enumerateButton);
+	panel.add(submitButton);
 	app.add(panel);
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
@@ -154,37 +154,43 @@ function enumerate_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
 	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
-	var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DEFINITION_SHEET_NAME);
+	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DEFINITION_SHEET_NAME);
 
-	if (sheet != null)
-		SpreadsheetApp.getActiveSpreadsheet().deleteSheet(sheet);
-	sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(DEFINITION_SHEET_NAME, 1);
-	sheet.getRange(1, 1).setValue("課題種別：");
+	if (definitionSheet != null)
+		SpreadsheetApp.getActiveSpreadsheet().deleteSheet(definitionSheet);
+	definitionSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(DEFINITION_SHEET_NAME, 1);
+	definitionSheet.getRange(1, 1).setValue("課題種別：");
 	for (var i = 0; i < definition.issueTypes.length; i++) {
 		var issueType = definition.issueTypes[i];
-		sheet.getRange(1, i + 2).setValue(issueType.name);
+		definitionSheet.getRange(1, i + 2).setValue(issueType.name);
 	}
-	sheet.getRange(2, 1).setValue("カテゴリー：");
+	definitionSheet.getRange(2, 1).setValue("カテゴリー：");
 	for (var i = 0; i < definition.categories.length; i++) {
 		var category = definition.categories[i];
-		sheet.getRange(2, i + 2).setValue(category.name);
+		definitionSheet.getRange(2, i + 2).setValue(category.name);
 	}
-	sheet.getRange(3, 1).setValue("バージョン/マイルストーン：");
+	definitionSheet.getRange(3, 1).setValue("バージョン/マイルストーン：");
 	for (var i = 0; i < definition.versions.length; i++) {
 		var version = definition.versions[i];
-		sheet.getRange(3, i + 2).setValue(version.name);
+		definitionSheet.getRange(3, i + 2).setValue(version.name);
 	}
-	sheet.getRange(4, 1).setValue("優先度：");
+	definitionSheet.getRange(4, 1).setValue("優先度：");
 	for (var i = 0; i < definition.priorities.length; i++) {
 		var priority = definition.priorities[i];
-		sheet.getRange(4, i + 2).setValue(priority.name);
+		definitionSheet.getRange(4, i + 2).setValue(priority.name);
 	}
-	sheet.getRange(5, 1).setValue("ユーザー：");
+	definitionSheet.getRange(5, 1).setValue("ユーザー：");
 	for (var i = 0; i < definition.users.length; i++) {
 		var user = definition.users[i];
-		sheet.getRange(5, i + 2).setValue(user.name);
+		definitionSheet.getRange(5, i + 2).setValue(user.name);
 	}
 
+	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
+	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
+	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
+
+	definitionSheet.getRange(2, 7, definitionSheet.getLastRow() - 1).setDataValidation(issueTypeRule); // 7 = G
+	definitionSheet.getRange(2, 11, definitionSheet.getLastRow() - 1).setDataValidation(priorityRule); // 11 = K
 	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
 }
