@@ -39,10 +39,10 @@ var DEFAULT_PRIORITYID = "3";
  */
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
-	var menuEntries = [ {
-		name : SCRIPT_NAME,
-		functionName : "main"
-	} ];
+	var menuEntries = [ 
+		{ name : "STEP1: Backlogからデータを取得する", functionName: "init" },
+		{ name : "STEP2: 課題一括登録を実行", functionName : "main" }
+	];
 
 	spreadSheet.addMenu("Backlog", menuEntries);
 }
@@ -54,6 +54,10 @@ function main() {
 	var app = createApplication_('Backlog 課題一括登録', 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid);
+}
+
+function init() {
+
 }
 
 /**
