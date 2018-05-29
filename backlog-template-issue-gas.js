@@ -1,3 +1,5 @@
+// https://developers.google.com/apps-script/reference/spreadsheet/
+
 // ------------------------- 定数 -------------------------
 
 /** スクリプト名 */
@@ -5,6 +7,9 @@ var SCRIPT_NAME = "課題一括登録";
 
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
+
+/** Backlogの定義が記載されているシートの名前 */
+var DEFINITION_SHEET_NAME = "定義一覧";
 
 /** ヘッダ行のインデックス */
 var ROW_HEADER_INDEX = 1;
@@ -139,6 +144,48 @@ function submit_(grid) {
 	storeUserProperty(param)
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
+	return app.close();
+}
+
+/**
+ * Backlogプロジェクトの定義を取得します 
+ */
+function enumerate_(grid) {
+	var app = UiApp.getActiveApplication();
+	var param = getParametersFromGrid(grid);
+	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
+	var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DEFINITION_SHEET_NAME);
+
+	if (sheet != null)
+		SpreadsheetApp.getActiveSpreadsheet().deleteSheet(sheet);
+	sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(DEFINITION_SHEET_NAME, 1);
+	sheet.getRange(1, 1).setValue("課題種別：");
+	for (var i = 0; i < definition.issueTypes.length; i++) {
+		var issueType = definition.issueTypes[i];
+		sheet.getRange(1, i + 2).setValue(issueType.name);
+	}
+	sheet.getRange(2, 1).setValue("カテゴリー：");
+	for (var i = 0; i < definition.categories.length; i++) {
+		var category = definition.categories[i];
+		sheet.getRange(2, i + 2).setValue(category.name);
+	}
+	sheet.getRange(3, 1).setValue("バージョン/マイルストーン：");
+	for (var i = 0; i < definition.versions.length; i++) {
+		var version = definition.versions[i];
+		sheet.getRange(3, i + 2).setValue(version.name);
+	}
+	sheet.getRange(4, 1).setValue("優先度：");
+	for (var i = 0; i < definition.priorities.length; i++) {
+		var priority = definition.priorities[i];
+		sheet.getRange(4, i + 2).setValue(priority.name);
+	}
+	sheet.getRange(5, 1).setValue("ユーザー：");
+	for (var i = 0; i < definition.users.length; i++) {
+		var user = definition.users[i];
+		sheet.getRange(5, i + 2).setValue(user.name);
+	}
+
+	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
 }
 
