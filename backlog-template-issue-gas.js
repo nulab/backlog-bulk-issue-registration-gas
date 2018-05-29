@@ -111,10 +111,7 @@ function showInputDialog_(app, grid) {
  */
 function submit_(grid) {
 	var app = UiApp.getActiveApplication();
-	var space = grid.parameter.space;
-	var domain = grid.parameter.domain;
-	var apiKey = grid.parameter.apikey;
-	var projectKey = grid.parameter.projectKey.toUpperCase();	
+	var param = getParametersFromGrid(grid);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
@@ -124,7 +121,7 @@ function submit_(grid) {
 		var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 		var issueKey = issue.issueKey;
 		var summary = issue.summary;
-		var fomula = '=hyperlink("' + space + ".backlog" + domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
+		var fomula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
 		
 		if (logSheet == null)
 			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName);
@@ -138,14 +135,9 @@ function submit_(grid) {
 		showMessage_(message);
 	}
 
-	// Store user params
-	setUserProperty("space", space);
-	setUserProperty("domain", domain);
-	setUserProperty("apikey", apiKey);
-	setUserProperty("projectKey", projectKey);
-
 	// BacklogScript throws an exception on error
-	BacklogScript.run(space, domain, apiKey, projectKey, templateIssues, onIssueCreated, onWarn);
+	storeUserProperty(param)
+	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
@@ -183,6 +175,33 @@ function getTemplateIssuesFromSpreadSheet_() {
 		issues[i] = issue;
 	}
 	return issues;
+}
+
+/**
+ * Gridから入力パラメータを取得します
+ * 
+ * @param {*} grid 
+ * @return {object} パラメータ
+ */
+function getParametersFromGrid(grid) {
+	return {
+		space: grid.parameter.space,
+		domain: grid.parameter.domain,
+		apiKey: grid.parameter.apikey,
+		projectKey: grid.parameter.projectKey.toUpperCase()
+	}
+}
+
+/**
+ * User propertyに入力パラメータを保存します
+ * 
+ * @param {object} param パラメータ 
+ */
+function storeUserProperty(param) {
+	setUserProperty("space", param.space);
+	setUserProperty("domain", param.domain);
+	setUserProperty("apikey", param.apiKey);
+	setUserProperty("projectKey", param.projectKey);
 }
 
 /**
