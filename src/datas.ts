@@ -78,6 +78,7 @@ export interface BacklogDefinition {
   readonly users: List<User>
   issueTypeNames: () => String[]
   priorityNames: () => String[]
+  userNames: () => String[]
 }
 export const BacklogDefinition = (
   issueTypes: List<IssueType>,
@@ -88,7 +89,8 @@ export const BacklogDefinition = (
 ): BacklogDefinition => ({
   issueTypes, categories, versions, priorities, users,
   issueTypeNames: (): String[] => issueTypes.map(item => item.name),
-  priorityNames: (): String[] => priorities.map(item => item.name)
+  priorityNames: (): String[] => priorities.map(item => item.name),
+  userNames: (): String[] => users.map(item => item.name)
 })
 
 export const notNull = <T, U>(t: T): boolean => t != null

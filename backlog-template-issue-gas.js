@@ -188,9 +188,11 @@ function enumerate_(grid) {
 	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
 	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
+	var userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build();
 
 	definitionSheet.getRange(2, 7, definitionSheet.getLastRow() - 1).setDataValidation(issueTypeRule); // 7 = G
 	definitionSheet.getRange(2, 11, definitionSheet.getLastRow() - 1).setDataValidation(priorityRule); // 11 = K
+	definitionSheet.getRange(2, 12, definitionSheet.getLastRow() - 1).setDataValidation(userRule); // 12 = L
 	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
 }
