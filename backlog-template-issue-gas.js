@@ -90,13 +90,18 @@ function createGrid_(app) {
  */
 function showInputDialog_(app, grid) {
 	var panel = app.createVerticalPanel();
-	var button = app.createButton('一括登録');
-	var handler = app.createServerClickHandler('submit_');
-	
-	handler.addCallbackElement(grid);
-	button.addClickHandler(handler);
+	var submitButton = app.createButton('一括登録を実行する');
+	var submitHandler = app.createServerClickHandler('submit_');	
+	var enumerateButton = app.createButton('設定可能な値を列挙する');
+	var enumerateHandler = app.createServerClickHandler('enumerate_');
+  
+	submitHandler.addCallbackElement(grid);
+	submitButton.addClickHandler(submitHandler);
+	enumerateHandler.addCallbackElement(grid);
+	enumerateButton.addClickHandler(enumerateHandler);
 	panel.add(grid);
-	panel.add(button);
+	panel.add(submitButton);
+	panel.add(enumerateButton);
 	app.add(panel);
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
 }
