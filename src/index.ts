@@ -13,6 +13,25 @@ type Validation<A> = (a: A, onError: Error) => Either<Error, A>
 const isEmpty: Validation<string> = (str: string, onError: Error): Either<Error, string> =>
   str !== "" ? Right(str) : Left(onError)
 
+const createBacklogClient = (space: string, domain: string, apiKey: string): Either<Error, BacklogClient> => {
+  const spaceResult = isEmpty(space, Error("スペースURLを入力してください"))
+  const apiKeyResult = isEmpty(apiKey, Error("APIキーを入力してください"))
+  return Either.map2(spaceResult, apiKeyResult, (s, a) => {
+    return Right(new BacklogClientImpl(new HttpClient, s, domain, a))
+  })
+}
+
+const getProject = (client: BacklogClient, key: Key<Project>): Either<Error, Project> => {
+  const result = client.getProjectV2(key)
+  return result.recover(error => {
+    if (error.message.indexOf("returned code 404") !== -1)
+      return Left(Error("スペースまたはプロジェクトが見つかりません"))
+    if (error.message.indexOf("returned code 401") !== -1)
+      return Left(Error("認証に失敗しました"))
+    return Left(Error(`APIアクセスエラー ${error.message}`))
+  })
+}
+
 const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
   IssueConverter(
     projectId,
@@ -25,6 +44,18 @@ const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): Is
 
 const convertIssue = (converter: IssueConverter, issue: any): Either<Error, Issue> =>
   converter.convert(issue)
+
+const validate = (issues: List<any>): Either<Error, boolean> => {
+  for (let i = 0; i < issues.length; i++) {
+    const issue = issues[i]
+    const errorString = `エラー ${i + 2} 行目: `
+    if (!Option(issue.summary).isDefined)
+      return Left(Error(`${errorString}'件名' が入力されていません`))
+    if (!Option(issue.issueTypeName).isDefined)
+      return Left(Error(`${errorString}'種別名' が入力されていません`))
+  }
+  return Right(true)
+}
 
 export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<number>): Either<Error, Issue> => {
   const createIssue = Issue(
@@ -49,35 +80,17 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 }
 
 interface BacklogScript {
-  createBacklogClient: (space: string, domain: string, apiKey: string) => BacklogClient
-  getProjectId: (client: BacklogClient, key: Key<Project>) => Id<Project>
-  run: (client: BacklogClient, projectId: Id<Project>, rawIssues: List<Issue>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
+  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
 }
 
 const BacklogScript = (): BacklogScript => ({
-  createBacklogClient: (space: string, domain: string, apiKey: string): BacklogClient => {
-    const spaceResult = isEmpty(space, Error("スペースURLを入力してください"))
-    const apiKeyResult = isEmpty(apiKey, Error("APIキーを入力してください"))
-    const client = Either.map2(spaceResult, apiKeyResult, (s, a) => {
-      return Right(new BacklogClientImpl(new HttpClient, s, domain, a))
-    })
-    return client.getOrError()
-  },
-  getProjectId: (client: BacklogClient, key: Key<Project>): Id<Project> => {
-    const result = client.getProjectV2(key)
-    return result.recover(error => {
-      if (error.message.indexOf("returned code 404") !== -1)
-        return Left(Error("スペースまたはプロジェクトが見つかりません"))
-      if (error.message.indexOf("returned code 401") !== -1)
-        return Left(Error("認証に失敗しました"))
-      return Left(Error(`APIアクセスエラー ${error.message}`))
-    }).getOrError().id
-  },
-  run: (client: BacklogClient, projectId: Id<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
-    // Convert issues
-    const converter = createIssueConverter(client, projectId)
-    const results = rawIssues.map(issue => convertIssue(converter, issue))
-    const issues = Either.sequence(results).getOrError()
+  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+    const isValid = validate(rawIssues).getOrError()
+    const client = createBacklogClient(space, domain, apiKey).getOrError()
+    const project = getProject(client, key).getOrError()
+    const converter = createIssueConverter(client, project.id)
+    const convertResults = rawIssues.map(issue => convertIssue(converter, issue))
+    const issues = Either.sequence(convertResults).getOrError()
 
     // Post issues
     let previousIssue = Option<Issue>(null)
@@ -98,8 +111,7 @@ const BacklogScript = (): BacklogScript => ({
           previousIssue = Some(issue)
         }
         onSuccess(i, issue)
-      })
-      .getOrError()
+      }).getOrError()
     }
   }
 });

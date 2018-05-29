@@ -109,18 +109,8 @@ function submit_(grid) {
 	var space = grid.parameter.space;
 	var domain = grid.parameter.domain;
 	var apiKey = grid.parameter.apikey;
-	var projectKey = grid.parameter.projectKey.toUpperCase();
-
-	// Store user params
-	setUserProperty("space", space);
-	setUserProperty("domain", domain);
-	setUserProperty("apikey", apiKey);
-	setUserProperty("projectKey", projectKey);
-	
-	// BacklogScript throws an exception on error
-	var backlogClient = BacklogScript.createBacklogClient(space, domain, apiKey);
-	var projectId = BacklogScript.getProjectId(backlogClient, projectKey);
-	var templateIssues = getTemplateIssuesFromSpreadSheet_(projectId);
+	var projectKey = grid.parameter.projectKey.toUpperCase();	
+	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
@@ -143,7 +133,14 @@ function submit_(grid) {
 		showMessage_(message);
 	}
 
-	BacklogScript.run(backlogClient, projectId, templateIssues, onIssueCreated, onWarn);
+	// Store user params
+	setUserProperty("space", space);
+	setUserProperty("domain", domain);
+	setUserProperty("apikey", apiKey);
+	setUserProperty("projectKey", projectKey);
+
+	// BacklogScript throws an exception on error
+	BacklogScript.run(space, domain, apiKey, projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
 }
@@ -164,7 +161,7 @@ function getTemplateIssuesFromSpreadSheet_() {
 
 	for ( var i = 0; i < values.length; i++) {
 		var issue = {
-			summary: values[i][0],
+			summary: values[i][0] === "" ? undefined : values[i][0],
 			description: values[i][1] === "" ? undefined : values[i][1],
 			startDate: values[i][2] === "" ? undefined : values[i][2],
 			dueDate: values[i][3] === "" ? undefined : values[i][3],
