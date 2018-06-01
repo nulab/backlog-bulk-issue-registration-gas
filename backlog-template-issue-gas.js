@@ -29,9 +29,6 @@ var DEFAULT_FONT_SIZE = 10;
 /** 列幅調整時の係数 */
 var ADJUST_WIDTH_FACTOR = 0.75;
 
-/** 優先度IDのデフォルト値 */
-var DEFAULT_PRIORITYID = "3";
-
 // ------------------------- 関数 -------------------------
 
 /**
@@ -39,12 +36,21 @@ var DEFAULT_PRIORITYID = "3";
  */
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
-	var menuEntries = [ {
-		name : SCRIPT_NAME,
-		functionName : "main"
-	} ];
+	var menuEntries = [ 
+		{ name : "STEP1: Backlogからデータを取得する", functionName: "init" },
+		{ name : "STEP2: 課題一括登録を実行", functionName : "main" }
+	];
 
 	spreadSheet.addMenu("Backlog", menuEntries);
+}
+
+/**
+ * Backlogのプロジェクト情報を取得し、定義シートに出力します
+ */
+function init() {
+	var app = createApplication_('Backlog 定義一覧取得', 360, 160);
+	var grid = createGrid_(app);
+	showInputDialog_(app, grid, "init_run_");
 }
 
 /**
@@ -53,7 +59,7 @@ function onOpen() {
 function main() {
 	var app = createApplication_('Backlog 課題一括登録', 360, 160);
 	var grid = createGrid_(app);
-	showInputDialog_(app, grid);
+	showInputDialog_(app, grid, "main_run_");
 }
 
 /**
@@ -93,19 +99,14 @@ function createGrid_(app) {
 /**
  * パラメータ入力ダイアログを表示します
  */
-function showInputDialog_(app, grid) {
+function showInputDialog_(app, grid, handlerName) {
 	var panel = app.createVerticalPanel();
-	var submitButton = app.createButton('STEP2: 一括登録を実行します');
-	var submitHandler = app.createServerClickHandler('submit_');	
-	var enumerateButton = app.createButton('STEP1: Backlogからデータを取得します');
-	var enumerateHandler = app.createServerClickHandler('enumerate_');
+	var submitButton = app.createButton('実行');
+	var submitHandler = app.createServerClickHandler(handlerName);	
   
 	submitHandler.addCallbackElement(grid);
 	submitButton.addClickHandler(submitHandler);
-	enumerateHandler.addCallbackElement(grid);
-	enumerateButton.addClickHandler(enumerateHandler);
 	panel.add(grid);
-	panel.add(enumerateButton);
 	panel.add(submitButton);
 	app.add(panel);
 	SpreadsheetApp.getActiveSpreadsheet().show(app);
@@ -114,7 +115,7 @@ function showInputDialog_(app, grid) {
 /**
  * '一括登録'ボタンをクリックすることで呼び出されます
  */
-function submit_(grid) {
+function main_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
@@ -150,7 +151,7 @@ function submit_(grid) {
 /**
  * Backlogプロジェクトの定義を取得します 
  */
-function enumerate_(grid) {
+function init_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
 	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
@@ -223,7 +224,7 @@ function getTemplateIssuesFromSpreadSheet_() {
 			categoryNames: values[i][7],
 			versionNames: values[i][8],
 			milestoneNames: values[i][9],
-			priorityId: values[i][10] === "" ? DEFAULT_PRIORITYID : values[i][10],
+			priorityName: values[i][10] === "" ? undefined : values[i][10],
 			assigneeName: values[i][11] === "" ? undefined : values[i][11],
 			parentIssueKey: values[i][12] === "" ? undefined : values[i][12]
 		};

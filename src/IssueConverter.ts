@@ -48,8 +48,11 @@ export const IssueConverter = (
     ))
     const foundIssueType = findWithName(issue["issueTypeName"], issueTypes)
       .orError(Error(`IssueType not found. name: ${issue["issueTypeName"]}`))
-    const foundPriority = findWithId(+issue["priorityId"], priorities)
-      .orError(Error(`Priority not found. id: ${issue["priorityId"]}`))
+    const foundPriority = Option<string>(issue["priorityName"])
+      .map(name => findWithName(name, priorities)
+        .orError(Error(`Priority not found. name: ${issue["priorityName"]}`)))
+      .getOrElse(() => Right(Priority(3, "default")))
+
     const foundOptUser = Either.sequenceOption(
       Option(issue["assigneeName"])
         .map(

@@ -33,9 +33,10 @@ describe("IssueConverter", function () {
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users)
 
   test("convert: input all", function () {
-    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityId: "1", assigneeName: "user 3", parentIssueId: "*"}
+    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*"}
     const actual = converter.convert(data)
     actual.recover(function(error) {
+      console.log(error.message)
       return Left(error)
     })
     expect(actual.isRight).toBe(true)
@@ -59,11 +60,33 @@ describe("IssueConverter", function () {
   })
 
   test("convert: invalid issue type", function () {
-    const data = {projectId: 77777, summary: "課題を追加する", issueTypeName: "issue type 999", categoryNames: "", versionNames: "", milestoneNames: "", priorityId: "3"}
+    const data = {projectId: 77777, summary: "課題を追加する", issueTypeName: "issue type 999", categoryNames: "", versionNames: "", milestoneNames: "", priorityName: "priority 2"}
     const actual = converter.convert(data)
     expect(actual.isLeft).toBe(true)
     actual.recover(error => {
       expect(error.message).toEqual("IssueType not found. name: issue type 999")
+      return Left(error)
+    })
+  })
+
+  test("convert: default priority", function () {
+    const data = {summary: "aaa", description: "", issueTypeName: "issue type 3", categoryNames: "", versionNames: "", milestoneNames: ""}
+    const actual = converter.convert(data)
+    actual.recover(function(error) {
+      return Left(error)
+    })
+    expect(actual.isRight).toBe(true)
+    actual.map(function (issue) {
+      expect(issue.issueType.id).toBe(3)
+    })
+  })
+
+  test("convert: invalid priority", function () {
+    const data = {summary: "aaa", description: "", issueTypeName: "issue type 3", priorityName: "priority 100", categoryNames: "", versionNames: "", milestoneNames: ""}
+    const actual = converter.convert(data)
+    expect(actual.isLeft).toBe(true)
+    actual.recover(function(error) {
+      expect(error.message).toBe("Priority not found. name: priority 100")
       return Left(error)
     })
   })
