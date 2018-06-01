@@ -62,6 +62,16 @@ export const Either = {
     }
     return Right(items)
   },
+  run<E, A>(gen: IterableIterator<Either<E, A>>): Either<E, A> {
+    let lastValue: A
+    while (true) {
+        const result: IteratorResult<Either<E, A>> = gen.next(lastValue)
+        if (result.done || result.value.isLeft) {
+            return result.value
+        }
+        lastValue = result.value.getOrError() // If Left then throw an exception
+    }
+  },
   map4: <E, A, B, C, D, F>(a: Either<E, A>, b: Either<E, B>, c: Either<E, C>, d: Either<E, D>,
                            f: F4<A, B, C, D, Either<E, F>>): Either<E, F> =>
     Either.map3(a, b, c, (va, vb, vc) => {
