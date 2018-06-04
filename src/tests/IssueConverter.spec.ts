@@ -1,6 +1,6 @@
 import {List} from "../List"
 import {IssueType, Category, Version, Priority, User, CustomFieldDefinition, CustomField} from "../datas"
-import {IssueConverter} from "../IssueConverter"
+import {IssueConverter, extractFromString} from "../IssueConverter"
 import {Left} from "../Either"
 
 describe("IssueConverter", function () {
@@ -37,7 +37,7 @@ describe("IssueConverter", function () {
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users, customFieldDefinitions)
 
   test("convert: input all", function () {
-    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*", customFields: "1=abc\n2=123 "}
+    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*", customFields: "1(string)=abc\n2(number)=123 "}
     const actual = converter.convert(data)
     actual.recover(function(error) {
       return Left(error)
@@ -97,4 +97,22 @@ describe("IssueConverter", function () {
       return Left(error)
     })
   })
+})
+
+describe("extractFromString", function () {
+
+  test("valid custom field", function () {
+    const actual = extractFromString("100(string)=abc123")
+    expect(actual.isDefined).toBe(true)
+    actual.map(function(customField) {
+      expect(customField.id).toEqual(100)
+      expect(customField.value).toEqual("abc123")
+    })
+  })
+
+  test("invalid custom field", function () {
+    const actual = extractFromString("100=abc123")
+    expect(actual.isDefined).toBe(false)
+  })
+
 })

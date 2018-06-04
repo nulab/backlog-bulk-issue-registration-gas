@@ -26,6 +26,12 @@ const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> =>
 const findWithName = <A extends WithName>(name: string, items: List<A>): Option<A> =>
   find<A>(withName(name), items)
 
+export const extractFromString = (str: string): Option<CustomField> => {
+  const match = str.match(/(\d+)\(.*?\)=(.*)/)
+  const result = Option(match)
+  return result.map(results => CustomField(+results[1], results[2]))
+}
+
 export const IssueConverter = (
   projectId: Id<Project>,
   issueTypes: List<IssueType>,
@@ -59,12 +65,13 @@ export const IssueConverter = (
     )
     const foundCustomFields = Either.sequence(
       lines(issue["customFields"]).map(function(item) {
-        const values = item.split("=")
-        const id = +values[0]
-        const value = values[1]
-        return findWithId(id, customFieldDefinitions)
-          .orError(Error(`Custom field definition not found. id: ${id}`))
-          .map(definition => CustomField(definition.id, value))
+        return extractFromString(item)
+          .orError(Error("Invalid custom field format. Raw input: " + item))
+          .flatMap(customField =>
+            findWithId(customField.id, customFieldDefinitions)
+            .orError(Error(`Custom field definition not found. id: ${customField.id}`))
+            .map(_ => customField)
+          )
       })
     )
 
