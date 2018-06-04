@@ -326,7 +326,7 @@ describe("BacklogClient", function () {
     Priority(2, "priority"),
     Some(User(3, "user")),
     Some("*"),
-    [CustomField(1, "abc"), CustomField(2, 123)]
+    [CustomField(1, 3, "abc"), CustomField(2, 1, 123)]
   )
 
   const minIssue = Issue(
@@ -392,7 +392,7 @@ describe("BacklogClient", function () {
     const obj2 = issueToObject(maxIssue)
     const actual2 = objectToPayload(obj2)
     expect(actual2).toEqual(
-      "projectId=123&summary=test%20summary&description=description&startDate=2018-04-16&dueDate=2018-01-01&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*"
+      "projectId=123&summary=test%20summary&description=description&startDate=2018-04-16&dueDate=2018-01-01&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*&customField_1=abc&customField_2=123"
     )
   })
 })

@@ -31,8 +31,8 @@ describe("IssueConverter", function () {
     User(4, "user 4")
   ]
   const customFieldDefinitions: List<CustomFieldDefinition> = [
-    CustomFieldDefinition(1, "string"),
-    CustomFieldDefinition(2, "number")
+    CustomFieldDefinition(1, 5, "string"),
+    CustomFieldDefinition(2, 3, "number")
   ]
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users, customFieldDefinitions)
 
@@ -61,6 +61,8 @@ describe("IssueConverter", function () {
       issue.parentIssueId.map(parentIssueId => expect(parentIssueId).toBe("*"))
       expect(issue.customFields[0].id).toBe(1)
       expect(issue.customFields[1].id).toBe(2)
+      expect(issue.customFields[0].fieldTypeId).toBe(5)
+      expect(issue.customFields[1].fieldTypeId).toBe(3)
       expect(issue.customFields[0].value).toEqual("abc")
       expect(issue.customFields[1].value).toEqual("123")
     })

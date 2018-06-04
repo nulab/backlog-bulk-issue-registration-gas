@@ -76,14 +76,16 @@ export const Version = (id: number, name: string) => ({id, name})
 export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
-export interface CustomFieldDefinition extends WithId, WithName {}
-export const CustomFieldDefinition = (id: number, name: string) => ({id, name})
+export interface CustomFieldDefinition extends WithId, WithName {
+  readonly fieldTypeId: number
+}
+export const CustomFieldDefinition = (id: number, fieldTypeId: number, name: string) => ({id, fieldTypeId, name})
 
 export interface CustomField extends WithId {
-  readonly id: number
+  readonly fieldTypeId: number
   readonly value: any
 }
-export const CustomField = (id: number, value: any) => ({id, value})
+export const CustomField = (id: number, fieldTypeId: number, value: any) => ({id, fieldTypeId, value})
 
 export interface BacklogDefinition {
   readonly issueTypes: List<IssueType>

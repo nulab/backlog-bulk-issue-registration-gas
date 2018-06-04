@@ -26,10 +26,16 @@ const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> =>
 const findWithName = <A extends WithName>(name: string, items: List<A>): Option<A> =>
   find<A>(withName(name), items)
 
-export const extractFromString = (str: string): Option<CustomField> => {
+interface CustomFieldResult {
+  readonly id: number
+  readonly value: any
+}
+const CustomFieldResult = (id: number, value: any) => ({id, value})
+
+export const extractFromString = (str: string): Option<CustomFieldResult> => {
   const match = str.match(/(\d+)\(.*?\)=(.*)/)
   const result = Option(match)
-  return result.map(results => CustomField(+results[1], results[2]))
+  return result.map(results => CustomFieldResult(+results[1], results[2]))
 }
 
 export const IssueConverter = (
@@ -67,10 +73,10 @@ export const IssueConverter = (
       lines(issue["customFields"]).map(function(item) {
         return extractFromString(item)
           .orError(Error("Invalid custom field format. Raw input: " + item))
-          .flatMap(customField =>
-            findWithId(customField.id, customFieldDefinitions)
-            .orError(Error(`Custom field definition not found. id: ${customField.id}`))
-            .map(_ => customField)
+          .flatMap(customFieldResult =>
+            findWithId(customFieldResult.id, customFieldDefinitions)
+            .orError(Error(`Custom field definition not found. id: ${customFieldResult.id}`))
+            .map(definition => CustomField(customFieldResult.id, definition.fieldTypeId, customFieldResult.value))
           )
       })
     )
