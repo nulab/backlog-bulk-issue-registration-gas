@@ -124,7 +124,8 @@ const BacklogScript = (): BacklogScript => ({
       client.getCategoriesV2(project.id),
       client.getVersionsV2(project.id),
       client.getPrioritiesV2(),
-      client.getUsersV2(project.id)
+      client.getUsersV2(project.id),
+      client.getCustomFieldsV2(project.id)
     )
   }
 });
