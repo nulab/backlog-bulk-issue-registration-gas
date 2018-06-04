@@ -35,6 +35,7 @@ export interface Issue extends WithId {
   readonly priority: Priority
   readonly assignee: Option<User>
   readonly parentIssueId: Option<string>
+  readonly customFields: List<CustomField>
 }
 export const Issue = (
   id: number,
@@ -52,8 +53,13 @@ export const Issue = (
   milestones: List<Version>,
   priority: Priority,
   assignee: Option<User>,
-  parentIssueId: Option<string>
-): Issue => ({id, issueKey, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
+  parentIssueId: Option<string>,
+  customFields: List<CustomField>
+): Issue => ({
+  id, issueKey, projectId, summary, description,
+  startDate, dueDate, estimatedHours, actualHours,
+  issueType, categories, versions, milestones,
+  priority, assignee, parentIssueId, customFields})
 
 export interface User extends WithId, WithName {}
 export const User = (id: number, name: string) => ({id, name})
@@ -70,12 +76,24 @@ export const Version = (id: number, name: string) => ({id, name})
 export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
+export interface CustomFieldDefinition extends WithId, WithName {
+  readonly fieldTypeId: number
+}
+export const CustomFieldDefinition = (id: number, fieldTypeId: number, name: string) => ({id, fieldTypeId, name})
+
+export interface CustomField extends WithId {
+  readonly fieldTypeId: number
+  readonly value: any
+}
+export const CustomField = (id: number, fieldTypeId: number, value: any) => ({id, fieldTypeId, value})
+
 export interface BacklogDefinition {
   readonly issueTypes: List<IssueType>
   readonly categories: List<Category>
   readonly versions: List<Version>
   readonly priorities: List<Priority>
   readonly users: List<User>
+  readonly customFields: List<CustomFieldDefinition>
   issueTypeNames: () => String[]
   priorityNames: () => String[]
   userNames: () => String[]
@@ -85,9 +103,10 @@ export const BacklogDefinition = (
   categories: List<Category>,
   versions: List<Version>,
   priorities: List<Priority>,
-  users: List<User>
+  users: List<User>,
+  customFields: List<CustomFieldDefinition>
 ): BacklogDefinition => ({
-  issueTypes, categories, versions, priorities, users,
+  issueTypes, categories, versions, priorities, users, customFields,
   issueTypeNames: (): String[] => issueTypes.map(item => item.name),
   priorityNames: (): String[] => priorities.map(item => item.name),
   userNames: (): String[] => users.map(item => item.name)

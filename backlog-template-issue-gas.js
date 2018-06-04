@@ -130,7 +130,7 @@ function main_run_(grid) {
 		var fomula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
 		
 		if (logSheet == null)
-			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName);
+			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 2);
 		keyLength = Math.max(keyLength, strLength_(issue.issueKey));
 		summaryLength = Math.max(summaryLength, strLength_(summary));
 		logKey_(logSheet, keyLength, i, fomula);
@@ -185,6 +185,11 @@ function init_run_(grid) {
 		var user = definition.users[i];
 		definitionSheet.getRange(5, i + 2).setValue(user.name);
 	}
+	definitionSheet.getRange(6, 1).setValue("カスタム属性：");
+	for (var i = 0; i < definition.customFields.length; i++) {
+		var customField = definition.customFields[i];
+		definitionSheet.getRange(6, i + 2).setValue(customField.id + "(" + customField.name + ")=");
+	}
 
 	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
@@ -226,7 +231,8 @@ function getTemplateIssuesFromSpreadSheet_() {
 			milestoneNames: values[i][9],
 			priorityName: values[i][10] === "" ? undefined : values[i][10],
 			assigneeName: values[i][11] === "" ? undefined : values[i][11],
-			parentIssueKey: values[i][12] === "" ? undefined : values[i][12]
+			parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
+			customFields: values[i][13]
 		};
 		issues[i] = issue;
 	}

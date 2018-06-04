@@ -1,4 +1,4 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField} from "./datas"
 import {Http} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -63,6 +63,13 @@ export interface BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-priority-list/
    */
   getPrioritiesV2(): Priority[]
+
+  /**
+   * プロジェクトのカスタム属性一覧を取得します。
+   *
+   * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-custom-field-list/
+   */
+  getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition>
 }
 
 const padding2 = (num: number): string =>
@@ -92,7 +99,8 @@ export const issueToObject = (issue: Issue): any => {
       milestoneId: nullOrArray(milestoneIds),
       priorityId: issue.priority.id,
       assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
-      parentIssueId: issue.parentIssueId.getOrElse(() => undefined)
+      parentIssueId: issue.parentIssueId.getOrElse(() => undefined),
+      customFields: nullOrArray(issue.customFields)
     }
   }
 
@@ -101,6 +109,10 @@ export const objectToPayload = (obj: any): string => {
     keys(obj)
     .filter(key => obj[key] !== undefined)
     .map(function (key) {
+      if (key === "customFields") {
+        const items: List<CustomField> = obj[key]
+        return items.map(item => `customField_${item.id}=${encodeURIComponent(item.value)}`).join("&")
+      }
       if (obj[key] instanceof Array) {
         const items: any[] = obj[key]
         return items.map(item => `${encodeURIComponent(key)}[]=${encodeURIComponent(item)}`).join("&")
@@ -178,6 +190,11 @@ export class BacklogClientImpl implements BacklogClient {
     return Object.keys(json).map(key => this.jsonTo(json[key]))
   }
 
+  public getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition> {
+    const json = this.http.get(this.buildUri(`projects/${id}/customFields`))
+    return Object.keys(json).map(key => ({id: json[key]["id"], fieldTypeId: json[key]["fieldTypeId"], name: json[key]["name"]}))
+  }
+
   private buildUri(resource: string): string {
     return `https://${this.spaceName}.backlog${this.domain}/api/v2/${resource}?apiKey=${this.apiKey}`
   }
@@ -199,7 +216,8 @@ export class BacklogClientImpl implements BacklogClient {
       json["milestone"].map(this.jsonTo),
       this.jsonTo(json["priority"]),
       Option(json["assignee"]).map(a => this.jsonTo(a)),
-      Option(json["parentIssueId"])
+      Option(json["parentIssueId"]),
+      json["customFields"].map(this.jsonTo)
     )
   }
 

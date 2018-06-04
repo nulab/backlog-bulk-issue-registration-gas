@@ -39,7 +39,8 @@ const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): Is
     client.getCategoriesV2(projectId),
     client.getVersionsV2(projectId),
     client.getPrioritiesV2(),
-    client.getUsersV2(projectId)
+    client.getUsersV2(projectId),
+    client.getCustomFieldsV2(projectId)
   )
 
 const convertIssue = (converter: IssueConverter, issue: any): Either<Error, Issue> =>
@@ -74,7 +75,8 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
     issue.milestones,
     issue.priority,
     issue.assignee,
-    optParentIssueId.map(id => id.toString())
+    optParentIssueId.map(id => id.toString()),
+    issue.customFields
   )
   return client.createIssueV2(createIssue)
 }
@@ -124,7 +126,8 @@ const BacklogScript = (): BacklogScript => ({
       client.getCategoriesV2(project.id),
       client.getVersionsV2(project.id),
       client.getPrioritiesV2(),
-      client.getUsersV2(project.id)
+      client.getUsersV2(project.id),
+      client.getCustomFieldsV2(project.id)
     )
   }
 });
