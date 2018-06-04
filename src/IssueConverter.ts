@@ -1,6 +1,6 @@
 import {Either, Left, Right} from "./Either"
 import {Option, Some, None} from "./Option"
-import {Issue, Project, Id, IssueType, Category, WithName, Version, Priority, User, WithId} from "./datas"
+import {Issue, Project, Id, IssueType, Category, WithName, Version, Priority, User, WithId, CustomFieldDefinition, CustomField} from "./datas"
 import {Predicate, List, find} from "./List"
 
 export interface IssueConverter {
@@ -32,7 +32,8 @@ export const IssueConverter = (
   categories: List<Category>,
   versions: List<Version>,
   priorities: List<Priority>,
-  users: List<User>): IssueConverter => ({
+  users: List<User>,
+  customFieldDefinitions: List<CustomFieldDefinition>): IssueConverter => ({
   convert: (issue: any): Either<Error, Issue> => {
     const foundCategories = Either.sequence(
       lines(issue["categoryNames"]).map(
@@ -52,17 +53,24 @@ export const IssueConverter = (
       .map(name => findWithName(name, priorities)
         .orError(Error(`Priority not found. name: ${issue["priorityName"]}`)))
       .getOrElse(() => Right(Priority(3, "default")))
-
     const foundOptUser = Either.sequenceOption(
       Option(issue["assigneeName"])
-        .map(
-          item => findWithName(item, users).orError(new Error(`Assignee not found. name: ${item}`))
-        )
+        .map(item => findWithName(item, users).orError(new Error(`Assignee not found. name: ${item}`)))
+    )
+    const foundCustomFields = Either.sequence(
+      lines(issue["customFields"]).map(function(item) {
+        const values = item.split("=")
+        const id = +values[0]
+        const value = values[1]
+        return findWithId(id, customFieldDefinitions)
+          .orError(Error(`Custom field definition not found. id: ${id}`))
+          .map(definition => CustomField(definition.id, value))
+      })
     )
 
-    return Either.map6(
-      foundCategories, foundVersions, foundMilestones, foundIssueType, foundPriority, foundOptUser,
-      (categories, versions, milestones, issueType, priority, optUser) => {
+    return Either.map7(
+      foundCategories, foundVersions, foundMilestones, foundIssueType, foundPriority, foundOptUser, foundCustomFields,
+      (categories, versions, milestones, issueType, priority, optUser, customFields) => {
         return Right(
           Issue(
             undefined,
@@ -80,7 +88,8 @@ export const IssueConverter = (
             milestones,
             priority,
             optUser,
-            Option(issue["parentIssueKey"])
+            Option(issue["parentIssueKey"]),
+            customFields
           )
         )
     })

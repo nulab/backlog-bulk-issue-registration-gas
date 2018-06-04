@@ -35,6 +35,7 @@ export interface Issue extends WithId {
   readonly priority: Priority
   readonly assignee: Option<User>
   readonly parentIssueId: Option<string>
+  readonly customFields: List<CustomField>
 }
 export const Issue = (
   id: number,
@@ -52,8 +53,13 @@ export const Issue = (
   milestones: List<Version>,
   priority: Priority,
   assignee: Option<User>,
-  parentIssueId: Option<string>
-): Issue => ({id, issueKey, projectId, summary, description, startDate, dueDate, estimatedHours, actualHours, issueType, categories, versions, milestones, priority, assignee, parentIssueId})
+  parentIssueId: Option<string>,
+  customFields: List<CustomField>
+): Issue => ({
+  id, issueKey, projectId, summary, description,
+  startDate, dueDate, estimatedHours, actualHours,
+  issueType, categories, versions, milestones,
+  priority, assignee, parentIssueId, customFields})
 
 export interface User extends WithId, WithName {}
 export const User = (id: number, name: string) => ({id, name})
@@ -70,8 +76,14 @@ export const Version = (id: number, name: string) => ({id, name})
 export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
-export interface CustomField extends WithId, WithName {}
-export const CustomField = (id: number, name: string) => ({id, name})
+export interface CustomFieldDefinition extends WithId, WithName {}
+export const CustomFieldDefinition = (id: number, name: string) => ({id, name})
+
+export interface CustomField extends WithId {
+  readonly id: number
+  readonly value: any
+}
+export const CustomField = (id: number, value: any) => ({id, value})
 
 export interface BacklogDefinition {
   readonly issueTypes: List<IssueType>
@@ -79,7 +91,7 @@ export interface BacklogDefinition {
   readonly versions: List<Version>
   readonly priorities: List<Priority>
   readonly users: List<User>
-  readonly customFields: List<CustomField>
+  readonly customFields: List<CustomFieldDefinition>
 }
 export const BacklogDefinition = (
   issueTypes: List<IssueType>,
@@ -87,7 +99,7 @@ export const BacklogDefinition = (
   versions: List<Version>,
   priorities: List<Priority>,
   users: List<User>,
-  customFields: List<CustomField>
+  customFields: List<CustomFieldDefinition>
 ): BacklogDefinition => ({issueTypes, categories, versions, priorities, users, customFields})
 
 export const notNull = <T, U>(t: T): boolean => t != null

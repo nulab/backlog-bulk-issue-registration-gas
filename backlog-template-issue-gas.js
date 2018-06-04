@@ -231,7 +231,8 @@ function getTemplateIssuesFromSpreadSheet_() {
 			milestoneNames: values[i][9],
 			priorityName: values[i][10] === "" ? undefined : values[i][10],
 			assigneeName: values[i][11] === "" ? undefined : values[i][11],
-			parentIssueKey: values[i][12] === "" ? undefined : values[i][12]
+			parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
+			customFields: values[i][13]
 		};
 		issues[i] = issue;
 	}

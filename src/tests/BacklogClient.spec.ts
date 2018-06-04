@@ -3,7 +3,7 @@ import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOption
 import {Http, HttpClient} from "../Http"
 import {BacklogClient, BacklogClientImpl, issueToObject, objectToPayload} from "../BacklogClient"
 import {Either, Right, Left} from "../Either"
-import {Issue, IssueType, Priority, User, Category, Version} from "../datas"
+import {Issue, IssueType, Priority, User, Category, Version, CustomFieldDefinition, CustomField} from "../datas"
 import {None, Some} from "../Option"
 
 describe("BacklogClient", function () {
@@ -27,6 +27,9 @@ describe("BacklogClient", function () {
       }
       if (uri === "https://testspace.backlog.jp/api/v2/issues/1234567890?apiKey=testapikeystring") {
         return this.toJson(this.getIssue())
+      }
+      if (uri === "https://testspace.backlog.jp/api/v2/projects/12345/customFields?apiKey=testapikeystring") {
+        return this.toJson(this.getCustomFields())
       }
       return this.toJson("{}")
     }
@@ -199,6 +202,35 @@ describe("BacklogClient", function () {
           "stars": []
         }`
     }
+    private getCustomFields(): string {
+      return `[
+        {
+          "id": 51218,
+          "typeId": 3,
+          "version": 1528072392000,
+          "name": "number",
+          "description": "",
+          "required": false,
+          "useIssueType": false,
+          "applicableIssueTypes": [],
+          "displayOrder": 2141183646,
+          "min": null,
+          "max": null,
+          "initialValue": null,
+          "unit": null
+        },
+        {
+          "id": 51129,
+          "typeId": 1,
+          "version": 1528075236000,
+          "name": "text",
+          "description": "",
+          "required": false,
+          "useIssueType": false,
+          "applicableIssueTypes": [],
+          "displayOrder": 2147223646
+        }]`
+    }
   }
 
   const client = new BacklogClientImpl(new FakeHttp(), "testspace", ".jp", "testapikeystring")
@@ -265,6 +297,15 @@ describe("BacklogClient", function () {
       issue.parentIssueId.map(parentIssueId => expect(parentIssueId).toBe(7777777))
     })
   })
+
+  test("Get custom field definitions", function () {
+    const CustomFieldDefinitions = client.getCustomFieldsV2(12345)
+    expect(CustomFieldDefinitions.length).toBe(2)
+    expect(CustomFieldDefinitions[0].id).toBe(51218)
+    expect(CustomFieldDefinitions[0].name).toBe("number")
+    expect(CustomFieldDefinitions[1].id).toBe(51129)
+    expect(CustomFieldDefinitions[1].name).toBe("text")
+  })
 })
 
 describe("BacklogClient", function () {
@@ -284,7 +325,8 @@ describe("BacklogClient", function () {
     [Version(50, "m1")], // milestone
     Priority(2, "priority"),
     Some(User(3, "user")),
-    Some("*")
+    Some("*"),
+    [CustomField(1, "abc"), CustomField(2, 123)]
   )
 
   const minIssue = Issue(
@@ -303,7 +345,8 @@ describe("BacklogClient", function () {
     [], // milestone
     Priority(100, "priority100"),
     None(),
-    None()
+    None(),
+    [] // custom field
   )
 
   test("issue to object", function () {
