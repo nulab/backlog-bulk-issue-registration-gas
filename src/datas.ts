@@ -92,6 +92,9 @@ export interface BacklogDefinition {
   readonly priorities: List<Priority>
   readonly users: List<User>
   readonly customFields: List<CustomFieldDefinition>
+  issueTypeNames: () => String[]
+  priorityNames: () => String[]
+  userNames: () => String[]
 }
 export const BacklogDefinition = (
   issueTypes: List<IssueType>,
@@ -100,7 +103,12 @@ export const BacklogDefinition = (
   priorities: List<Priority>,
   users: List<User>,
   customFields: List<CustomFieldDefinition>
-): BacklogDefinition => ({issueTypes, categories, versions, priorities, users, customFields})
+): BacklogDefinition => ({
+  issueTypes, categories, versions, priorities, users, customFields,
+  issueTypeNames: (): String[] => issueTypes.map(item => item.name),
+  priorityNames: (): String[] => priorities.map(item => item.name),
+  userNames: (): String[] => users.map(item => item.name)
+})
 
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""
