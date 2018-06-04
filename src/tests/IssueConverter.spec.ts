@@ -36,7 +36,6 @@ describe("IssueConverter", function () {
     const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*"}
     const actual = converter.convert(data)
     actual.recover(function(error) {
-      console.log(error.message)
       return Left(error)
     })
     expect(actual.isRight).toBe(true)

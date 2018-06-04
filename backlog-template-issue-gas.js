@@ -185,6 +185,11 @@ function init_run_(grid) {
 		var user = definition.users[i];
 		definitionSheet.getRange(5, i + 2).setValue(user.name);
 	}
+	definitionSheet.getRange(6, 1).setValue("カスタム属性：");
+	for (var i = 0; i < definition.customFields.length; i++) {
+		var customField = definition.customFields[i];
+		definitionSheet.getRange(6, i + 2).setValue(customField.id + "=" + customField.name);
+	}
 
 	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
