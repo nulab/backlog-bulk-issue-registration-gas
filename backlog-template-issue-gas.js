@@ -130,7 +130,7 @@ function main_run_(grid) {
 		var fomula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
 		
 		if (logSheet == null)
-			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName);
+			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 2);
 		keyLength = Math.max(keyLength, strLength_(issue.issueKey));
 		summaryLength = Math.max(summaryLength, strLength_(summary));
 		logKey_(logSheet, keyLength, i, fomula);
