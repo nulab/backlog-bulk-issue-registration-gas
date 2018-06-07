@@ -122,7 +122,7 @@ function main_run_(grid) {
 
 		if (logSheet == null)
 			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 2);
-		keyLength = Math.max(keyLength, strLength_(issue.issueKey));
+		keyLength = Math.max(keyLength, strLength_(issueKey));
 		summaryLength = Math.max(summaryLength, strLength_(summary));
 
 		var keyWidth = calcWidth(keyLength);
@@ -203,13 +203,14 @@ function init_run_(grid) {
 	for (var i = 0; i < definition.customFields.length; i++) {
 		var customField = definition.customFields[i];
 		var currentColumnNumber = customFieldStartColumnNumber + i;
-		var columnName = templateSheet.getRange(ROW_HEADER_INDEX, currentColumnNumber).getValue();
+		var headerCell = getCell(templateSheet, currentColumnNumber, ROW_HEADER_INDEX);
+		var columnName = headerCell.getValue();
+		var formula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '")';
 
 		if (columnName === "") {
 			templateSheet.insertColumnAfter(currentColumnNumber - 1);
-			templateSheet.getRange(ROW_HEADER_INDEX, currentColumnNumber).setValue(customField.name + "(" + customField.id + ")");
 		}
-		
+		headerCell.setFormula(formula);
 	}
 	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
