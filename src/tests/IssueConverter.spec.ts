@@ -31,13 +31,14 @@ describe("IssueConverter", function () {
     User(4, "user 4")
   ]
   const customFieldDefinitions: List<CustomFieldDefinition> = [
-    CustomFieldDefinition(1, 5, "string"),
-    CustomFieldDefinition(2, 3, "number")
+    CustomFieldDefinition(12345, 5, "string"),
+    CustomFieldDefinition(12346, 3, "number")
   ]
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users, customFieldDefinitions)
 
   test("convert: input all", function () {
-    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*", customFields: ["abc", "123"]}
+    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*",
+      customFields: [{header: `=hyperlink("test.backlog.com/EditAttribute.action?attribute.id=12345","数字")`, value: "abc"}, {header: `=hyperlink("test.backlog.com/EditAttribute.action?attribute.id=12346","数字")`, value: "123"}]}
     const actual = converter.convert(data)
     actual.recover(function(error) {
       return Left(error)
@@ -59,8 +60,8 @@ describe("IssueConverter", function () {
       expect(issue.priority.id).toBe(1)
       issue.assignee.map(assignee => expect(assignee.id).toBe(3))
       issue.parentIssueId.map(parentIssueId => expect(parentIssueId).toBe("*"))
-      expect(issue.customFields[0].id).toBe(1)
-      expect(issue.customFields[1].id).toBe(2)
+      expect(issue.customFields[0].id).toBe(12345)
+      expect(issue.customFields[1].id).toBe(12346)
       expect(issue.customFields[0].fieldTypeId).toBe(5)
       expect(issue.customFields[1].fieldTypeId).toBe(3)
       expect(issue.customFields[0].value).toEqual("abc")
@@ -69,7 +70,7 @@ describe("IssueConverter", function () {
   })
 
   test("convert: invalid issue type", function () {
-    const data = {projectId: 77777, summary: "課題を追加する", issueTypeName: "issue type 999", categoryNames: "", versionNames: "", milestoneNames: "", priorityName: "priority 2", customFields: ""}
+    const data = {projectId: 77777, summary: "課題を追加する", issueTypeName: "issue type 999", categoryNames: "", versionNames: "", milestoneNames: "", priorityName: "priority 2", customFields: []}
     const actual = converter.convert(data)
     expect(actual.isLeft).toBe(true)
     actual.recover(error => {
@@ -79,7 +80,7 @@ describe("IssueConverter", function () {
   })
 
   test("convert: default priority", function () {
-    const data = {summary: "aaa", description: "", issueTypeName: "issue type 3", categoryNames: "", versionNames: "", milestoneNames: "", customFields: ""}
+    const data = {summary: "aaa", description: "", issueTypeName: "issue type 3", categoryNames: "", versionNames: "", milestoneNames: "", customFields: []}
     const actual = converter.convert(data)
     actual.recover(function(error) {
       return Left(error)
@@ -91,7 +92,7 @@ describe("IssueConverter", function () {
   })
 
   test("convert: invalid priority", function () {
-    const data = {summary: "aaa", description: "", issueTypeName: "issue type 3", priorityName: "priority 100", categoryNames: "", versionNames: "", milestoneNames: "", customFields: ""}
+    const data = {summary: "aaa", description: "", issueTypeName: "issue type 3", priorityName: "priority 100", categoryNames: "", versionNames: "", milestoneNames: "", customFields: []}
     const actual = converter.convert(data)
     expect(actual.isLeft).toBe(true)
     actual.recover(function(error) {
@@ -104,17 +105,10 @@ describe("IssueConverter", function () {
 describe("extractFromString", function () {
 
   test("valid custom field", function () {
-    const actual = extractFromString("100(string)=abc123")
+    const actual = extractFromString(`=hyperlink("test.backlog.com/EditAttribute.action?attribute.id=12345","number field")`)
     expect(actual.isDefined).toBe(true)
-    actual.map(function(customField) {
-      expect(customField.id).toEqual(100)
-      expect(customField.value).toEqual("abc123")
+    actual.map(function(id) {
+      expect(id).toEqual(12345)
     })
   })
-
-  test("invalid custom field", function () {
-    const actual = extractFromString("100=abc123")
-    expect(actual.isDefined).toBe(false)
-  })
-
 })
