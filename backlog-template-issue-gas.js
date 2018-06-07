@@ -6,7 +6,7 @@
 var SCRIPT_NAME = "課題一括登録";
 
 /** スクリプトバージョン */
-var SCRIPT_VERSION = "v1.3.2";
+var SCRIPT_VERSION = "v2.0.0-SNAPSHOT";
 
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
