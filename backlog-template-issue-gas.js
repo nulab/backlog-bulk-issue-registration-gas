@@ -157,21 +157,23 @@ function init_run_(grid) {
 	var userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build();
 	var lastRow = templateSheet.getLastRow() - 1;
 	var customFieldStartColumnNumber = 14; // N ~
+	var currentColumnNumber = customFieldStartColumnNumber;
 
 	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
 	templateSheet.getRange(2, 11, lastRow).setDataValidation(priorityRule); // 11 = K
 	templateSheet.getRange(2, 12, lastRow).setDataValidation(userRule); // 12 = L
 	for (var i = 0; i < definition.customFields.length; i++) {
 		var customField = definition.customFields[i];
-		var currentColumnNumber = customFieldStartColumnNumber + i;
 		var headerCell = getCell(templateSheet, currentColumnNumber, ROW_HEADER_INDEX);
 		var columnName = headerCell.getValue();
 		var formula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '")';
 
-		if (columnName === "") {
+		if (customField.typeId >= 6)
+			continue;
+		if (columnName === "")
 			templateSheet.insertColumnAfter(currentColumnNumber - 1);
-		}
 		headerCell.setFormula(formula);
+		currentColumnNumber++;
 	}
 	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
