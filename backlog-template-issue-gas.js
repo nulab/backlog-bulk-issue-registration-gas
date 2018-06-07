@@ -11,26 +11,11 @@ var SCRIPT_VERSION = "v2.0.0-SNAPSHOT";
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
 
-/** Backlogの定義が記載されているシートの名前 */
-var DEFINITION_SHEET_NAME = "定義一覧";
-
 /** ヘッダ行のインデックス */
 var ROW_HEADER_INDEX = 1;
 
-/** データ行の開始インデックス */
-var ROW_START_INDEX = 2;
-
-/** データ列の開始インデックス */
-var COLUMN_START_INDEX = 1;
-
 /** 行のデフォルト長 */
 var DEFAULT_COLUMN_LENGTH = 16;
-
-/** フォントのデフォルトサイズ */
-var DEFAULT_FONT_SIZE = 10;
-
-/** 列幅調整時の係数 */
-var ADJUST_WIDTH_FACTOR = 0.75;
 
 // ------------------------- 関数 -------------------------
 
@@ -121,23 +106,33 @@ function showInputDialog_(app, grid, handlerName) {
 function main_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
-	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
 	var sheetName = SCRIPT_NAME + " : " + current;
+	var LOG_KEY_NUMBER = 1;
+	var LOG_SUMMARY_NUMBER = 2;
 	var onIssueCreated = function onIssueCreted(i, issue) {
 		var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 		var issueKey = issue.issueKey;
 		var summary = issue.summary;
 		var fomula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
-		
+		var currentRow = i + 1;
+
 		if (logSheet == null)
 			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 2);
-		keyLength = Math.max(keyLength, strLength_(issue.issueKey));
+		keyLength = Math.max(keyLength, strLength_(issueKey));
 		summaryLength = Math.max(summaryLength, strLength_(summary));
-		logKey_(logSheet, keyLength, i, fomula);
-		logSummary_(logSheet, summaryLength, i, summary);
+
+		var keyWidth = calcWidth(keyLength);
+		var summaryWidth = calcWidth(summaryLength);
+		var keyCell = getCell(logSheet, LOG_KEY_NUMBER, currentRow);
+		var summaryCell = getCell(logSheet, LOG_SUMMARY_NUMBER, currentRow);
+
+		keyCell.setFormula(fomula).setFontColor("blue").setFontLine("underline");
+		summaryCell.setValue(summary);
+		setColumnWidth(logSheet, LOG_KEY_NUMBER, keyWidth);
+		setColumnWidth(logSheet, LOG_SUMMARY_NUMBER, summaryWidth)
 		SpreadsheetApp.flush();
 	}
 	var onWarn = function onWarn(message) {
@@ -145,7 +140,10 @@ function main_run_(grid) {
 	}
 
 	// BacklogScript throws an exception on error
+	showMessage_("データを収集しています...");
+	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	storeUserProperty(param)
+	showMessage_("一括登録を開始しました...");
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
@@ -158,50 +156,30 @@ function init_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
 	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
-	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DEFINITION_SHEET_NAME);
-
-	if (definitionSheet != null)
-		SpreadsheetApp.getActiveSpreadsheet().deleteSheet(definitionSheet);
-	definitionSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(DEFINITION_SHEET_NAME, 1);
-	definitionSheet.getRange(1, 1).setValue("課題種別：");
-	for (var i = 0; i < definition.issueTypes.length; i++) {
-		var issueType = definition.issueTypes[i];
-		definitionSheet.getRange(1, i + 2).setValue(issueType.name);
-	}
-	definitionSheet.getRange(2, 1).setValue("カテゴリー：");
-	for (var i = 0; i < definition.categories.length; i++) {
-		var category = definition.categories[i];
-		definitionSheet.getRange(2, i + 2).setValue(category.name);
-	}
-	definitionSheet.getRange(3, 1).setValue("バージョン/マイルストーン：");
-	for (var i = 0; i < definition.versions.length; i++) {
-		var version = definition.versions[i];
-		definitionSheet.getRange(3, i + 2).setValue(version.name);
-	}
-	definitionSheet.getRange(4, 1).setValue("優先度：");
-	for (var i = 0; i < definition.priorities.length; i++) {
-		var priority = definition.priorities[i];
-		definitionSheet.getRange(4, i + 2).setValue(priority.name);
-	}
-	definitionSheet.getRange(5, 1).setValue("ユーザー：");
-	for (var i = 0; i < definition.users.length; i++) {
-		var user = definition.users[i];
-		definitionSheet.getRange(5, i + 2).setValue(user.name);
-	}
-	definitionSheet.getRange(6, 1).setValue("カスタム属性：");
-	for (var i = 0; i < definition.customFields.length; i++) {
-		var customField = definition.customFields[i];
-		definitionSheet.getRange(6, i + 2).setValue(customField.id + "(" + customField.name + ")=");
-	}
-
-	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
+	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
 	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
 	var userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build();
+	var lastRow = templateSheet.getLastRow() - 1;
+	var customFieldStartColumnNumber = 14; // N ~
+	var currentColumnNumber = customFieldStartColumnNumber;
 
-	definitionSheet.getRange(2, 7, definitionSheet.getLastRow() - 1).setDataValidation(issueTypeRule); // 7 = G
-	definitionSheet.getRange(2, 11, definitionSheet.getLastRow() - 1).setDataValidation(priorityRule); // 11 = K
-	definitionSheet.getRange(2, 12, definitionSheet.getLastRow() - 1).setDataValidation(userRule); // 12 = L
+	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
+	templateSheet.getRange(2, 11, lastRow).setDataValidation(priorityRule); // 11 = K
+	templateSheet.getRange(2, 12, lastRow).setDataValidation(userRule); 	// 12 = L
+	for (var i = 0; i < definition.customFields.length; i++) {
+		var customField = definition.customFields[i];
+		var headerCell = getCell(templateSheet, currentColumnNumber, ROW_HEADER_INDEX);
+		var columnName = headerCell.getValue();
+		var formula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '")';
+
+		if (customField.typeId >= 6)
+			continue;
+		if (columnName === "")
+			templateSheet.insertColumnAfter(currentColumnNumber - 1);
+		headerCell.setFormula(formula);
+		currentColumnNumber++;
+	}
 	showMessage_("Backlogの定義を取得完了しました");
 	return app.close();
 }
@@ -213,14 +191,28 @@ function getTemplateIssuesFromSpreadSheet_() {
 	var issues = [];
     var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
+	var COLUMN_START_INDEX = 1; /** データ列の開始インデックス */
+	var ROW_START_INDEX = 2;	/** データ行の開始インデックス */
+	var columnLength = sheet.getLastColumn();
 	var values = sheet.getSheetValues(
 		ROW_START_INDEX, 
 		COLUMN_START_INDEX,
 		sheet.getLastRow() - 1, 
-		sheet.getLastColumn()
+		columnLength
 	);
 
 	for ( var i = 0; i < values.length; i++) {
+		var customFields = [];
+		var customFieldIndex = 0;
+		for (var j = 13; j < columnLength; j++) {
+			if (values[i][j] !== "") {
+				customFields[customFieldIndex] = {
+					header: getCell(sheet, j + 1, 1).getFormula(),
+					value: values[i][j]
+				};
+				customFieldIndex++;
+			}
+		}
 		var issue = {
 			summary: values[i][0] === "" ? undefined : values[i][0],
 			description: values[i][1] === "" ? undefined : values[i][1],
@@ -235,7 +227,7 @@ function getTemplateIssuesFromSpreadSheet_() {
 			priorityName: values[i][10] === "" ? undefined : values[i][10],
 			assigneeName: values[i][11] === "" ? undefined : values[i][11],
 			parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
-			customFields: values[i][13]
+			customFields: customFields
 		};
 		issues[i] = issue;
 	}
@@ -270,33 +262,37 @@ function storeUserProperty(param) {
 }
 
 /**
- * 指定されたシートの (i + 1, COLUMN_START_INDEX) に課題URLのリンクを出力します
+ * シート内の指定したセルを取得します
  * 
- * @param {Sheet} logSheet 
- * @param {number} length 式の文字数
- * @param {number} i シートの行インデックス
- * @param {string} fomula セルに出力する式
+ * @param {*} sheet 
+ * @param {*} column 列番号
+ * @param {*} row 行番号
  */
-function logKey_(logSheet, length, i, fomula) {
-	var keyWidth = length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
-
-	logSheet.getRange(i + 1, COLUMN_START_INDEX).setFormula(fomula).setFontColor("blue").setFontLine("underline");
-	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, keyWidth);
+function getCell(sheet, column, row) {
+	return sheet.getRange(row, column)
 }
 
 /**
- * 指定されたシートの (i + 1, COLUMN_START_INDEX + 1) に課題名を出力します
+ * 文字数から文字幅を算出します
  * 
- * @param {Sheet} logSheet 
- * @param {number} length 内容の文字数
- * @param {number} i シートの行インデックス
- * @param {string} content セルに出力する内容
+ * @param {number} length 文字数
+ * @return {number} 文字幅
  */
-function logSummary_(logSheet, length, i, content) {
-	var summaryWidth = length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+function calcWidth(length) {
+	var DEFAULT_FONT_SIZE = 10; 	/** フォントのデフォルトサイズ */
+	var ADJUST_WIDTH_FACTOR = 0.75; /** 列幅調整時の係数 */
+	return length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+}
 
-	logSheet.getRange(i + 1, COLUMN_START_INDEX + 1).setValue(content);
-	logSheet.setColumnWidth(COLUMN_START_INDEX + 1, summaryWidth);
+/**
+ * シート列の幅を指定します
+ * 
+ * @param {*} sheet 
+ * @param {number} column 列番号 
+ * @param {number} width 幅
+ */
+function setColumnWidth(sheet, column, width) {
+	sheet.setColumnWidth(column, width);
 }
 
 /**

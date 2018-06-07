@@ -26,16 +26,10 @@ const findWithId = <A extends WithId>(id: number, items: List<A>): Option<A> =>
 const findWithName = <A extends WithName>(name: string, items: List<A>): Option<A> =>
   find<A>(withName(name), items)
 
-interface CustomFieldResult {
-  readonly id: number
-  readonly value: any
-}
-const CustomFieldResult = (id: number, value: any) => ({id, value})
-
-export const extractFromString = (str: string): Option<CustomFieldResult> => {
-  const match = str.match(/(\d+)\(.*?\)=(.*)/)
+export const extractFromString = (str: string): Option<number> => {
+  const match = str.match(/.*?attribute.id=(\d+?)"/)
   const result = Option(match)
-  return result.map(results => CustomFieldResult(+results[1], results[2]))
+  return result.map(results => +results[1])
 }
 
 export const IssueConverter = (
@@ -70,13 +64,13 @@ export const IssueConverter = (
         .map(item => findWithName(item, users).orError(new Error(`Assignee not found. name: ${item}`)))
     )
     const foundCustomFields = Either.sequence(
-      lines(issue["customFields"]).map(function(item) {
-        return extractFromString(item)
-          .orError(Error("Invalid custom field format. Raw input: " + item))
-          .flatMap(customFieldResult =>
-            findWithId(customFieldResult.id, customFieldDefinitions)
-            .orError(Error(`Custom field definition not found. id: ${customFieldResult.id}`))
-            .map(definition => CustomField(customFieldResult.id, definition.fieldTypeId, customFieldResult.value))
+      (issue["customFields"] as List<any>).map(function(item) {
+        return extractFromString(item.header)
+          .orError(Error("Invalid custom field header. Raw input: " + item))
+          .flatMap(customFieldId =>
+            findWithId(customFieldId, customFieldDefinitions)
+            .orError(Error(`Custom field definition not found. id: ${customFieldId}`))
+            .map(definition => CustomField(customFieldId, definition.typeId, item.value))
           )
       })
     )
