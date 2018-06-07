@@ -5,6 +5,9 @@
 /** スクリプト名 */
 var SCRIPT_NAME = "課題一括登録";
 
+/** スクリプトバージョン */
+var SCRIPT_VERSION = "v1.3.2";
+
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
 
@@ -68,7 +71,7 @@ function main() {
 function createApplication_(title, width, height) {
 	var app = UiApp.createApplication();
 	
-	app.setTitle(title);
+	app.setTitle(title + " " + SCRIPT_VERSION);
 	app.setWidth(width);
 	app.setHeight(height);
 	return app;
