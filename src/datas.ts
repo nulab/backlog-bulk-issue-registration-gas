@@ -77,9 +77,9 @@ export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
 export interface CustomFieldDefinition extends WithId, WithName {
-  readonly fieldTypeId: number
+  readonly typeId: number
 }
-export const CustomFieldDefinition = (id: number, fieldTypeId: number, name: string) => ({id, fieldTypeId, name})
+export const CustomFieldDefinition = (id: number, typeId: number, name: string) => ({id, typeId, name})
 
 export interface CustomField extends WithId {
   readonly fieldTypeId: number

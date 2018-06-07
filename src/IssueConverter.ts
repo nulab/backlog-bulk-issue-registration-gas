@@ -76,7 +76,7 @@ export const IssueConverter = (
           .flatMap(customFieldResult =>
             findWithId(customFieldResult.id, customFieldDefinitions)
             .orError(Error(`Custom field definition not found. id: ${customFieldResult.id}`))
-            .map(definition => CustomField(customFieldResult.id, definition.fieldTypeId, customFieldResult.value))
+            .map(definition => CustomField(customFieldResult.id, definition.typeId, customFieldResult.value))
           )
       })
     )

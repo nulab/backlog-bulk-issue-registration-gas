@@ -192,7 +192,7 @@ export class BacklogClientImpl implements BacklogClient {
 
   public getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition> {
     const json = this.http.get(this.buildUri(`projects/${id}/customFields`))
-    return Object.keys(json).map(key => ({id: json[key]["id"], fieldTypeId: json[key]["fieldTypeId"], name: json[key]["name"]}))
+    return Object.keys(json).map(key => ({id: json[key]["id"], typeId: json[key]["typeId"], name: json[key]["name"]}))
   }
 
   private buildUri(resource: string): string {
