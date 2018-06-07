@@ -3,6 +3,9 @@
 /** スクリプト名 */
 var SCRIPT_NAME = "課題一括登録";
 
+/** スクリプトバージョン */
+var SCRIPT_VERSION = "v1.3.2";
+
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
 
@@ -195,7 +198,7 @@ function createIssues() {
 
 function showInputDialog_() {
 	var app = UiApp.createApplication();
-	app.setTitle('Backlog 課題一括登録');
+	app.setTitle('Backlog 課題一括登録 ' + SCRIPT_VERSION);
 	app.setWidth(360);
 	app.setHeight(160);
 
