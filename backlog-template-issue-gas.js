@@ -8,9 +8,6 @@ var SCRIPT_NAME = "課題一括登録";
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
 
-/** Backlogの定義が記載されているシートの名前 */
-var DEFINITION_SHEET_NAME = "定義一覧";
-
 /** ヘッダ行のインデックス */
 var ROW_HEADER_INDEX = 1;
 
@@ -154,42 +151,6 @@ function init_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
 	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
-	var definitionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DEFINITION_SHEET_NAME);
-
-	if (definitionSheet != null)
-		SpreadsheetApp.getActiveSpreadsheet().deleteSheet(definitionSheet);
-	definitionSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(DEFINITION_SHEET_NAME, 1);
-	definitionSheet.getRange(1, 1).setValue("課題種別：");
-	for (var i = 0; i < definition.issueTypes.length; i++) {
-		var issueType = definition.issueTypes[i];
-		definitionSheet.getRange(1, i + 2).setValue(issueType.name);
-	}
-	definitionSheet.getRange(2, 1).setValue("カテゴリー：");
-	for (var i = 0; i < definition.categories.length; i++) {
-		var category = definition.categories[i];
-		definitionSheet.getRange(2, i + 2).setValue(category.name);
-	}
-	definitionSheet.getRange(3, 1).setValue("バージョン/マイルストーン：");
-	for (var i = 0; i < definition.versions.length; i++) {
-		var version = definition.versions[i];
-		definitionSheet.getRange(3, i + 2).setValue(version.name);
-	}
-	definitionSheet.getRange(4, 1).setValue("優先度：");
-	for (var i = 0; i < definition.priorities.length; i++) {
-		var priority = definition.priorities[i];
-		definitionSheet.getRange(4, i + 2).setValue(priority.name);
-	}
-	definitionSheet.getRange(5, 1).setValue("ユーザー：");
-	for (var i = 0; i < definition.users.length; i++) {
-		var user = definition.users[i];
-		definitionSheet.getRange(5, i + 2).setValue(user.name);
-	}
-	definitionSheet.getRange(6, 1).setValue("カスタム属性：");
-	for (var i = 0; i < definition.customFields.length; i++) {
-		var customField = definition.customFields[i];
-		definitionSheet.getRange(6, i + 2).setValue(customField.id + "(" + customField.name + ")=");
-	}
-
 	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
 	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
