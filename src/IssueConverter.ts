@@ -69,21 +69,18 @@ export const IssueConverter = (
       Option(issue["assigneeName"])
         .map(item => findWithName(item, users).orError(new Error(`Assignee not found. name: ${item}`)))
     )
-    const foundCustomFields = Either.sequence(
-      lines(issue["customFields"]).map(function(item) {
-        return extractFromString(item)
-          .orError(Error("Invalid custom field format. Raw input: " + item))
-          .flatMap(customFieldResult =>
-            findWithId(customFieldResult.id, customFieldDefinitions)
-            .orError(Error(`Custom field definition not found. id: ${customFieldResult.id}`))
-            .map(definition => CustomField(customFieldResult.id, definition.typeId, customFieldResult.value))
-          )
-      })
-    )
 
-    return Either.map7(
-      foundCategories, foundVersions, foundMilestones, foundIssueType, foundPriority, foundOptUser, foundCustomFields,
-      (categories, versions, milestones, issueType, priority, optUser, customFields) => {
+    let customFields = []
+
+    for (let i = 0; i < issue["customFields"].length; i++) {
+      const definition = customFieldDefinitions[i]
+      const value = issue["customFields"][i]
+      customFields[i] = CustomField(definition.id, definition.typeId, value)
+    }
+
+    return Either.map6(
+      foundCategories, foundVersions, foundMilestones, foundIssueType, foundPriority, foundOptUser,
+      (categories, versions, milestones, issueType, priority, optUser) => {
         return Right(
           Issue(
             undefined,

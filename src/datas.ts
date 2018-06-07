@@ -9,7 +9,7 @@ export interface WithId {
 }
 
 export interface WithName {
-  readonly name: String
+  readonly name: string
 }
 
 export interface Project extends WithId {

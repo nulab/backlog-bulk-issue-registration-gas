@@ -103,7 +103,6 @@ function showInputDialog_(app, grid, handlerName) {
 function main_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
-	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
@@ -138,7 +137,10 @@ function main_run_(grid) {
 	}
 
 	// BacklogScript throws an exception on error
+	showMessage_("データを収集しています...");
+	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	storeUserProperty(param)
+	showMessage_("一括登録を開始しました...");
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(SCRIPT_NAME + " が正常に行われました");
 	return app.close();
@@ -161,7 +163,7 @@ function init_run_(grid) {
 
 	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
 	templateSheet.getRange(2, 11, lastRow).setDataValidation(priorityRule); // 11 = K
-	templateSheet.getRange(2, 12, lastRow).setDataValidation(userRule); // 12 = L
+	templateSheet.getRange(2, 12, lastRow).setDataValidation(userRule); 	// 12 = L
 	for (var i = 0; i < definition.customFields.length; i++) {
 		var customField = definition.customFields[i];
 		var headerCell = getCell(templateSheet, currentColumnNumber, ROW_HEADER_INDEX);
@@ -188,14 +190,26 @@ function getTemplateIssuesFromSpreadSheet_() {
 	var sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME);
 	var COLUMN_START_INDEX = 1; /** データ列の開始インデックス */
 	var ROW_START_INDEX = 2;	/** データ行の開始インデックス */
+	var columnLength = sheet.getLastColumn();
 	var values = sheet.getSheetValues(
 		ROW_START_INDEX, 
 		COLUMN_START_INDEX,
 		sheet.getLastRow() - 1, 
-		sheet.getLastColumn()
+		columnLength
 	);
 
 	for ( var i = 0; i < values.length; i++) {
+		var customFields = [];
+		var customFieldIndex = 0;
+		for (var j = 13; j < columnLength; j++) {
+			if (values[i][j] !== "") {
+				customFields[customFieldIndex] = {
+					header: getCell(sheet, j + 1, 1).getFormula(),
+					value: values[i][j]
+				};
+				customFieldIndex++;
+			}
+		}
 		var issue = {
 			summary: values[i][0] === "" ? undefined : values[i][0],
 			description: values[i][1] === "" ? undefined : values[i][1],
@@ -210,7 +224,7 @@ function getTemplateIssuesFromSpreadSheet_() {
 			priorityName: values[i][10] === "" ? undefined : values[i][10],
 			assigneeName: values[i][11] === "" ? undefined : values[i][11],
 			parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
-			customFields: values[i][13]
+			customFields: customFields
 		};
 		issues[i] = issue;
 	}
