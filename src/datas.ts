@@ -95,6 +95,8 @@ export interface BacklogDefinition {
   readonly users: List<User>
   readonly customFields: List<CustomFieldDefinition>
   issueTypeNames: () => String[]
+  categoryNames: () => string[]
+  versionNames: () => string[]
   priorityNames: () => String[]
   userNames: () => String[]
 }
@@ -108,6 +110,8 @@ export const BacklogDefinition = (
 ): BacklogDefinition => ({
   issueTypes, categories, versions, priorities, users, customFields,
   issueTypeNames: (): String[] => issueTypes.map(item => item.name),
+  categoryNames: (): string[] => categories.map(item => item.name),
+  versionNames: (): string[] => versions.map(item => item.name),
   priorityNames: (): String[] => priorities.map(item => item.name),
   userNames: (): String[] => users.map(item => item.name)
 })

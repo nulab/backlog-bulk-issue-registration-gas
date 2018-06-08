@@ -158,6 +158,8 @@ function init_run_(grid) {
 	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
 	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
+	var categoryRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.categoryNames(), true).build();
+	var versionRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.versionNames(), true).build();
 	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
 	var userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build();
 	var lastRow = templateSheet.getLastRow() - 1;
@@ -165,6 +167,9 @@ function init_run_(grid) {
 	var currentColumnNumber = customFieldStartColumnNumber;
 
 	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
+	templateSheet.getRange(2, 8, lastRow).setDataValidation(categoryRule); 	// 8 = H
+	templateSheet.getRange(2, 9, lastRow).setDataValidation(versionRule); 	// 9 = I
+	templateSheet.getRange(2, 10, lastRow).setDataValidation(versionRule); 	// 10 = J
 	templateSheet.getRange(2, 11, lastRow).setDataValidation(priorityRule); // 11 = K
 	templateSheet.getRange(2, 12, lastRow).setDataValidation(userRule); 	// 12 = L
 	for (var i = 0; i < definition.customFields.length; i++) {
