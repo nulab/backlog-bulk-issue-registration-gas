@@ -166,6 +166,7 @@ function init_run_(grid) {
 	var customFieldStartColumnNumber = 14; // N ~
 	var currentColumnNumber = customFieldStartColumnNumber;
 
+	storeUserProperty(param);
 	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
 	templateSheet.getRange(2, 8, lastRow).setDataValidation(categoryRule); 	// 8 = H
 	templateSheet.getRange(2, 9, lastRow).setDataValidation(versionRule); 	// 9 = I
