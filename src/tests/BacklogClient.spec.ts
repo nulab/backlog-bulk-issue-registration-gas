@@ -277,7 +277,7 @@ describe("BacklogClient", function () {
   })
 
   test("Get an issue", function () {
-    const maybeIssue = client.getIssueV2(1234567890)
+    const maybeIssue = client.getIssueV2("1234567890")
     expect(maybeIssue.isDefined).toBe(true)
     maybeIssue.map(issue => {
       expect(issue.id).toBe(1234567890)
