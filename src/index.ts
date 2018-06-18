@@ -58,7 +58,7 @@ const validate = (issues: List<any>): Either<Error, boolean> => {
   return Right(true)
 }
 
-export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<number>): Either<Error, Issue> => {
+export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> => {
   const createIssue = Issue(
     0,
     "",
@@ -100,16 +100,21 @@ const BacklogScript = (): BacklogScript => ({
     for ( let i = 0; i < issues.length; i++) {
       let isTakenOverParentIssueId = false
       let optParentIssueId = issues[i].parentIssueId
-      if (optParentIssueId.equals(Some("*"))) {
-        if (previousIssue.flatMap(issue => issue.parentIssueId).isDefined) {
-          previousIssue.map(issue => onWarn(`課題 '${issue.issueKey}' はすでに子課題となっているため、親課題として設定できません`))
-          optParentIssueId = None<string>()
+
+      optParentIssueId.map(function(parentIssueId) {
+        if (parentIssueId === "*") {
+          if (previousIssue.flatMap(issue => issue.parentIssueId).isDefined) {
+            previousIssue.map(issue => onWarn(`課題 '${issue.issueKey}' はすでに子課題となっているため、親課題として設定できません`))
+            optParentIssueId = None<string>()
+          } else {
+            optParentIssueId = previousIssue.map(issue => issue.id.toString())
+            isTakenOverParentIssueId = true
+          }
         } else {
-          optParentIssueId = previousIssue.map(issue => issue.id.toString())
-          isTakenOverParentIssueId = true
+          optParentIssueId = client.getIssueV2(parentIssueId).map(issue => issue.id)
         }
-      }
-      createIssue(client, issues[i], optParentIssueId.map(id => +id)).map(issue => {
+      })
+      createIssue(client, issues[i], optParentIssueId.map(id => id)).map(issue => {
         if (!isTakenOverParentIssueId) {
           previousIssue = Some(issue)
         }
