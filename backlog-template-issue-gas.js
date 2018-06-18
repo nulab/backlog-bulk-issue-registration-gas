@@ -120,7 +120,7 @@ function main_run_(grid) {
 		var currentRow = i + 1;
 
 		if (logSheet == null)
-			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 2);
+			logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 1);
 		keyLength = Math.max(keyLength, strLength_(issueKey));
 		summaryLength = Math.max(summaryLength, strLength_(summary));
 
