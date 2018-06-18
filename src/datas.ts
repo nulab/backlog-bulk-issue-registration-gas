@@ -3,6 +3,7 @@ import {List} from "./List"
 
 export type Id<T> = number
 export type Key<T> = string
+export type IdOrKey<T> = string
 
 export interface WithId {
   readonly id: number

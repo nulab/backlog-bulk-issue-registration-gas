@@ -46,7 +46,7 @@ const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): Is
 const convertIssue = (converter: IssueConverter, issue: any): Either<Error, Issue> =>
   converter.convert(issue)
 
-const validate = (issues: List<any>): Either<Error, boolean> => {
+const validate = (issues: List<any>, client: BacklogClient): Either<Error, boolean> => {
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i]
     const errorString = `エラー ${i + 2} 行目: `
@@ -54,11 +54,14 @@ const validate = (issues: List<any>): Either<Error, boolean> => {
       return Left(Error(`${errorString}'件名' が入力されていません`))
     if (!Option(issue.issueTypeName).isDefined)
       return Left(Error(`${errorString}'種別名' が入力されていません`))
+    if (issue.parentIssueKey !== undefined && issue.parentIssueKey !== "*")
+      if (!client.getIssueV2(issue.parentIssueKey).isDefined)
+        return Left(Error(`${errorString}'親課題' に指定された課題キー [${issue.parentIssueKey}] が見つかりません`))
   }
   return Right(true)
 }
 
-export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<number>): Either<Error, Issue> => {
+export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> => {
   const createIssue = Issue(
     0,
     "",
@@ -88,8 +91,8 @@ interface BacklogScript {
 
 const BacklogScript = (): BacklogScript => ({
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
-    const isValid = validate(rawIssues).getOrError()
     const client = createBacklogClient(space, domain, apiKey).getOrError()
+    const _ = validate(rawIssues, client).getOrError()
     const project = getProject(client, key).getOrError()
     const converter = createIssueConverter(client, project.id)
     const convertResults = rawIssues.map(issue => convertIssue(converter, issue))
@@ -100,16 +103,21 @@ const BacklogScript = (): BacklogScript => ({
     for ( let i = 0; i < issues.length; i++) {
       let isTakenOverParentIssueId = false
       let optParentIssueId = issues[i].parentIssueId
-      if (optParentIssueId.equals(Some("*"))) {
-        if (previousIssue.flatMap(issue => issue.parentIssueId).isDefined) {
-          previousIssue.map(issue => onWarn(`課題 '${issue.issueKey}' はすでに子課題となっているため、親課題として設定できません`))
-          optParentIssueId = None<string>()
+
+      optParentIssueId.map(function(parentIssueId) {
+        if (parentIssueId === "*") {
+          if (previousIssue.flatMap(issue => issue.parentIssueId).isDefined) {
+            previousIssue.map(issue => onWarn(`課題 '${issue.issueKey}' はすでに子課題となっているため、親課題として設定できません`))
+            optParentIssueId = None<string>()
+          } else {
+            optParentIssueId = previousIssue.map(issue => issue.id.toString())
+            isTakenOverParentIssueId = true
+          }
         } else {
-          optParentIssueId = previousIssue.map(issue => issue.id.toString())
-          isTakenOverParentIssueId = true
+          optParentIssueId = client.getIssueV2(parentIssueId).map(issue => issue.id)
         }
-      }
-      createIssue(client, issues[i], optParentIssueId.map(id => +id)).map(issue => {
+      })
+      createIssue(client, issues[i], optParentIssueId.map(id => id)).map(issue => {
         if (!isTakenOverParentIssueId) {
           previousIssue = Some(issue)
         }
