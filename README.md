@@ -13,7 +13,7 @@
 # インストール
 
 テンプレートとなるスプレッドシートを準備します。下記リンクをクリックして、スプレッドシートをコピーしてください。
-* [[https://docs.google.com/spreadsheets/d/14AckKw4Mm7OAmWzv-D_o7AYAWyOVvNBKk_kL1LYeGPw/copy]]
+* [https://docs.google.com/spreadsheets/d/1BkQm3TD4BF0NuqGTQgW9jedFp1_QtcuDEYWCyQJ3s4c/copy]
 * Googleにログインしていない場合、コピー時にエラーとなる場合があります。その際は、ログインして少し時間を置いてから再度お試しください。
 
 # 入力項目について
@@ -31,9 +31,9 @@
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-D9EC2.png)
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。2回目以降の実行時には、前回入力した情報がセットされた状態で表示されます。
-# BacklogのスペースID
-# "BacklogのAPIキー":https://www.backlog.jp/help/usersguide/personal-settings/userguide2378.html
-# 登録対象となるBacklogのプロジェクトキー
+- BacklogのスペースID
+- BacklogのAPIキー: https://backlog.com/ja/help/usersguide/personal-settings/userguide2378/
+- 登録対象となるBacklogのプロジェクトキー
 
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-3B5EF.png)
 
@@ -41,12 +41,10 @@
 
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-5C111.png)
 
-
-
 ## 検証用Backlogプロジェクト
 
-検証用のBacklogアカウントを持っていない人は、下記ユーザ情報を使えば "Backlogデモプロジェクト":https://demo.backlog.jp/ にて試すことができます。
+検証用のBacklogアカウントを持っていない人は、下記ユーザ情報を使えば[Backlogデモプロジェクト](https://demo.backlog.jp/)にて試すことができます。
 
-* スペースID："demo".backlog."jp"
-* APIキー：ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj
-* プロジェクトキー：STWK
+* スペースID： `demo`.backlog.`jp`
+* APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
+* プロジェクトキー： `STWK`
