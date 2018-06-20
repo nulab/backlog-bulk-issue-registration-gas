@@ -11,7 +11,7 @@
 # インストール
 
 テンプレートとなるスプレッドシートを準備します。下記リンクをクリックして、スプレッドシートをコピーしてください。
-* [https://docs.google.com/spreadsheets/d/1BkQm3TD4BF0NuqGTQgW9jedFp1_QtcuDEYWCyQJ3s4c/copy]
+* <a href="https://docs.google.com/spreadsheets/d/1BkQm3TD4BF0NuqGTQgW9jedFp1_QtcuDEYWCyQJ3s4c/copy" target="_blank">スプレッドシートをコピー</a>
 * Googleにログインしていない場合、コピー時にエラーとなる場合があります。その際は、ログインして少し時間を置いてから再度お試しください。
 
 # 入力項目について
