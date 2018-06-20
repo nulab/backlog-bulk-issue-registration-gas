@@ -43,7 +43,7 @@
 
 ![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png)
 
-上記情報を全て入力後、`実行`ボタンをクリックして一括登録処理を実行します。
+上記情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。
 
 ## STEP2: 一括登録処理を実行する
 [Backlog]メニューから[STEP2:課題一括登録を実行]をクリックします。
