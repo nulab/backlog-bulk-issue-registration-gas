@@ -27,6 +27,8 @@
 実行には2ステップが必要です。以下の手順で実行してください。  
 下記のような承認画面が出ることがあるかもしれませんが、こちらは”OK”を押して続行後、再度課題一括登録を実行してみてください。
 
+![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-D9EC2.png)
+
 ## 検証用Backlogプロジェクト
 
 検証用のBacklogアカウントを持っていない人は、下記ユーザ情報を使えば[Backlogデモプロジェクト](https://demo.backlog.jp/)にて試すことができます。
@@ -35,7 +37,6 @@
 * APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
 * プロジェクトキー： `STWK`
 
-![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-D9EC2.png)
 
 ## STEP1: Backlogからデータを取得する
 この手順では、Backlogに設定済みの定義(種別名、ユーザー名等)を取得します。この設定済み定義を用いて選択式リストの構築を行いますので、Backlog側の定義を変更した場合は必ずそのたびに実行してください。  
