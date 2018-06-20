@@ -1,6 +1,6 @@
 # 概要
 
-このプログラムは、Google ドキュメント（スプレッドシート）を基に、Backlogへ課題を一括登録するものです。TracのTicketImportPluginの、Googleドキュメント + Backlogバージョンです。
+このプログラムは、Google ドキュメント（スプレッドシート）を基に、Backlogへ課題を一括登録するものです。
 
 以下の場合に、特に効果を発揮すると思います。
 * 初期プロジェクト立ち上げ時に、定型のタスクを登録する必要があるとき
@@ -27,6 +27,14 @@
 実行には2ステップが必要です。以下の手順で実行してください。  
 下記のような承認画面が出ることがあるかもしれませんが、こちらは”OK”を押して続行後、再度課題一括登録を実行してみてください。
 
+## 検証用Backlogプロジェクト
+
+検証用のBacklogアカウントを持っていない人は、下記ユーザ情報を使えば[Backlogデモプロジェクト](https://demo.backlog.jp/)にて試すことができます。
+
+* スペースID： `demo`.backlog.`jp`
+* APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
+* プロジェクトキー： `STWK`
+
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-D9EC2.png)
 
 ## STEP1: Backlogからデータを取得する
@@ -43,7 +51,9 @@
 
 ![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png)
 
-上記情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。
+上記情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
+正常に完了すると、右下に完了のポップアップが表示されます。  
+この後、一括登録したい課題を1行に1課題ずつ入力してください。
 
 ## STEP2: 一括登録処理を実行する
 [Backlog]メニューから[STEP2:課題一括登録を実行]をクリックします。
@@ -57,11 +67,3 @@
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-5C111.png)
-
-## 検証用Backlogプロジェクト
-
-検証用のBacklogアカウントを持っていない人は、下記ユーザ情報を使えば[Backlogデモプロジェクト](https://demo.backlog.jp/)にて試すことができます。
-
-* スペースID： `demo`.backlog.`jp`
-* APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
-* プロジェクトキー： `STWK`
