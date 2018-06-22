@@ -1,6 +1,6 @@
 # 概要
 
-これはGoogleドキュメント（スプレッドシート）をつかって、Backlogへ課題を一括登録するツールです。
+Googleドキュメント（スプレッドシート）をつかって、Backlogへ課題を一括登録するツールです。
 
 以下のような場合に、お使いいただけます。
 
@@ -24,18 +24,18 @@
 
 # 実行方法
 
-スプレッドシートを開いて10秒ほど待つと、スプレッドシートのメニューバーの一番右に「Backlog」というメニューが追加されているかと思います。  
+スプレッドシートを開いて10秒ほど待つと、スプレッドシートのメニューバーの一番右に「Backlog」というメニューが追加されます。
 
 ![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu.png)
 
-実行には2ステップが必要です。以下の手順で実行してください。  
-下記のような承認画面が出ることがあるかもしれませんが、こちらは”OK”を押して続行後、再度課題一括登録を実行してみてください。
+実行には2つのステップが必要です。下記のSTEP1から順番に実行してください。
+途中で承認画面が出ることがあるかもしれませんが、こちらは”OK”を押して続行後、再度課題一括登録を実行してみてください。
 
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-D9EC2.png)
 
 
 ## STEP1: Backlogからデータを取得する
-この手順では、Backlogに設定済みの定義(種別名、ユーザー名等)を取得します。
+STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を取得します。
 
 [Backlog]メニューから[STEP1:Backlogからデータを取得する]をクリックします。
 
@@ -48,7 +48,9 @@
 
 **デモ用Backlogプロジェクト**
 
-お試しで使いたい方は [Backlogデモプロジェクト](https://demo.backlog.jp/) にて試すことができます。
+お試しで使いたい方は[Backlogデモプロジェクト](https://demo.backlog.jp/) からお試しいただけます。
+
+**大事な情報を入力しないようにご注意ください!!**
 
 * スペースID： `demo`.backlog.`jp`
 * APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
@@ -57,7 +59,7 @@
 
 ![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png)
 
-上記情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
+必要な情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
 正常に完了すると、右下に完了のポップアップが表示されます。
 
 課題種別や、カテゴリーなど、必要な情報が選択できるようになっていることをご確認ください。
@@ -66,8 +68,12 @@
 
 一括登録したい課題を1行に1課題ずつ入力してください。
 
+![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-169AF.png)
+
 
 ## STEP2: 一括登録処理を実行する
+STEP2を実行することで、スプレッドシートに入力した内容で、Backlogに課題を一括登録します。
+
 [Backlog]メニューから[STEP2:課題一括登録を実行]をクリックします。
 
 ![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu_step2.png)
@@ -80,6 +86,9 @@
 
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-5C111.png)
 
+Backlogをの課題一覧を開くと、課題が登録されていることを確認できます。
+
+**（TODO: ここに登録された課題一覧のスクショを貼る）**
 
 # 一度作ったスプレッドシートを再利用する場合
 
