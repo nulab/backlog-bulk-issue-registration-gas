@@ -86,7 +86,7 @@ STEP2を実行することで、スプレッドシートに入力した内容で
 
 Backlogをの課題一覧を開くと、課題が登録されていることを確認できます。
 
-**（TODO: ここに登録された課題一覧のスクショを貼る）**
+![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/result.png)
 
 # 一度作ったスプレッドシートを再利用する場合
 
