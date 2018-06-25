@@ -78,7 +78,7 @@
 
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 
-![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/log_sheet.png)
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/log_sheet.png" width="445" height="182">
 
 ![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/result.png)
 
