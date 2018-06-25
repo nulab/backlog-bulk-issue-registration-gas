@@ -80,6 +80,7 @@
 
 ![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-5C111.png)
 
+![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/result.png)
 
 # 一度作ったスプレッドシートを再利用する場合
 
