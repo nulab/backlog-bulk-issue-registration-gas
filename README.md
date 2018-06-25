@@ -39,7 +39,7 @@
 
 [Backlog]メニューから[STEP1:Backlogからデータを取得する]をクリックします。
 
-![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu_step1.png)
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png" width="683" height="413">
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。
 - BacklogのスペースID
@@ -74,7 +74,7 @@
 
 下記のような入力ダイアログが表示されますが、`STEP1`で既に入力済みなので`実行`ボタンをクリックして一括登録処理を実行します。
 
-![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step2.png)
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step2.png" width="683" height="413">
 
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 
