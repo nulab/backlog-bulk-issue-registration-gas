@@ -26,7 +26,7 @@
 
 スプレッドシートを開いて10秒ほど待つと、スプレッドシートのメニューバーの一番右に「Backlog」というメニューが追加されているかと思います。  
 
-![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu.png)
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu.png" width="545" height="103">
 
 実行には2ステップが必要です。以下の手順で実行してください。  
 下記のような承認画面が出ることがあるかもしれませんが、こちらは”OK”を押して続行後、再度課題一括登録を実行してみてください。
@@ -39,7 +39,7 @@
 
 [Backlog]メニューから[STEP1:Backlogからデータを取得する]をクリックします。
 
-<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png" width="683" height="413">
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png" width="461" height="273">
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。
 - BacklogのスペースID
@@ -54,8 +54,7 @@
 * APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
 * プロジェクトキー： `STWK`
 
-
-![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png)
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step1.png" width="461" height="273">
 
 上記情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
 正常に完了すると、右下に完了のポップアップが表示されます。
@@ -70,11 +69,11 @@
 ## STEP2: 一括登録処理を実行する
 [Backlog]メニューから[STEP2:課題一括登録を実行]をクリックします。
 
-![](https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu_step2.png)
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/menu_step2.png" width="388" height="117">
 
 下記のような入力ダイアログが表示されますが、`STEP1`で既に入力済みなので`実行`ボタンをクリックして一括登録処理を実行します。
 
-<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step2.png" width="683" height="413">
+<img src="https://github.com/nulab/backlog-template-issue-gas/wiki/images/form_step2.png" width="461" height="273">
 
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 
