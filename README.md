@@ -48,9 +48,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 **デモ用Backlogプロジェクト**
 
-お試しで使いたい方は[Backlogデモプロジェクト](https://demo.backlog.jp/) からお試しいただけます。
-
-**大事な情報を入力しないようにご注意ください!!**
+お試しで使いたい方は[Backlogデモプロジェクト](https://demo.backlog.jp/) からお試しいただけます。( **大事な情報を入力しないようにご注意ください!!** )
 
 * スペースID： `demo`.backlog.`jp`
 * APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
