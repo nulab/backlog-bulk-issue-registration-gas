@@ -1,4 +1,4 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey} from "./datas"
 import {Http} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -19,7 +19,7 @@ export interface BacklogClient {
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-issue/
    *
    */
-  getIssueV2: (id: Id<Issue>) => Option<Issue>,
+  getIssueV2: (idOrKey: IdOrKey<Issue>) => Option<Issue>,
 
   /**
    * 課題を追加します。追加に成功した場合は、追加された課題が返ります。
@@ -143,9 +143,9 @@ export class BacklogClientImpl implements BacklogClient {
     }
   }
 
-  public getIssueV2(id: Id<Issue>): Option<Issue> {
+  public getIssueV2(idOrKey: IdOrKey<Issue>): Option<Issue> {
     try {
-      const json = this.http.get(this.buildUri(`issues/${id}`))
+      const json = this.http.get(this.buildUri(`issues/${idOrKey}`))
       const issue = this.jsonToIssue(json)
       return Option(issue)
     } catch (e) {
