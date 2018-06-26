@@ -1,6 +1,6 @@
 {
-  "name": "backlog-template-issue-gas",
-  "version": "1.3.0",
+  "name": "backlog-bulk-issue-registration-gas",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nulab/backlog-template-issue-gas.git"
+    "url": "git+https://github.com/nulab/backlog-bulk-issue-registration-gas.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/nulab/backlog-template-issue-gas/issues"
+    "url": "https://github.com/nulab/backlog-bulk-issue-registration-gas/issues"
   },
-  "homepage": "https://github.com/nulab/backlog-template-issue-gas#readme",
+  "homepage": "https://github.com/nulab/backlog-bulk-issue-registration-gas#readme",
   "devDependencies": {
     "@types/google-apps-script": "0.0.22",
     "@types/jest": "^22.2.3",
