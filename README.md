@@ -7,7 +7,7 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 * プロジェクト立ち上げ時に、定型のタスクを登録する必要があるとき
 * 運用・保守など、定期的に同じタスクを行わなければならないとき
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png" width="1342" height="277">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
 
 # インストール
 
@@ -65,7 +65,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 一括登録したい課題を1行に1課題ずつ入力してください。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png" width="1342" height="277">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
 
 
 ## STEP2: 一括登録処理を実行する
