@@ -29,9 +29,12 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="546" height="72">
 
 実行には2つのステップが必要です。下記のSTEP1から順番に実行してください。
-途中で承認画面が出ることがあるかもしれませんが、こちらは”OK”を押して続行後、再度課題一括登録を実行してみてください。
+途中で承認画面が出ることがあるかもしれませんが、こちらは”赤枠内のボタン”を押して続行後、再度課題一括登録を実行してみてください。
 
-![](https://cacoo.com/diagrams/jv257uekYrdc9Uep-D9EC2.png)
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth_require.png">
+
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth.png">
+
 
 
 ## STEP1: Backlogからデータを取得する
