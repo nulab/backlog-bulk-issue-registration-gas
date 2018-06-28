@@ -26,7 +26,7 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 
 スプレッドシートを開いて10秒ほど待つと、スプレッドシートのメニューバーの一番右に「Backlog」というメニューが追加されます。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="546" height="72">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="553" height="114">
 
 実行には2つのステップが必要です。下記のSTEP1から順番に実行してください。
 途中で承認画面が出ることがあるかもしれませんが、こちらは”赤枠内のボタン”を押して続行後、再度課題一括登録を実行してみてください。
