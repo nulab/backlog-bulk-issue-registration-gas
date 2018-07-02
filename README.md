@@ -1,5 +1,5 @@
 # Backlog bulk issue registration for Google Apps Script
-(English document is described after Japanese)  
+(English comes after after the Japanese text.)
 
 Googleドキュメント（スプレッドシート）をつかって、Backlogへ課題を一括登録するツールです。
 
@@ -99,36 +99,38 @@ Backlog側のプロジェクト設定を変更しなければ、STEP2の操作�
 
 # Backlog bulk issue registration for Google Apps Script
 
-It is a tool to bulk register issues to Backlog using Google Docs (spreadsheet).
+This is a tool to bulk register issues with Backlog using Google Docs (Spreadsheet).
 
-You can use it in the following cases.
+It can for instance be used in the following cases: 
 
-* When you need to register fixed tasks at project launch
-* When you have to perform the same task on a regular basis, such as operation / maintenance
+* When you need to register fixed issues when starting a new project.
+* When you have to register the same tasks on a regular basis, e.g. operation or maintenance tasks.
+
+Please read the entire document before you start working on the bulk registration.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
 
 ## Installation
 
-Prepare the spreadsheet as a template. Please click the link below and copy the spreadsheet.
+First you need to prepare the spreadsheet template. Please follow the link below and copy the spreadsheet.
 * <a href="https://docs.google.com/spreadsheets/d/1ih_pC9s4SjCbsB54ulyWrFIlqF4kwWv63j7PVOrBV8Q/copy" target="_blank">Copy spreadsheet (please open in new tab)</a>
-* If you are not logged into Google, you may get an error when copying. In that case, please login and try some time after a while.
+* If you are not logged into Google, you may get an error when trying to copy the document. If that happens, please login into Google using your Google account and try again.
 
-## About input items
+## About the input cells
 
-Based on the template, rewrite the contents of the spreadsheet to the information you want to register. Please note that the header line of the first line contains information necessary for registration processing, so please do not delete it or change its contents. Also, "Summary" "Issue Type" is an indispensable item for registration, so please be sure to complete it.
+Based on the template, you can rewrite the contents of the spreadsheet with the information you wish to register. Please note however that the header of the document contains information necessary for registration processes, so do not delete or edit its contents, or the registration will not work. Also not that both "Summary" and "Issue Type" are necessary for registration, so both those cells needs to be filled in for every issue(row).
 
 ### Parent issue
-If the parent issue already exists, please specify `issue key`. Since issue key does not exist yet when specifying issues in the spreadsheet, entering `*` will make issues that do not specify the most recent parent issue as parent issues.
+If you wish to specify a parent issue that is already registered with Backlog, please enter its `issue key`. If you wish to specify an issue within the spreadsheet as a parent issue, `*` can be entered. That will set the previous issue that does not have a parent issue, as the parent issue. 
 
-## How to execute
+## Execution
 
-After opening the spreadsheet and waiting for about 10 seconds, the menu "Backlog" is added to the far right of the spreadsheet menu bar.
+After opening the spreadsheet a menu item called "Backlog" will be added to the far right in the spreadsheet menu bar. Please not however that it takes about 10 seconds for the menu item to appear.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="553" height="114">
 
-Execution requires two steps. Please execute in order from STEP 1 below.
-Although there may be cases where an approval screen appears on the way, please press the "button in the red frame" here and proceed to execute the bulk registration once again after continuing.
+Execution is done in two steps. Please follow the order described below, beginning with STEP 1.
+An Autheroization approval screen may appear during the exectution, if that happens please press the "button in the red frame" as shown in the two pictures below, and you will be able to proceed with the the bulk registration execution.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth_require.png" width="350" height="137">
 
@@ -137,20 +139,20 @@ Although there may be cases where an approval screen appears on the way, please 
 
 
 ### STEP 1: Acquire data from Backlog
-In STEP 1, we obtain the definitions (issue type name, user name etc.) set in Backlog.
+In STEP 1, we fetch data definitions (issue type name, user name etc.) from Backlog.
 
 Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
 
-The following input dialog will be displayed, so please enter the necessary information in order.
-- Space ID of Backlog
+The following input dialog will be shown. Enter the necessary information so that the data can be fetched
+- Space ID of your Backlog
 - Backlog API key: https://backlog.com/en/help/usersguide/personal-settings/userguide 2378/
-- Project key of Backlog to be registered
+- Project key of the Backlog project that issues will be registered to
 
 **Demo Backlog Project**
 
-If you would like to use it for trial, you can try it from the [Backlog Demo Project] (https://demo.backlog.jp/). (** Please be careful not to enter important information !! **)
+If you would like to test the bulk registration, this can be done using the [Backlog Demo Project] (https://demo.backlog.jp/). (** Please be careful not to enter important information !! **)
 
 * Space ID: `demo`.backlog.`jp`
 * API key: `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
@@ -158,38 +160,38 @@ If you would like to use it for trial, you can try it from the [Backlog Demo Pro
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
 
-After entering all necessary information, click on the 'Execute' button to execute the definition list acquisition.
-Upon successful completion, a completion popup will appear in the lower right.
+After entering all necessary information, click on the 'Execute' button to fetch the data from Backlog.
+Upon successful execution, a completion popup will appear in the lower right.
 
-Please confirm that you can select necessary information such as task type and category.
+Please confirm that you can select the necessary fetched information such as task type and category.
 
-### Fill in the issue in the spreadsheet
+### Fill in the issues in the spreadsheet
 
-Please enter the issue you want to register in bulk one line per line.
+Please enter the issues you want to register with Backlog in your spreadsheet.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
 
 
 ### STEP 2: Execute bulk registration processing
-By executing STEP 2, you can register issues in Backlog at once with the contents entered in the spreadsheet.
+By executing STEP 2, the issues you have entered in the spreadsheet will be bulk registered with Backlog. 
 
 From the [Backlog] menu, click [STEP 2: Execute bulk issue registration].
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu_step2.png" width="388" height="117">
 
-The following input dialog is displayed, but since it has already been entered in `STEP 1`, click on the 'Execute' button and execute the bulk registration process.
+The following input dialog will be shown again, but since it has already been entered in `STEP 1`, the data is still there, so you can just click on the 'Execute' button and execute the bulk registration process will begin.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step2.png" width="461" height="273">
 
-When the registration process is executed, a sheet for the result output is newly created and it automatically transits to that sheet. With this sheet, you can confirm the (issue key / summary) of the issue that was registered at once by a list.
+When the bulk registration process is completed, you are automatically transitioned to a newly created sheet. In this sheet you can, using the issue key and summary, confirm the issues that was created during the bulk registration.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/log_sheet.png" width="445" height="182">
 
-When you open the issue list of Backlog, you can confirm that the issue is registered.
+If you open the issue list in Backlog, you can see the newly registered issues.
 
 ![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/result.png)
 
-## When reusing a spreadsheet once made
+## Reusing a spreadsheet
 
-If you do not change the project settings on the Backlog side, issues will be registered only by the operation in STEP 2.
-If there are changes such as issue type and category, please execute from the operation in STEP 1.
+If there are no changes in Backlogs data (e.g. issue type name, user name) you can start from STEP 2.
+If you however have added or updated your data in Backlog and need to update the data in the spreadsheet based on the data in Backlog, please start from STEP 1 again.
