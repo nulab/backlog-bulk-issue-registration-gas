@@ -1,9 +1,24 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/
 
+var messages = {
+	"scriptName": {
+		"en": "Bulk issue registration",
+		"ja": "課題一括登録"
+	},
+	"menu_step1" : {
+		"en": "STEP1: Acquire data from Backlog",
+		"ja": "STEP1: Backlogからデータを取得する"
+	},
+	"menu_step2" : {
+		"en": "STEP 2: Execute bulk registration processing",
+		"ja": "STEP2: 課題一括登録を実行"
+	}
+};
+
 // ------------------------- 定数 -------------------------
 
 /** スクリプト名 */
-var SCRIPT_NAME = "課題一括登録";
+var SCRIPT_NAME = getMessage_("scriptName");
 
 /** スクリプトバージョン */
 var SCRIPT_VERSION = "v2.0.0-SNAPSHOT";
@@ -25,8 +40,8 @@ var DEFAULT_COLUMN_LENGTH = 16;
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var menuEntries = [ 
-		{ name : "STEP1: Backlogからデータを取得する", functionName: "init" },
-		{ name : "STEP2: 課題一括登録を実行", functionName : "main" }
+		{ name : getMessage_("menu_step1"), functionName: "init" },
+		{ name : getMessage_("menu_step2"), functionName : "main" }
 	];
 
 	spreadSheet.addMenu("Backlog", menuEntries);
@@ -347,4 +362,15 @@ function setUserProperty(key, value) {
  */
 function showMessage_(message) {
 	SpreadsheetApp.getActiveSpreadsheet().toast(message, SCRIPT_NAME);
+}
+
+/**
+ * アクティブなユーザーの言語に応じたメッセージを取得します
+ * 
+ * @param {key} リソースキー
+ * @return {string} 言語
+ */
+function getMessage_(key) {
+	var locale = Session.getActiveUserLocale();
+	return messages[key][locale];
 }
