@@ -207,7 +207,7 @@ function init_run_(grid) {
 		if (columnName === "")
 			templateSheet.insertColumnAfter(currentColumnNumber - 1);
 		headerCell.setFormula(
-			'=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '(' + customFieldName + ')' + '")'
+			'=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '（' + customFieldName + '）' + '")'
 		);
 		currentColumnNumber++;
 	}
