@@ -177,13 +177,38 @@ function init_run_(grid) {
 		var customField = definition.customFields[i];
 		var headerCell = getCell(templateSheet, currentColumnNumber, ROW_HEADER_INDEX);
 		var columnName = headerCell.getValue();
-		var formula = '=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '")';
+
+		/**
+		 * https://github.com/nulab/backlog4j/blob/master/src/main/java/com/nulabinc/backlog4j/CustomField.java#L10
+		 * Text(1), TextArea(2), Numeric(3), Date(4), SingleList(5), MultipleList(6), CheckBox(7), Radio(8)
+		 * We don't support the types MultipleList(6) and CheckBox(7), Radio(8)
+		 */
+		var customFieldName = "";
 
 		if (customField.typeId >= 6)
 			continue;
+		switch(customField.typeId) {
+			case 1:
+				customFieldName = "文字列";
+				break;
+			case 2:
+				customFieldName = "文章";
+				break;
+			case 3:
+				customFieldName = "数値";
+				break;
+			case 4:
+				customFieldName = "日付";
+				break;
+			case 5:
+				customFieldName = "選択リスト";
+				break;
+		}
 		if (columnName === "")
 			templateSheet.insertColumnAfter(currentColumnNumber - 1);
-		headerCell.setFormula(formula);
+		headerCell.setFormula(
+			'=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '(' + customFieldName + ')' + '")'
+		);
 		currentColumnNumber++;
 	}
 	showMessage_("Backlogの定義を取得完了しました");
