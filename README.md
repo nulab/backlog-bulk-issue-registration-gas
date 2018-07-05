@@ -1,4 +1,5 @@
-# 概要
+# Backlog bulk issue registration for Google Apps Script
+(English document is [here](./README_en.md).)
 
 Googleドキュメント（スプレッドシート）をつかって、Backlogへ課題を一括登録するツールです。
 
@@ -9,20 +10,20 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
 
-# インストール
+## インストール
 
 テンプレートとなるスプレッドシートを準備します。下記リンクをクリックして、スプレッドシートをコピーしてください。
 * <a href="https://docs.google.com/spreadsheets/d/1ih_pC9s4SjCbsB54ulyWrFIlqF4kwWv63j7PVOrBV8Q/copy" target="_blank">スプレッドシートをコピー(新しいタブで開いてください)</a>
 * Googleにログインしていない場合、コピー時にエラーとなる場合があります。その際は、ログインして少し時間を置いてから再度お試しください。
 
-# 入力項目について
+## 入力項目について
 
 テンプレートを元に、スプレッドシートの内容を登録したい情報に書き換えます。１行目のヘッダー行は、登録処理に必要な情報を含んでいるため、削除したり内容を変更しないようご注意ください。また「件名」「種別」は登録に必須となる項目ですので、必ず記入するようにしてください。
 
-## 親課題
+### 親課題
 親課題が既に存在する場合は`課題キー`を指定してください。スプレッドシート内の課題を指定する場合は課題キーがまだ存在しないので、`*`を入力することで直近の親課題を指定していない課題を親課題とします。
 
-# 実行方法
+## 実行方法
 
 スプレッドシートを開いて10秒ほど待つと、スプレッドシートのメニューバーの一番右に「Backlog」というメニューが追加されます。
 
@@ -37,7 +38,7 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 
 
 
-## STEP1: Backlogからデータを取得する
+### STEP1: Backlogからデータを取得する
 STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を取得します。
 
 [Backlog]メニューから[STEP1:Backlogからデータを取得する]をクリックします。
@@ -64,14 +65,14 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 課題種別や、カテゴリーなど、必要な情報が選択できるようになっていることをご確認ください。
 
-## スプレッドシートに課題を記入する
+### スプレッドシートに課題を記入する
 
 一括登録したい課題を1行に1課題ずつ入力してください。
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
 
 
-## STEP2: 一括登録処理を実行する
+### STEP2: 一括登録処理を実行する
 STEP2を実行することで、スプレッドシートに入力した内容で、Backlogに課題を一括登録します。
 
 [Backlog]メニューから[STEP2:課題一括登録を実行]をクリックします。
@@ -90,7 +91,7 @@ Backlogをの課題一覧を開くと、課題が登録されていることを�
 
 ![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/result.png)
 
-# 一度作ったスプレッドシートを再利用する場合
+## 一度作ったスプレッドシートを再利用する場合
 
 Backlog側のプロジェクト設定を変更しなければ、STEP2の操作だけで課題は登録されます。
 もしも課題種別やカテゴリーなど、変更がある場合はSTEP1の操作から実行してください。
