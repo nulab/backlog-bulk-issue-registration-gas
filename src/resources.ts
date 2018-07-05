@@ -1,20 +1,5 @@
-
-export const Message = {
-  findByKey: (key: string, locale: string): string => messages[key][locale],
-  scriptName: (locale: string): string => this.findByKey("scriptName", locale),
-  title_init: (locale: string): string => this.findByKey("title_init", locale),
-  title_run: (locale: string): string => this.findByKey("title_run", locale),
-  menu_step1: (locale: string): string => this.findByKey("menu_step1", locale),
-  menu_step2: (locale: string): string => this.findByKey("menu_step2", locale),
-  complete_init: (locale: string): string => this.findByKey("complete_init", locale),
-  label_spaceId: (locale: string): string => this.findByKey("label_spaceId", locale),
-  label_apiKey: (locale: string): string => this.findByKey("label_apiKey", locale),
-  label_projectKey: (locale: string): string => this.findByKey("label_projectKey", locale),
-  button_execute: (locale: string): string => this.findByKey("button_execute", locale),
-  progress_collect: (locale: string): string => this.findByKey("progress_collect", locale),
-  progress_begin: (locale: string): string => this.findByKey("progress_begin", locale),
-  progress_end: (locale: string): string => this.findByKey("progress_end", locale)
-}
+import { Locale } from "./index";
+import { Option } from "./Option";
 
 const messages = {
 	"scriptName": {
@@ -70,3 +55,77 @@ const messages = {
 		"ja": " が正常に行われました"
 	}
 };
+
+export const Message = {
+  findByKey: (key: string, locale: string): string => messages[key][locale],
+  SPACE_URL_REQUIRED: (locale: Locale): string => {
+	const msg = {
+		"en": `Space URL is required`,
+		"ja": `スペースURLを入力してください`
+	  }
+	  return msg[locale]
+  },
+  API_KEY_REQUIRED: (locale: Locale): string => {
+	const msg = {
+		"en": `API key is required`,
+		"ja": `APIキーを入力してください`
+	  }
+	  return msg[locale]
+  },
+  SPACE_OR_PROJECT_NOT_FOUND: (locale: Locale): string => {
+	const msg = {
+		"en": `No space or project found`,
+		"ja": `スペースまたはプロジェクトが見つかりません`
+	  }
+	  return msg[locale]
+  },
+  AUTHENTICATE_FAILED: (locale: Locale): string => {
+	const msg = {
+		"en": `Authentication failed`,
+		"ja": `認証に失敗しました`
+	  }
+	  return msg[locale]
+  },
+  API_ACCESS_ERROR: (error: Error, locale: Locale): string => {
+	const msg = {
+		"en": `API access error ${error.message}`,
+		"ja": `APIアクセスエラー ${error.message}`
+	  }
+	  return msg[locale]
+  },
+  VALIDATE_ERROR_LINE: (lineNumber: number, locale: Locale): string => {
+	const msg = {
+	  "en": `Error row ${lineNumber}: `,
+      "ja": `エラー ${lineNumber} 行目: `
+	}
+	return msg[locale]
+  },
+  VALIDATE_SUMMARY_EMPTY: (locale: Locale): string => {
+	const msg = {
+	  "en": `'Summary' is empty`,
+      "ja": `'件名' が入力されていません`
+	}
+	return msg[locale]
+  },
+  VALIDATE_ISSUE_TYPE_EMPTY: (locale: Locale): string => {
+	const msg = {
+	  "en": `'Issue type' is empty`,
+      "ja": `'種別名' が入力されていません`
+	}
+	return msg[locale]
+  },
+  VALIDATE_PARENT_ISSUE_KEY_NOT_FOUND: (parentIssueKey: Option<string>, locale: Locale): string => {
+	const msg = {
+	  "en": `The issue key [${parentIssueKey}] specified for 'parent issue' is not found`,
+      "ja": `'親課題' に指定された課題キー [${parentIssueKey}] が見つかりません`
+	}
+	return msg[locale]
+  },
+  ALREADY_BEEN_CHILD_ISSUE: (issueKey: string, locale: Locale): string => {
+	const msg = {
+		"en": `The issue '${issueKey}' has already been a child task and can not be set as a parent issue`,
+		"ja": `課題 '${issueKey}' はすでに子課題となっているため、親課題として設定できません`
+	  }
+	  return msg[locale]
+  }
+}

@@ -141,7 +141,7 @@ function main_run_(grid) {
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	storeUserProperty(param)
 	showMessage_(getMessage_("progress_begin"));
-	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
+	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, getUserLocale_(), onIssueCreated, onWarn);
 	showMessage_(getMessage_("scriptName") + getMessage_("progress_end"));
 	return app.close();
 }
@@ -152,7 +152,7 @@ function main_run_(grid) {
 function init_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
-	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
+	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey, getUserLocale_());
 	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
 	var categoryRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.categoryNames(), true).build();
@@ -347,12 +347,20 @@ function showMessage_(message) {
 }
 
 /**
+ * アクティブなユーザーの言語を取得します
+ * 
+ * @return {string} 言語
+ */
+function getUserLocale_() {
+	return Session.getActiveUserLocale();
+}
+
+/**
  * アクティブなユーザーの言語に応じたメッセージを取得します
  * 
  * @param {key} リソースキー
  * @return {string} メッセージ
  */
 function getMessage_(key) {
-	var locale = Session.getActiveUserLocale();
-	return BacklogScript.getMessage(key, locale);
+	return BacklogScript.getMessage(key, getUserLocale_());
 }
