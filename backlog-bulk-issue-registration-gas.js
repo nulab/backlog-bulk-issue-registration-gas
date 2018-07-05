@@ -5,6 +5,14 @@ var messages = {
 		"en": "Bulk issue registration",
 		"ja": "課題一括登録"
 	},
+	"title_init" : {
+		"en": "Backlog Acquire data from Backlog",
+		"ja": "Backlog 定義一覧取得"
+	},
+	"title_run" : {
+		"en": "Backlog Execute bulk registration processing",
+		"ja": "Backlog 課題一括登録"
+	},
 	"menu_step1" : {
 		"en": "STEP1: Acquire data from Backlog",
 		"ja": "STEP1: Backlogからデータを取得する"
@@ -12,6 +20,38 @@ var messages = {
 	"menu_step2" : {
 		"en": "STEP 2: Execute bulk registration processing",
 		"ja": "STEP2: 課題一括登録を実行"
+	},
+	"complete_init" : {
+		"en": "Acquired the definition of Backlog",
+		"ja": "Backlogの定義を取得完了しました"
+	},
+	"label_spaceId" : {
+		"en": "Space ID",
+		"ja": "スペースID"
+	},
+	"label_apiKey" : {
+		"en": "API key",
+		"ja": "APIキー"
+	},
+	"label_projectKey" : {
+		"en": "Project key",
+		"ja": "プロジェクトキー"
+	},
+	"button_execute" : {
+		"en": "Execute",
+		"ja": "実行"
+	},
+	"progress_collect" : {
+		"en": "Collecting data...",
+		"ja": "データを収集しています..."
+	},
+	"progress_begin" : {
+		"en": "Begin bulk registration process",
+		"ja": "一括登録を開始しました..."
+	},
+	"progress_end" : {
+		"en": " has been finished",
+		"ja": " が正常に行われました"
 	}
 };
 
@@ -51,7 +91,7 @@ function onOpen() {
  * Backlogのプロジェクト情報を取得し、定義シートに出力します
  */
 function init() {
-	var app = createApplication_('Backlog 定義一覧取得', 360, 160);
+	var app = createApplication_(getMessage_("title_init"), 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid, "init_run_");
 }
@@ -60,7 +100,7 @@ function init() {
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
 function main() {
-	var app = createApplication_('Backlog 課題一括登録', 360, 160);
+	var app = createApplication_(getMessage_("title_run"), 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid, "main_run_");
 }
@@ -88,13 +128,13 @@ function createGrid_(app) {
 	var lastProjectKey = getUserProperty("projectKey") ? getUserProperty("projectKey") : "";
 	var grid = app.createGrid(3, 4);
 
-	grid.setWidget(0, 0, app.createLabel('スペースID'));
+	grid.setWidget(0, 0, app.createLabel(getMessage_("label_spaceId")));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(0, 2, app.createLabel('.backlog'));
 	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
-	grid.setWidget(1, 0, app.createLabel('APIキー'));
+	grid.setWidget(1, 0, app.createLabel(getMessage_("label_apiKey")));
 	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(lastUsername));
-	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
+	grid.setWidget(2, 0, app.createLabel(getMessage_("label_projectKey")));
 	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(lastProjectKey));
 	return grid;
 }
@@ -104,7 +144,7 @@ function createGrid_(app) {
  */
 function showInputDialog_(app, grid, handlerName) {
 	var panel = app.createVerticalPanel();
-	var submitButton = app.createButton('実行');
+	var submitButton = app.createButton(getMessage_("button_execute"));
 	var submitHandler = app.createServerClickHandler(handlerName);	
   
 	submitHandler.addCallbackElement(grid);
@@ -155,12 +195,12 @@ function main_run_(grid) {
 	}
 
 	// BacklogScript throws an exception on error
-	showMessage_("データを収集しています...");
+	showMessage_(getMessage_("progress_collect"));
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	storeUserProperty(param)
-	showMessage_("一括登録を開始しました...");
+	showMessage_(getMessage_("progress_begin"));
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
-	showMessage_(SCRIPT_NAME + " が正常に行われました");
+	showMessage_(SCRIPT_NAME + getMessage_("progress_end"));
 	return app.close();
 }
 
@@ -201,7 +241,7 @@ function init_run_(grid) {
 		headerCell.setFormula(formula);
 		currentColumnNumber++;
 	}
-	showMessage_("Backlogの定義を取得完了しました");
+	showMessage_(getMessage_("complete_init"));
 	return app.close();
 }
 
