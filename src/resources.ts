@@ -49,8 +49,8 @@ const messages = {
   "progress_begin" : {
     "en": "Begin bulk registration process",
     "ja": "一括登録を開始しました..."
-	},
-	"progress_end" : {
+  },
+  "progress_end" : {
     "en": " has been finished",
     "ja": " が正常に行われました"
   }
@@ -105,7 +105,7 @@ export const Message = {
       "en": `'Summary' is empty`,
       "ja": `'件名' が入力されていません`
     }
-	  return msg[locale]
+    return msg[locale]
   },
   VALIDATE_ISSUE_TYPE_EMPTY: (locale: Locale): string => {
     const msg = {
@@ -115,11 +115,11 @@ export const Message = {
     return msg[locale]
   },
   VALIDATE_PARENT_ISSUE_KEY_NOT_FOUND: (parentIssueKey: Option<string>, locale: Locale): string => {
-	  const msg = {
-	    "en": `The issue key [${parentIssueKey}] specified for 'parent issue' is not found`,
+    const msg = {
+      "en": `The issue key [${parentIssueKey}] specified for 'parent issue' is not found`,
       "ja": `'親課題' に指定された課題キー [${parentIssueKey}] が見つかりません`
-  }
-  return msg[locale]
+    }
+    return msg[locale]
   },
   ALREADY_BEEN_CHILD_ISSUE: (issueKey: string, locale: Locale): string => {
     const msg = {
