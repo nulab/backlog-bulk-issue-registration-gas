@@ -2,9 +2,6 @@
 
 // ------------------------- 定数 -------------------------
 
-/** スクリプト名 */
-var SCRIPT_NAME = getMessage_("scriptName");
-
 /** スクリプトバージョン */
 var SCRIPT_VERSION = "v2.0.0-SNAPSHOT";
 
@@ -109,7 +106,7 @@ function main_run_(grid) {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-	var sheetName = SCRIPT_NAME + " : " + current;
+	var sheetName = getMessage_("scriptName") + " : " + current;
 	var LOG_KEY_NUMBER = 1;
 	var LOG_SUMMARY_NUMBER = 2;
 	var onIssueCreated = function onIssueCreted(i, issue) {
@@ -145,7 +142,7 @@ function main_run_(grid) {
 	storeUserProperty(param)
 	showMessage_(getMessage_("progress_begin"));
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
-	showMessage_(SCRIPT_NAME + getMessage_("progress_end"));
+	showMessage_(getMessage_("scriptName") + getMessage_("progress_end"));
 	return app.close();
 }
 
@@ -346,7 +343,7 @@ function setUserProperty(key, value) {
  * @param {string} message 表示するメッセージ
  */
 function showMessage_(message) {
-	SpreadsheetApp.getActiveSpreadsheet().toast(message, SCRIPT_NAME);
+	SpreadsheetApp.getActiveSpreadsheet().toast(message, getMessage_("scriptName"));
 }
 
 /**
