@@ -1,10 +1,11 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {User, IssueType, notNull, Key, Project, Issue, Id, BacklogDefinition} from "./datas"
-import {Http, HttpClient} from "./Http"
-import {Option, Nullable, Some, None} from "./Option"
+import {Key, Project, Issue, Id, BacklogDefinition} from "./datas"
+import {HttpClient} from "./Http"
+import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 import {List} from "./List"
+import { Message } from "./resources";
 
 declare var global: any
 
@@ -86,7 +87,8 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 
 interface BacklogScript {
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
-  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
+  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition,
+  getMessage: (key: string, locale: string) => string
 }
 
 const BacklogScript = (): BacklogScript => ({
@@ -137,7 +139,9 @@ const BacklogScript = (): BacklogScript => ({
       client.getUsersV2(project.id),
       client.getCustomFieldsV2(project.id)
     )
-  }
+  },
+  getMessage: (key: string, locale: string): string =>
+    Message.findByKey(key, locale)
 });
 
 (global as any).BacklogScript = BacklogScript()

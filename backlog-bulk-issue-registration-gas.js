@@ -1,60 +1,5 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/
 
-var messages = {
-	"scriptName": {
-		"en": "Bulk issue registration",
-		"ja": "課題一括登録"
-	},
-	"title_init" : {
-		"en": "Backlog Acquire data from Backlog",
-		"ja": "Backlog 定義一覧取得"
-	},
-	"title_run" : {
-		"en": "Backlog Execute bulk registration processing",
-		"ja": "Backlog 課題一括登録"
-	},
-	"menu_step1" : {
-		"en": "STEP1: Acquire data from Backlog",
-		"ja": "STEP1: Backlogからデータを取得する"
-	},
-	"menu_step2" : {
-		"en": "STEP 2: Execute bulk registration processing",
-		"ja": "STEP2: 課題一括登録を実行"
-	},
-	"complete_init" : {
-		"en": "Acquired the definition of Backlog",
-		"ja": "Backlogの定義を取得完了しました"
-	},
-	"label_spaceId" : {
-		"en": "Space ID",
-		"ja": "スペースID"
-	},
-	"label_apiKey" : {
-		"en": "API key",
-		"ja": "APIキー"
-	},
-	"label_projectKey" : {
-		"en": "Project key",
-		"ja": "プロジェクトキー"
-	},
-	"button_execute" : {
-		"en": "Execute",
-		"ja": "実行"
-	},
-	"progress_collect" : {
-		"en": "Collecting data...",
-		"ja": "データを収集しています..."
-	},
-	"progress_begin" : {
-		"en": "Begin bulk registration process",
-		"ja": "一括登録を開始しました..."
-	},
-	"progress_end" : {
-		"en": " has been finished",
-		"ja": " が正常に行われました"
-	}
-};
-
 // ------------------------- 定数 -------------------------
 
 /** スクリプト名 */
@@ -408,9 +353,9 @@ function showMessage_(message) {
  * アクティブなユーザーの言語に応じたメッセージを取得します
  * 
  * @param {key} リソースキー
- * @return {string} 言語
+ * @return {string} メッセージ
  */
 function getMessage_(key) {
 	var locale = Session.getActiveUserLocale();
-	return messages[key][locale];
+	return BacklogScript.getMessage(key, locale);
 }
