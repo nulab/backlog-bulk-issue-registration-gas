@@ -1,4 +1,4 @@
-# Backlog bulk issue registration for Google Apps Script
+# Backlog bulk issue registration via Google Sheets
 
 This is a tool to bulk register issues with Backlog using Google Docs (Spreadsheet).
 

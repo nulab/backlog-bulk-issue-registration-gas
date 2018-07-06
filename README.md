@@ -1,4 +1,4 @@
-# Backlog bulk issue registration for Google Apps Script
+# Backlog bulk issue registration via Google Sheets
 (English document is [here](./README_en.md).)
 
 Googleドキュメント（スプレッドシート）をつかって、Backlogへ課題を一括登録するツールです。
