@@ -204,8 +204,10 @@ function init_run_(grid) {
 				customFieldName = "選択リスト";
 				break;
 		}
-		if (columnName === "")
+		if (columnName === "") {
 			templateSheet.insertColumnAfter(currentColumnNumber - 1);
+			templateSheet.getRange(2, currentColumnNumber, templateSheet.getLastRow(), 1).setBackground("#F8FFFF");
+		}
 		headerCell.setFormula(
 			'=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '（' + customFieldName + '）' + '")'
 		);
