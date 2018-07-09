@@ -2,9 +2,6 @@
 
 // ------------------------- 定数 -------------------------
 
-/** スクリプト名 */
-var SCRIPT_NAME = "課題一括登録";
-
 /** スクリプトバージョン */
 var SCRIPT_VERSION = "v2.0.0-SNAPSHOT";
 
@@ -25,8 +22,8 @@ var DEFAULT_COLUMN_LENGTH = 16;
 function onOpen() {
 	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
 	var menuEntries = [ 
-		{ name : "STEP1: Backlogからデータを取得する", functionName: "init" },
-		{ name : "STEP2: 課題一括登録を実行", functionName : "main" }
+		{ name : getMessage_("menu_step1"), functionName: "init" },
+		{ name : getMessage_("menu_step2"), functionName : "main" }
 	];
 
 	spreadSheet.addMenu("Backlog", menuEntries);
@@ -36,7 +33,7 @@ function onOpen() {
  * Backlogのプロジェクト情報を取得し、定義シートに出力します
  */
 function init() {
-	var app = createApplication_('Backlog 定義一覧取得', 360, 160);
+	var app = createApplication_(getMessage_("title_init"), 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid, "init_run_");
 }
@@ -45,7 +42,7 @@ function init() {
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
 function main() {
-	var app = createApplication_('Backlog 課題一括登録', 360, 160);
+	var app = createApplication_(getMessage_("title_run"), 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid, "main_run_");
 }
@@ -73,13 +70,13 @@ function createGrid_(app) {
 	var lastProjectKey = getUserProperty("projectKey") ? getUserProperty("projectKey") : "";
 	var grid = app.createGrid(3, 4);
 
-	grid.setWidget(0, 0, app.createLabel('スペースID'));
+	grid.setWidget(0, 0, app.createLabel(getMessage_("label_spaceId")));
 	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
 	grid.setWidget(0, 2, app.createLabel('.backlog'));
 	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
-	grid.setWidget(1, 0, app.createLabel('APIキー'));
+	grid.setWidget(1, 0, app.createLabel(getMessage_("label_apiKey")));
 	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(lastUsername));
-	grid.setWidget(2, 0, app.createLabel('プロジェクトキー'));
+	grid.setWidget(2, 0, app.createLabel(getMessage_("label_projectKey")));
 	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(lastProjectKey));
 	return grid;
 }
@@ -89,7 +86,7 @@ function createGrid_(app) {
  */
 function showInputDialog_(app, grid, handlerName) {
 	var panel = app.createVerticalPanel();
-	var submitButton = app.createButton('実行');
+	var submitButton = app.createButton(getMessage_("button_execute"));
 	var submitHandler = app.createServerClickHandler(handlerName);	
   
 	submitHandler.addCallbackElement(grid);
@@ -109,7 +106,7 @@ function main_run_(grid) {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-	var sheetName = SCRIPT_NAME + " : " + current;
+	var sheetName = getMessage_("scriptName") + " : " + current;
 	var LOG_KEY_NUMBER = 1;
 	var LOG_SUMMARY_NUMBER = 2;
 	var onIssueCreated = function onIssueCreted(i, issue) {
@@ -140,12 +137,12 @@ function main_run_(grid) {
 	}
 
 	// BacklogScript throws an exception on error
-	showMessage_("データを収集しています...");
+	showMessage_(getMessage_("progress_collect"));
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	storeUserProperty(param)
-	showMessage_("一括登録を開始しました...");
-	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
-	showMessage_(SCRIPT_NAME + " が正常に行われました");
+	showMessage_(getMessage_("progress_begin"));
+	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, getUserLocale_(), onIssueCreated, onWarn);
+	showMessage_(getMessage_("scriptName") + getMessage_("progress_end"));
 	return app.close();
 }
 
@@ -155,7 +152,7 @@ function main_run_(grid) {
 function init_run_(grid) {
 	var app = UiApp.getActiveApplication();
 	var param = getParametersFromGrid(grid);
-	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey)
+	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey, getUserLocale_());
 	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
 	var categoryRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.categoryNames(), true).build();
@@ -216,7 +213,7 @@ function init_run_(grid) {
 		);
 		currentColumnNumber++;
 	}
-	showMessage_("Backlogの定義を取得完了しました");
+	showMessage_(getMessage_("complete_init"));
 	return app.close();
 }
 
@@ -376,5 +373,24 @@ function setUserProperty(key, value) {
  * @param {string} message 表示するメッセージ
  */
 function showMessage_(message) {
-	SpreadsheetApp.getActiveSpreadsheet().toast(message, SCRIPT_NAME);
+	SpreadsheetApp.getActiveSpreadsheet().toast(message, getMessage_("scriptName"));
+}
+
+/**
+ * アクティブなユーザーの言語を取得します
+ * 
+ * @return {string} 言語
+ */
+function getUserLocale_() {
+	return Session.getActiveUserLocale();
+}
+
+/**
+ * アクティブなユーザーの言語に応じたメッセージを取得します
+ * 
+ * @param {key} リソースキー
+ * @return {string} メッセージ
+ */
+function getMessage_(key) {
+	return BacklogScript.getMessage(key, getUserLocale_());
 }
