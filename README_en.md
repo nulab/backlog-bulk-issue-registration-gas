@@ -24,6 +24,12 @@ Based on the template, you can rewrite the contents of the spreadsheet with the 
 ### Parent issue
 If you wish to specify a parent issue that is already registered with Backlog, please enter its `issue key`. If you wish to specify an issue within the spreadsheet as a parent issue, `*` can be entered. That will set the previous issue that does not have a parent issue, as the parent issue. 
 
+### Custom field
+If custom fields are used in the project that is to be the target for the bulk issue registration, these custom fields will be added as light blue columns when executing STEP1, which will be described later.
+
+* Multiple selection custom fields are not added.
+* Custom fields can be with Premium Plan or higher plans.
+
 ## Execution
 
 After opening the spreadsheet a menu item called "Backlog" will be added to the far right in the spreadsheet menu bar. Please not however that it takes about 10 seconds for the menu item to appear.
@@ -96,3 +102,5 @@ If you open the issue list in Backlog, you can see the newly registered issues.
 
 If there are no changes in Backlogs data (e.g. issue type name, user name) you can start from STEP 2.
 If you however have added or updated your data in Backlog and need to update the data in the spreadsheet based on the data in Backlog, please start from STEP 1 again.
+
+Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove that column and redo the execution from STEP1.
