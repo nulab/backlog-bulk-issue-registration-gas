@@ -24,6 +24,11 @@ Based on the template, you can rewrite the contents of the spreadsheet with the 
 ### Parent issue
 If you wish to specify a parent issue that is already registered with Backlog, please enter its `issue key`. If you wish to specify an issue within the spreadsheet as a parent issue, `*` can be entered. That will set the previous issue that does not have a parent issue, as the parent issue. 
 
+### Custom field
+When custom attributes are registered in the project, custom attributes are added as light blue columns by executing STEP 1 described later.
+* Multiple selectable custom attributes are not added.
+* Custom attributes can be used from the `Premium Plan` or higher.
+
 ## Execution
 
 After opening the spreadsheet a menu item called "Backlog" will be added to the far right in the spreadsheet menu bar. Please not however that it takes about 10 seconds for the menu item to appear.

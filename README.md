@@ -41,8 +41,6 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth.png" width="500" height="500">
 
-
-
 ### STEP1: Backlogからデータを取得する
 STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を取得します。
 
