@@ -9,7 +9,7 @@ It can for instance be used in the following cases:
 
 Please read the entire document before you start working on the bulk registration.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/about.png">
 
 ## Installation
 
@@ -34,7 +34,7 @@ If custom fields are used in the project that is to be the target for the bulk i
 
 After opening the spreadsheet a menu item called "Backlog" will be added to the far right in the spreadsheet menu bar. Please not however that it takes about 10 seconds for the menu item to appear.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="553" height="114">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="550" height="72">
 
 Execution is done in two steps. Please follow the order described below, beginning with STEP 1.
 An Autheroization approval screen may appear during the exectution, if that happens please press the "button in the red frame" as shown in the two pictures below, and you will be able to proceed with the the bulk registration execution.
