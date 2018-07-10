@@ -41,7 +41,7 @@ An Autheroization approval screen may appear during the exectution, if that happ
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth_require.png" width="350" height="137">
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="500" height="500">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="500" height="546">
 
 
 
@@ -50,9 +50,11 @@ In STEP 1, we fetch data definitions (issue type name, user name etc.) from Back
 
 Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step1.png" width="461" height="283">
 
 The following input dialog will be shown. Enter the necessary information so that the data can be fetched
+
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step1.png" width="461" height="283">
 
 * Space ID of your Backlog
 * Backlog API key: https://support.backlog.com/hc/en-us/articles/115015420567-API-Settings
@@ -75,11 +77,11 @@ By executing STEP 2, the issues you have entered in the spreadsheet will be bulk
 
 From the [Backlog] menu, click [STEP 2: Execute bulk issue registration].
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu_step2.png" width="388" height="117">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step2.png" width="388" height="117">
 
 The following input dialog will be shown again, but since it has already been entered in `STEP 1`, the data is still there, so you can just click on the 'Execute' button and execute the bulk registration process will begin.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step2.png" width="461" height="273">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step2.png" width="461" height="283">
 
 When the bulk registration process is completed, you are automatically transitioned to a newly created sheet. In this sheet you can, using the issue key and subject, confirm the issues that was created during the bulk registration.
 
