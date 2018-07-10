@@ -53,9 +53,10 @@ Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
 
 The following input dialog will be shown. Enter the necessary information so that the data can be fetched
-- Space ID of your Backlog
-- Backlog API key: https://backlog.com/en/help/usersguide/personal-settings/userguide 2378/
-- Project key of the Backlog project that issues will be registered to
+
+* Space ID of your Backlog
+* Backlog API key: https://backlog.com/en/help/usersguide/personal-settings/userguide 2378/
+* Project key of the Backlog project that issues will be registered to
 
 **Demo Backlog Project**
 
