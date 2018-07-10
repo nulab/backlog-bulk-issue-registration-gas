@@ -8,7 +8,7 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 * プロジェクト立ち上げ時に、定型のタスクを登録する必要があるとき
 * 運用・保守など、定期的に同じタスクを行わなければならないとき
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/about.png">
 
 ## インストール
 
@@ -32,21 +32,21 @@ Googleドキュメント（スプレッドシート）をつかって、Backlog�
 
 スプレッドシートを開いて10秒ほど待つと、スプレッドシートのメニューバーの一番右に「Backlog」というメニューが追加されます。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="553" height="114">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/menu.png" width="616" height="64">
 
 実行には2つのステップが必要です。下記のSTEP1から順番に実行してください。
 途中で承認画面が出ることがあるかもしれませんが、こちらは”赤枠内のボタン”を押して続行後、再度課題一括登録を実行してみてください。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth_require.png" width="350" height="137">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/auth_require.png" width="364" height="110">
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth.png" width="500" height="500">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/auth.png" width="361" height="451">
 
 ### STEP1: Backlogからデータを取得する
 STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を取得します。
 
 [Backlog]メニューから[STEP1:Backlogからデータを取得する]をクリックします。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1.png" width="453" height="272">
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。
 - BacklogのスペースID
@@ -61,7 +61,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 * APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
 * プロジェクトキー： `STWK`
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1.png" width="461" height="273">
 
 必要な情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
 正常に完了すると、右下に完了のポップアップが表示されます。
@@ -72,7 +72,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 一括登録したい課題を1行に1課題ずつ入力してください。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/about.png">
 
 
 ### STEP2: 一括登録処理を実行する
@@ -80,19 +80,19 @@ STEP2を実行することで、スプレッドシートに入力した内容で
 
 [Backlog]メニューから[STEP2:課題一括登録を実行]をクリックします。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu_step2.png" width="388" height="117">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/menu_step2.png" width="388" height="117">
 
 下記のような入力ダイアログが表示されますが、`STEP1`で既に入力済みなので`実行`ボタンをクリックして一括登録処理を実行します。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step2.png" width="461" height="273">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step2.png" width="455" height="271">
 
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/log_sheet.png" width="445" height="182">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/log_sheet.png" width="445" height="182">
 
 Backlogをの課題一覧を開くと、課題が登録されていることを確認できます。
 
-![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/result.png)
+![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/result.png)
 
 ## 一度作ったスプレッドシートを再利用する場合
 
