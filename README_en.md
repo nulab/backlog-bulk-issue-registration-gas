@@ -54,7 +54,7 @@ Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 
 The following input dialog will be shown. Enter the necessary information so that the data can be fetched
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step1.png" width="461" height="283">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step1.png" width="461" height="276">
 
 * Space ID of your Backlog
 * Backlog API key: https://support.backlog.com/hc/en-us/articles/115015420567-API-Settings
@@ -81,7 +81,7 @@ From the [Backlog] menu, click [STEP 2: Execute bulk issue registration].
 
 The following input dialog will be shown again, but since it has already been entered in `STEP 1`, the data is still there, so you can just click on the 'Execute' button and execute the bulk registration process will begin.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step2.png" width="461" height="283">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step2.png" width="459" height="273">
 
 When the bulk registration process is completed, you are automatically transitioned to a newly created sheet. In this sheet you can, using the issue key and subject, confirm the issues that was created during the bulk registration.
 
