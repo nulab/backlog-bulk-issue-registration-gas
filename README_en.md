@@ -41,7 +41,7 @@ An Autheroization approval screen may appear during the exectution, if that happ
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth_require.png" width="350" height="137">
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="500" height="572">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="475" height="544">
 
 
 
@@ -50,7 +50,7 @@ In STEP 1, we fetch data definitions (issue type name, user name etc.) from Back
 
 Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step1.png" width="388" height="141">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step1.png" width="293" height="106">
 
 The following input dialog will be shown. Enter the necessary information so that the data can be fetched
 
@@ -77,7 +77,7 @@ By executing STEP 2, the issues you have entered in the spreadsheet will be bulk
 
 From the [Backlog] menu, click [STEP 2: Execute bulk issue registration].
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step2.png" width="388" height="141">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step2.png" width="293" height="106">
 
 The following input dialog will be shown again, but since it has already been entered in `STEP 1`, the data is still there, so you can just click on the 'Execute' button and execute the bulk registration process will begin.
 
