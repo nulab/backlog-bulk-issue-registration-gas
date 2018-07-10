@@ -58,16 +58,6 @@ The following input dialog will be shown. Enter the necessary information so tha
 * Backlog API key: https://backlog.com/en/help/usersguide/personal-settings/userguide 2378/
 * Project key of the Backlog project that issues will be registered to
 
-**Demo Backlog Project**
-
-If you would like to test the bulk registration, this can be done using the [Backlog Demo Project] (https://demo.backlog.jp/). (** Please be careful not to enter important information !! **)
-
-* Space ID: `demo`.backlog.`jp`
-* API key: `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
-* Project key: `STWK`
-
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/form_step1.png" width="461" height="273">
-
 After entering all necessary information, click on the 'Execute' button to fetch the data from Backlog.
 Upon successful execution, a completion popup will appear in the lower right.
 
