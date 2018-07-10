@@ -34,14 +34,14 @@ If custom fields are used in the project that is to be the target for the bulk i
 
 After opening the spreadsheet a menu item called "Backlog" will be added to the far right in the spreadsheet menu bar. Please not however that it takes about 10 seconds for the menu item to appear.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="550" height="72">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/menu.png" width="550" height="75">
 
 Execution is done in two steps. Please follow the order described below, beginning with STEP 1.
 An Autheroization approval screen may appear during the exectution, if that happens please press the "button in the red frame" as shown in the two pictures below, and you will be able to proceed with the the bulk registration execution.
 
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth_require.png" width="350" height="137">
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="500" height="546">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="500" height="572">
 
 
 
@@ -50,7 +50,7 @@ In STEP 1, we fetch data definitions (issue type name, user name etc.) from Back
 
 Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step1.png" width="461" height="283">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step1.png" width="461" height="167">
 
 The following input dialog will be shown. Enter the necessary information so that the data can be fetched
 
@@ -77,7 +77,7 @@ By executing STEP 2, the issues you have entered in the spreadsheet will be bulk
 
 From the [Backlog] menu, click [STEP 2: Execute bulk issue registration].
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step2.png" width="388" height="117">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step2.png" width="461" height="167">
 
 The following input dialog will be shown again, but since it has already been entered in `STEP 1`, the data is still there, so you can just click on the 'Execute' button and execute the bulk registration process will begin.
 
