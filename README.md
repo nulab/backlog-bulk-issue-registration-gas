@@ -46,7 +46,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 [Backlog]メニューから[STEP1:Backlogからデータを取得する]をクリックします。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/menu_step1.png" width="293" height="106">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/menu_step1.png" width="278" height="115">
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。
 
