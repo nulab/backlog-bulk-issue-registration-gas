@@ -54,7 +54,7 @@ Click [STEP 1: Acquire data from Backlog] from the [Backlog] menu.
 
 The following input dialog will be shown. Enter the necessary information so that the data can be fetched
 - Space ID of your Backlog
-- Backlog API key: https://backlog.com/en/help/usersguide/personal-settings/userguide 2378/
+- Backlog API key: https://support.backlog.com/hc/en-us/articles/115015420567-API-Settings
 - Project key of the Backlog project that issues will be registered to
 
 **Demo Backlog Project**
