@@ -85,11 +85,11 @@ The following input dialog will be shown again, but since it has already been en
 
 When the bulk registration process is completed, you are automatically transitioned to a newly created sheet. In this sheet you can, using the issue key and subject, confirm the issues that was created during the bulk registration.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/log_sheet.png" width="445" height="182">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/log_sheet.png" width="445" height="208">
 
 If you open the issue list in Backlog, you can see the newly registered issues.
 
-![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/result.png)
+![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/result.png)
 
 ## Reusing a spreadsheet
 
