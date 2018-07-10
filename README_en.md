@@ -39,9 +39,9 @@ After opening the spreadsheet a menu item called "Backlog" will be added to the 
 Execution is done in two steps. Please follow the order described below, beginning with STEP 1.
 An Autheroization approval screen may appear during the exectution, if that happens please press the "button in the red frame" as shown in the two pictures below, and you will be able to proceed with the the bulk registration execution.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth_require.png" width="350" height="137">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth_require.png" width="350" height="137">
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/auth.png" width="500" height="500">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/auth.png" width="500" height="500">
 
 
 
@@ -67,7 +67,7 @@ Please confirm that you can select the necessary fetched information such as tas
 
 Please enter the issues you want to register with Backlog in your spreadsheet.
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/about.png">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/about.png">
 
 
 ### STEP 2: Execute bulk registration processing
