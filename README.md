@@ -64,8 +64,6 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 * APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
 * プロジェクトキー： `STWK`
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1.png" width="461" height="273">
-
 必要な情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
 正常に完了すると、右下に完了のポップアップが表示されます。
 
