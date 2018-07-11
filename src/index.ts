@@ -6,6 +6,7 @@ import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 import {List} from "./List"
 import { Message } from "./resources";
+import { SpreadSheetService, SpreadSheetServiceImpl } from "./SpreadSheetService";
 
 declare var global: any
 
@@ -87,13 +88,14 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 }
 
 interface BacklogScript {
-  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, locale: Locale, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
-  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>, locale: Locale) => BacklogDefinition,
+  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
+  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition,
   getMessage: (key: string, locale: string) => string
 }
 
-const BacklogScript = (): BacklogScript => ({
-  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, locale: Locale, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript => ({
+  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+    const locale = spreadSheetService.getUserLocale()
     const client = createBacklogClient(space, domain, apiKey, locale).getOrError()
     const _ = validate(rawIssues, client, locale).getOrError()
     const project = getProject(client, key, locale).getOrError()
@@ -128,7 +130,8 @@ const BacklogScript = (): BacklogScript => ({
       }).getOrError()
     }
   },
-  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>, locale: Locale): BacklogDefinition => {
+  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>): BacklogDefinition => {
+    const locale = spreadSheetService.getUserLocale()
     const client = createBacklogClient(space, domain, apiKey, locale).getOrError()
     const project = getProject(client, key, locale).getOrError()
 
@@ -141,8 +144,8 @@ const BacklogScript = (): BacklogScript => ({
       client.getCustomFieldsV2(project.id)
     )
   },
-  getMessage: (key: string, locale: Locale): string =>
-    Message.findByKey(key, locale)
+  getMessage: (key: string): string =>
+    Message.findByKey(key, spreadSheetService.getUserLocale())
 });
 
-(global as any).BacklogScript = BacklogScript()
+(global as any).BacklogScript = BacklogScript(new SpreadSheetServiceImpl)
