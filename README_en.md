@@ -24,6 +24,8 @@ Based on the template, you can rewrite the contents of the spreadsheet with the 
 ### Parent issue
 If you wish to specify a parent issue that is already registered with Backlog, please enter its `issue key`. If you wish to specify an issue within the spreadsheet as a parent issue, `*` can be entered. That will set the previous issue that does not have a parent issue, as the parent issue. 
 
+![](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/parent_issue.png)
+
 ### Custom field
 If custom fields are used in the project that is to be the target for the bulk issue registration, these custom fields will be added as light blue columns when executing STEP1, which will be described later.
 
