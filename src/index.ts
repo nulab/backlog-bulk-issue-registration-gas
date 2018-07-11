@@ -1,3 +1,4 @@
+import UiInstance = GoogleAppsScript.UI.UiInstance
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
 import {Key, Project, Issue, Id, BacklogDefinition, Locale} from "./datas"
 import {HttpClient} from "./Http"
@@ -88,12 +89,21 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 }
 
 interface BacklogScript {
+  createApplication: (title: string, width: number, height: number) => UiInstance
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
-  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition,
+  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
   getMessage: (key: string, locale: string) => string
 }
 
 const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript => ({
+
+  createApplication: (title: string, width: number, height: number): UiInstance =>
+    UiApp
+      .createApplication()
+      .setTitle(title)
+      .setWidth(width)
+      .setHeight(height),
+
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
     const locale = spreadSheetService.getUserLocale()
     const client = createBacklogClient(space, domain, apiKey, locale).getOrError()

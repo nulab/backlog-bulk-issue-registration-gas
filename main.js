@@ -33,7 +33,7 @@ function onOpen() {
  * Backlogのプロジェクト情報を取得し、定義シートに出力します
  */
 function init() {
-	var app = createApplication_(getMessage_("title_init"), 360, 160);
+	var app = BacklogScript.createApplication(getMessage_("title_init") + " " + SCRIPT_VERSION, 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid, "init_run_");
 }
@@ -42,21 +42,9 @@ function init() {
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
 function main() {
-	var app = createApplication_(getMessage_("title_run"), 360, 160);
+	var app = BacklogScript.createApplication(getMessage_("title_run") + " " + SCRIPT_VERSION, 360, 160);
 	var grid = createGrid_(app);
 	showInputDialog_(app, grid, "main_run_");
-}
-
-/**
- * UIアプリケーションオブジェクトを作成します
- */
-function createApplication_(title, width, height) {
-	var app = UiApp.createApplication();
-	
-	app.setTitle(title + " " + SCRIPT_VERSION);
-	app.setWidth(width);
-	app.setHeight(height);
-	return app;
 }
 
 /**
