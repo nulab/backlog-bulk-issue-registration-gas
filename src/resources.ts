@@ -1,4 +1,4 @@
-import { Locale } from "./index";
+import { Locale } from "./datas";
 import { Option } from "./Option";
 
 const messages = {

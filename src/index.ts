@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {Key, Project, Issue, Id, BacklogDefinition} from "./datas"
+import {Key, Project, Issue, Id, BacklogDefinition, Locale} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -82,10 +82,9 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
     optParentIssueId.map(id => id.toString()),
     issue.customFields
   )
+
   return client.createIssueV2(createIssue)
 }
-
-export type Locale = "en" | "ja"
 
 interface BacklogScript {
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, locale: Locale, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void

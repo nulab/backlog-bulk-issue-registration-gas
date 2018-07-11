@@ -5,6 +5,8 @@ export type Id<T> = number
 export type Key<T> = string
 export type IdOrKey<T> = string
 
+export type Locale = "en" | "ja"
+
 export interface WithId {
   readonly id: number
 }
