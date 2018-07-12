@@ -35,7 +35,7 @@ function onOpen() {
 function init() {
 	var app = BacklogScript.createApplication(getMessage_("title_init") + " " + SCRIPT_VERSION, 360, 160);
 	var grid = BacklogScript.createGrid(app);
-	showInputDialog_(app, grid, "init_run_");
+	BacklogScript.showDialog(app, grid, "init_run_");
 }
 
 /**
@@ -44,23 +44,7 @@ function init() {
 function main() {
 	var app = BacklogScript.createApplication(getMessage_("title_run") + " " + SCRIPT_VERSION, 360, 160);
 	var grid = BacklogScript.createGrid(app);
-	showInputDialog_(app, grid, "main_run_");
-}
-
-/**
- * パラメータ入力ダイアログを表示します
- */
-function showInputDialog_(app, grid, handlerName) {
-	var panel = app.createVerticalPanel();
-	var submitButton = app.createButton(getMessage_("button_execute"));
-	var submitHandler = app.createServerClickHandler(handlerName);	
-  
-	submitHandler.addCallbackElement(grid);
-	submitButton.addClickHandler(submitHandler);
-	panel.add(grid);
-	panel.add(submitButton);
-	app.add(panel);
-	SpreadsheetApp.getActiveSpreadsheet().show(app);
+	BacklogScript.showDialog(app, grid, "main_run_");
 }
 
 /**

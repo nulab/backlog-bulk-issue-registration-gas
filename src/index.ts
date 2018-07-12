@@ -98,6 +98,8 @@ interface BacklogScript {
 
   createGrid: (ui: UiInstance) => Grid
 
+  showDialog: (ui: UiInstance, grid: Grid, handlerName: string) => void
+
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
 
   definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
@@ -131,6 +133,18 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
       .setWidget(1, 1, ui.createTextBox().setName("apikey").setValue(lastUsername))
       .setWidget(2, 0, ui.createLabel(getMessage("label_projectKey", spreadSheetService)))
       .setWidget(2, 1, ui.createTextBox().setName("projectKey").setValue(lastProjectKey))
+  },
+
+  showDialog(ui: UiInstance, grid: Grid, handlerName: string): void {
+    const panel = ui.createVerticalPanel()
+    const submitButton = ui.createButton(getMessage("button_execute", spreadSheetService))
+    const submitHandler = ui.createServerClickHandler(handlerName)
+
+    submitHandler.addCallbackElement(grid)
+    submitButton.addBlurHandler(submitHandler)
+    panel.add(grid).add(submitButton)
+    ui.add(panel)
+    SpreadsheetApp.getActiveSpreadsheet().show(ui)
   },
 
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
