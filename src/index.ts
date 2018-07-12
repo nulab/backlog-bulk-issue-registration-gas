@@ -10,6 +10,8 @@ import {List} from "./List"
 import { Message } from "./resources";
 import { SpreadSheetService, SpreadSheetServiceImpl } from "./SpreadSheetService";
 
+const SCRIPT_VERSION = "v2.0.0-SNAPSHOT"
+
 declare var global: any
 
 type Validation<A> = (a: A, onError: Error) => Either<Error, A>
@@ -151,7 +153,6 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
   },
 
   showInitDialog(): void {
-    const SCRIPT_VERSION = ""
     const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
     const property = this.getUserProperties()
     const grid = this.createGrid(app, property)
@@ -160,7 +161,6 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
   },
 
   showRunDialog(): void {
-    const SCRIPT_VERSION = ""
     const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
     const property = this.getUserProperties()
     const grid = this.createGrid(app, property)
