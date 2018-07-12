@@ -1,4 +1,5 @@
 import UiInstance = GoogleAppsScript.UI.UiInstance
+import Grid = GoogleAppsScript.UI.Grid
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
 import {Key, Project, Issue, Id, BacklogDefinition, Locale} from "./datas"
 import {HttpClient} from "./Http"
@@ -64,6 +65,9 @@ const validate = (issues: List<any>, client: BacklogClient, locale: Locale): Eit
   return Right(true)
 }
 
+const getMessage = (key: string, spreadSheetService: SpreadSheetService) =>
+  Message.findByKey(key, spreadSheetService.getUserLocale())
+
 export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> => {
   const createIssue = Issue(
     0,
@@ -89,9 +93,15 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
 }
 
 interface BacklogScript {
+
   createApplication: (title: string, width: number, height: number) => UiInstance
+
+  createGrid: (ui: UiInstance) => Grid
+
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
+
   definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
+
   getMessage: (key: string, locale: string) => string
 }
 
@@ -103,6 +113,25 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
       .setTitle(title)
       .setWidth(width)
       .setHeight(height),
+
+  createGrid: (ui: UiInstance): Grid => {
+    const lastSpace = spreadSheetService.getUserProperty("space") ? spreadSheetService.getUserProperty("space") : ""
+    const lastDomain = spreadSheetService.getUserProperty("domain") ? spreadSheetService.getUserProperty("domain") : ".com"
+    const anotherDomain = (lastDomain === ".com") ? ".jp" : ".com"
+    const lastUsername = spreadSheetService.getUserProperty("apikey") ? spreadSheetService.getUserProperty("apikey") : ""
+    const lastProjectKey = spreadSheetService.getUserProperty("projectKey") ? spreadSheetService.getUserProperty("projectKey") : ""
+
+    return ui
+      .createGrid(3, 4)
+      .setWidget(0, 0, ui.createLabel(getMessage("label_spaceId", spreadSheetService)))
+      .setWidget(0, 1, ui.createTextBox().setName("space").setValue(lastSpace))
+      .setWidget(0, 2, ui.createLabel('.backlog'))
+      .setWidget(0, 3, ui.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain))
+      .setWidget(1, 0, ui.createLabel(getMessage("label_apiKey", spreadSheetService)))
+      .setWidget(1, 1, ui.createTextBox().setName("apikey").setValue(lastUsername))
+      .setWidget(2, 0, ui.createLabel(getMessage("label_projectKey", spreadSheetService)))
+      .setWidget(2, 1, ui.createTextBox().setName("projectKey").setValue(lastProjectKey))
+  },
 
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
     const locale = spreadSheetService.getUserLocale()
@@ -155,7 +184,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
     )
   },
   getMessage: (key: string): string =>
-    Message.findByKey(key, spreadSheetService.getUserLocale())
+    getMessage(key, spreadSheetService)
 });
 
 (global as any).BacklogScript = BacklogScript(new SpreadSheetServiceImpl)

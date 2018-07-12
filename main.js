@@ -34,7 +34,7 @@ function onOpen() {
  */
 function init() {
 	var app = BacklogScript.createApplication(getMessage_("title_init") + " " + SCRIPT_VERSION, 360, 160);
-	var grid = createGrid_(app);
+	var grid = BacklogScript.createGrid(app);
 	showInputDialog_(app, grid, "init_run_");
 }
 
@@ -43,30 +43,8 @@ function init() {
  */
 function main() {
 	var app = BacklogScript.createApplication(getMessage_("title_run") + " " + SCRIPT_VERSION, 360, 160);
-	var grid = createGrid_(app);
+	var grid = BacklogScript.createGrid(app);
 	showInputDialog_(app, grid, "main_run_");
-}
-
-/**
- * パラメータ入力ダイアログを作成します
- */
-function createGrid_(app) {
-	var lastSpace = getUserProperty("space") ? getUserProperty("space") : "";
-	var lastDomain = getUserProperty("domain") ? getUserProperty("domain") : ".com";
-	var anotherDomain = (lastDomain === ".com") ? ".jp" : ".com";
-	var lastUsername = getUserProperty("apikey") ? getUserProperty("apikey") : "";
-	var lastProjectKey = getUserProperty("projectKey") ? getUserProperty("projectKey") : "";
-	var grid = app.createGrid(3, 4);
-
-	grid.setWidget(0, 0, app.createLabel(getMessage_("label_spaceId")));
-	grid.setWidget(0, 1, app.createTextBox().setName("space").setValue(lastSpace));
-	grid.setWidget(0, 2, app.createLabel('.backlog'));
-	grid.setWidget(0, 3, app.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain));
-	grid.setWidget(1, 0, app.createLabel(getMessage_("label_apiKey")));
-	grid.setWidget(1, 1, app.createTextBox().setName("apikey").setValue(lastUsername));
-	grid.setWidget(2, 0, app.createLabel(getMessage_("label_projectKey")));
-	grid.setWidget(2, 1, app.createTextBox().setName("projectKey").setValue(lastProjectKey));
-	return grid;
 }
 
 /**
