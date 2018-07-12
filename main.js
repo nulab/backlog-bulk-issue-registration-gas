@@ -22,11 +22,11 @@ function onOpen() {
 			"Backlog",
 			[ 
 				{ 
-					name : getMessage_("menu_step1"), 
+					name : BacklogScript.getMessage("menu_step1"), 
 					functionName: "init"
 				},
 				{ 
-					name : getMessage_("menu_step2"),
+					name : BacklogScript.getMessage("menu_step2"),
 					functionName : "main"
 				}
 			]
@@ -56,7 +56,7 @@ function main_run_() {
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
-	var sheetName = getMessage_("scriptName") + " : " + current;
+	var sheetName = BacklogScript.getMessage("scriptName") + " : " + current;
 	var LOG_KEY_NUMBER = 1;
 	var LOG_SUMMARY_NUMBER = 2;
 	var onIssueCreated = function onIssueCreted(i, issue) {
@@ -87,12 +87,12 @@ function main_run_() {
 	}
 
 	// BacklogScript throws an exception on error
-	BacklogScript.showMessage(getMessage_("progress_collect"));
+	BacklogScript.showMessage(BacklogScript.getMessage("progress_collect"));
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	BacklogScript.storeUserProperties(param)
-	BacklogScript.showMessage(getMessage_("progress_begin"));
+	BacklogScript.showMessage(BacklogScript.getMessage("progress_begin"));
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
-	BacklogScript.showMessage(getMessage_("scriptName") + getMessage_("progress_end"));
+	BacklogScript.showMessage(BacklogScript.getMessage("scriptName") + BacklogScript.getMessage("progress_end"));
 	return app.close();
 }
 
@@ -163,7 +163,7 @@ function init_run_() {
 		);
 		currentColumnNumber++;
 	}
-	BacklogScript.showMessage(getMessage_("complete_init"));
+	BacklogScript.showMessage(BacklogScript.getMessage("complete_init"));
 	return app.close();
 }
 
@@ -268,23 +268,4 @@ function strLength_(text) {
 			count += 2;
 	}
 	return count;
-}
-
-/**
- * アクティブなシートにメッセージを表示します
- *
- * @param {string} message 表示するメッセージ
- */
-// function showMessage_(message) {
-// 	SpreadsheetApp.getActiveSpreadsheet().toast(message, getMessage_("scriptName"));
-// }
-
-/**
- * アクティブなユーザーの言語に応じたメッセージを取得します
- * 
- * @param {key} リソースキー
- * @return {string} メッセージ
- */
-function getMessage_(key) {
-	return BacklogScript.getMessage(key);
 }
