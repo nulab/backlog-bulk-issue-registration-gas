@@ -119,5 +119,13 @@ export const BacklogDefinition = (
   userNames: (): String[] => users.map(item => item.name)
 })
 
+export interface UserProperty {
+  readonly space: string
+  readonly domain: string
+  readonly apiKey: string
+  readonly projectKey: string
+}
+export const UserProperty = (space: string, domain: string, apiKey: string, projectKey: string) => ({space, domain, apiKey, projectKey})
+
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""

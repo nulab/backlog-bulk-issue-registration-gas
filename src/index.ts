@@ -1,7 +1,7 @@
 import UiInstance = GoogleAppsScript.UI.UiInstance
 import Grid = GoogleAppsScript.UI.Grid
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {Key, Project, Issue, Id, BacklogDefinition, Locale} from "./datas"
+import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -100,6 +100,12 @@ interface BacklogScript {
 
   showDialog: (ui: UiInstance, grid: Grid, handlerName: string) => void
 
+  showInitDialog: () => void
+
+  showRunDialog: () => void
+
+  storeUserProperties: (property: UserProperty) => void
+
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
 
   definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
@@ -147,6 +153,29 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
     SpreadsheetApp.getActiveSpreadsheet().show(ui)
   },
 
+  showInitDialog(): void {
+    const SCRIPT_VERSION = ""
+    const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
+    const grid = this.createGrid(app)
+    
+    this.showDialog(app, grid, "init_run_")
+  },
+
+  showRunDialog(): void {
+    const SCRIPT_VERSION = ""
+    const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
+    const grid = this.createGrid(app)
+    
+    this.showDialog(app, grid, "main_run_")
+  },
+
+  storeUserProperties(property: UserProperty): void {
+    spreadSheetService.setUserProperty("space", property.space)
+    spreadSheetService.setUserProperty("domain", property.domain)
+    spreadSheetService.setUserProperty("apikey", property.apiKey);
+    spreadSheetService.setUserProperty("projectKey", property.projectKey);
+  },
+
   run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
     const locale = spreadSheetService.getUserLocale()
     const client = createBacklogClient(space, domain, apiKey, locale).getOrError()
@@ -183,6 +212,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
       }).getOrError()
     }
   },
+
   definitions: (space: string, domain: string, apiKey: string, key: Key<Project>): BacklogDefinition => {
     const locale = spreadSheetService.getUserLocale()
     const client = createBacklogClient(space, domain, apiKey, locale).getOrError()
@@ -197,8 +227,10 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
       client.getCustomFieldsV2(project.id)
     )
   },
+
   getMessage: (key: string): string =>
     getMessage(key, spreadSheetService)
+
 });
 
 (global as any).BacklogScript = BacklogScript(new SpreadSheetServiceImpl)

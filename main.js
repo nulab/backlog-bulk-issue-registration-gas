@@ -40,18 +40,14 @@ function onOpen() {
  * Backlogのプロジェクト情報を取得し、定義シートに出力します
  */
 function init() {
-	var app = BacklogScript.createApplication(getMessage_("title_init") + " " + SCRIPT_VERSION, 360, 160);
-	var grid = BacklogScript.createGrid(app);
-	BacklogScript.showDialog(app, grid, "init_run_");
+	BacklogScript.showInitDialog();
 }
 
 /**
  * スプレッドシートのデータを読み込んで、Backlogに課題を一括登録します
  */
 function main() {
-	var app = BacklogScript.createApplication(getMessage_("title_run") + " " + SCRIPT_VERSION, 360, 160);
-	var grid = BacklogScript.createGrid(app);
-	BacklogScript.showDialog(app, grid, "main_run_");
+	BacklogScript.showRunDialog();
 }
 
 /**
@@ -96,7 +92,7 @@ function main_run_(grid) {
 	// BacklogScript throws an exception on error
 	showMessage_(getMessage_("progress_collect"));
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
-	storeUserProperty(param)
+	BacklogScript.storeUserProperties(param)
 	showMessage_(getMessage_("progress_begin"));
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
 	showMessage_(getMessage_("scriptName") + getMessage_("progress_end"));
@@ -120,7 +116,7 @@ function init_run_(grid) {
 	var customFieldStartColumnNumber = 14; // N ~
 	var currentColumnNumber = customFieldStartColumnNumber;
 
-	storeUserProperty(param);
+	BacklogScript.storeUserProperties(param);
 	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
 	templateSheet.getRange(2, 8, lastRow).setDataValidation(categoryRule); 	// 8 = H
 	templateSheet.getRange(2, 9, lastRow).setDataValidation(versionRule); 	// 9 = I
@@ -237,18 +233,6 @@ function getParametersFromGrid(grid) {
 		apiKey: grid.parameter.apikey,
 		projectKey: grid.parameter.projectKey.toUpperCase()
 	}
-}
-
-/**
- * User propertyに入力パラメータを保存します
- * 
- * @param {object} param パラメータ 
- */
-function storeUserProperty(param) {
-	setUserProperty("space", param.space);
-	setUserProperty("domain", param.domain);
-	setUserProperty("apikey", param.apiKey);
-	setUserProperty("projectKey", param.projectKey);
 }
 
 /**
