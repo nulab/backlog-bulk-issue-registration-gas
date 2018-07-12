@@ -2,9 +2,6 @@
 
 // ------------------------- 定数 -------------------------
 
-/** スクリプトバージョン */
-var SCRIPT_VERSION = "v2.0.0-SNAPSHOT";
-
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
 
@@ -86,16 +83,16 @@ function main_run_() {
 		SpreadsheetApp.flush();
 	}
 	var onWarn = function onWarn(message) {
-		showMessage_(message);
+		BacklogScript.showMessage(message);
 	}
 
 	// BacklogScript throws an exception on error
-	showMessage_(getMessage_("progress_collect"));
+	BacklogScript.showMessage(getMessage_("progress_collect"));
 	var templateIssues = getTemplateIssuesFromSpreadSheet_();
 	BacklogScript.storeUserProperties(param)
-	showMessage_(getMessage_("progress_begin"));
+	BacklogScript.showMessage(getMessage_("progress_begin"));
 	BacklogScript.run(param.space, param.domain, param.apiKey, param.projectKey, templateIssues, onIssueCreated, onWarn);
-	showMessage_(getMessage_("scriptName") + getMessage_("progress_end"));
+	BacklogScript.showMessage(getMessage_("scriptName") + getMessage_("progress_end"));
 	return app.close();
 }
 
@@ -166,7 +163,7 @@ function init_run_() {
 		);
 		currentColumnNumber++;
 	}
-	showMessage_(getMessage_("complete_init"));
+	BacklogScript.showMessage(getMessage_("complete_init"));
 	return app.close();
 }
 
@@ -278,9 +275,9 @@ function strLength_(text) {
  *
  * @param {string} message 表示するメッセージ
  */
-function showMessage_(message) {
-	SpreadsheetApp.getActiveSpreadsheet().toast(message, getMessage_("scriptName"));
-}
+// function showMessage_(message) {
+// 	SpreadsheetApp.getActiveSpreadsheet().toast(message, getMessage_("scriptName"));
+// }
 
 /**
  * アクティブなユーザーの言語に応じたメッセージを取得します

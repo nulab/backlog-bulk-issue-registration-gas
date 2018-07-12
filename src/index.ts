@@ -115,6 +115,8 @@ interface BacklogScript {
   definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
 
   getMessage: (key: string, locale: string) => string
+
+  showMessage: (message: string) => void
 }
 
 const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript => ({
@@ -237,7 +239,10 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
   },
 
   getMessage: (key: string): string =>
-    getMessage(key, spreadSheetService)
+    getMessage(key, spreadSheetService),
+
+  showMessage: (message: string): void =>
+    SpreadsheetApp.getActiveSpreadsheet().toast(message, getMessage("scriptName", spreadSheetService))
 
 });
 
