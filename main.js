@@ -53,9 +53,9 @@ function main() {
 /**
  * '一括登録'ボタンをクリックすることで呼び出されます
  */
-function main_run_(grid) {
+function main_run_() {
 	var app = UiApp.getActiveApplication();
-	var param = getParametersFromGrid(grid);
+	var param = BacklogScript.getUserProperties();
 	var keyLength = DEFAULT_COLUMN_LENGTH;
 	var summaryLength = DEFAULT_COLUMN_LENGTH;
 	var current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss");
@@ -102,9 +102,9 @@ function main_run_(grid) {
 /**
  * Backlogプロジェクトの定義を取得します 
  */
-function init_run_(grid) {
+function init_run_() {
 	var app = UiApp.getActiveApplication();
-	var param = getParametersFromGrid(grid);
+	var param = BacklogScript.getUserProperties();
 	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey);
 	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
 	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
@@ -218,21 +218,6 @@ function getTemplateIssuesFromSpreadSheet_() {
 		issues[i] = issue;
 	}
 	return issues;
-}
-
-/**
- * Gridから入力パラメータを取得します
- * 
- * @param {*} grid 
- * @return {object} パラメータ
- */
-function getParametersFromGrid(grid) {
-	return {
-		space: grid.parameter.space,
-		domain: grid.parameter.domain,
-		apiKey: grid.parameter.apikey,
-		projectKey: grid.parameter.projectKey.toUpperCase()
-	}
 }
 
 /**

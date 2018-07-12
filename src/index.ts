@@ -1,7 +1,7 @@
 import UiInstance = GoogleAppsScript.UI.UiInstance
 import Grid = GoogleAppsScript.UI.Grid
 import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
-import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty} from "./datas"
+import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty, User} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -96,13 +96,15 @@ interface BacklogScript {
 
   createApplication: (title: string, width: number, height: number) => UiInstance
 
-  createGrid: (ui: UiInstance) => Grid
+  createGrid: (ui: UiInstance, property: UserProperty) => Grid
 
   showDialog: (ui: UiInstance, grid: Grid, handlerName: string) => void
 
   showInitDialog: () => void
 
   showRunDialog: () => void
+
+  getUserProperties: () => UserProperty
 
   storeUserProperties: (property: UserProperty) => void
 
@@ -122,23 +124,18 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
       .setWidth(width)
       .setHeight(height),
 
-  createGrid: (ui: UiInstance): Grid => {
-    const lastSpace = spreadSheetService.getUserProperty("space") ? spreadSheetService.getUserProperty("space") : ""
-    const lastDomain = spreadSheetService.getUserProperty("domain") ? spreadSheetService.getUserProperty("domain") : ".com"
-    const anotherDomain = (lastDomain === ".com") ? ".jp" : ".com"
-    const lastUsername = spreadSheetService.getUserProperty("apikey") ? spreadSheetService.getUserProperty("apikey") : ""
-    const lastProjectKey = spreadSheetService.getUserProperty("projectKey") ? spreadSheetService.getUserProperty("projectKey") : ""
-
+  createGrid: (ui: UiInstance, property: UserProperty): Grid => {
+    const anotherDomain = (property.domain === ".com") ? ".jp" : ".com"
     return ui
       .createGrid(3, 4)
       .setWidget(0, 0, ui.createLabel(getMessage("label_spaceId", spreadSheetService)))
-      .setWidget(0, 1, ui.createTextBox().setName("space").setValue(lastSpace))
+      .setWidget(0, 1, ui.createTextBox().setName("space").setValue(property.space))
       .setWidget(0, 2, ui.createLabel('.backlog'))
-      .setWidget(0, 3, ui.createListBox(false).setName("domain").addItem(lastDomain).addItem(anotherDomain))
+      .setWidget(0, 3, ui.createListBox(false).setName("domain").addItem(property.domain).addItem(anotherDomain))
       .setWidget(1, 0, ui.createLabel(getMessage("label_apiKey", spreadSheetService)))
-      .setWidget(1, 1, ui.createTextBox().setName("apikey").setValue(lastUsername))
+      .setWidget(1, 1, ui.createTextBox().setName("apikey").setValue(property.apiKey))
       .setWidget(2, 0, ui.createLabel(getMessage("label_projectKey", spreadSheetService)))
-      .setWidget(2, 1, ui.createTextBox().setName("projectKey").setValue(lastProjectKey))
+      .setWidget(2, 1, ui.createTextBox().setName("projectKey").setValue(property.projectKey))
   },
 
   showDialog(ui: UiInstance, grid: Grid, handlerName: string): void {
@@ -156,7 +153,8 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
   showInitDialog(): void {
     const SCRIPT_VERSION = ""
     const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-    const grid = this.createGrid(app)
+    const property = this.getUserProperties()
+    const grid = this.createGrid(app, property)
     
     this.showDialog(app, grid, "init_run_")
   },
@@ -164,9 +162,19 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
   showRunDialog(): void {
     const SCRIPT_VERSION = ""
     const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-    const grid = this.createGrid(app)
+    const property = this.getUserProperties()
+    const grid = this.createGrid(app, property)
     
     this.showDialog(app, grid, "main_run_")
+  },
+
+  getUserProperties(): UserProperty {
+    const lastSpace = spreadSheetService.getUserProperty("space") ? spreadSheetService.getUserProperty("space") : ""
+    const lastDomain = spreadSheetService.getUserProperty("domain") ? spreadSheetService.getUserProperty("domain") : ".com"
+    const lastApiKey = spreadSheetService.getUserProperty("apikey") ? spreadSheetService.getUserProperty("apikey") : ""
+    const lastProjectKey = spreadSheetService.getUserProperty("projectKey") ? spreadSheetService.getUserProperty("projectKey") : ""
+
+    return UserProperty(lastSpace, lastDomain, lastApiKey, lastProjectKey)
   },
 
   storeUserProperties(property: UserProperty): void {
