@@ -20,13 +20,20 @@ var DEFAULT_COLUMN_LENGTH = 16;
  * フック関数：スプレッドシート読み込み時に起動されます
  */
 function onOpen() {
-	var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
-	var menuEntries = [ 
-		{ name : getMessage_("menu_step1"), functionName: "init" },
-		{ name : getMessage_("menu_step2"), functionName : "main" }
-	];
-
-	spreadSheet.addMenu("Backlog", menuEntries);
+	SpreadsheetApp.getActiveSpreadsheet()
+		.addMenu(
+			"Backlog",
+			[ 
+				{ 
+					name : getMessage_("menu_step1"), 
+					functionName: "init"
+				},
+				{ 
+					name : getMessage_("menu_step2"),
+					functionName : "main"
+				}
+			]
+		)
 }
 
 /**
@@ -295,26 +302,6 @@ function strLength_(text) {
 			count += 2;
 	}
 	return count;
-}
-
-/**
- * ユーザープロパティをキーで取得します
- *
- * @param {string} key 取得したいプロパティキー名
- * @return {string} 対応する値 
- */
-function getUserProperty(key) {
-    return PropertiesService.getUserProperties().getProperty("bti." + key);
-}
-
-/**
- * ユーザープロパティをキーで設定します
- *
- * @param {string} key 設定したいプロパティキー名
- * @return {string} 対応する値 
- */
-function setUserProperty(key, value) {
-     PropertiesService.getUserProperties().setProperty("bti." + key, value);
 }
 
 /**
