@@ -5,9 +5,6 @@
 /** データが記載されているシートの名前 */
 var TEMPLATE_SHEET_NAME = "Template";
 
-/** ヘッダ行のインデックス */
-var ROW_HEADER_INDEX = 1;
-
 /** 行のデフォルト長 */
 var DEFAULT_COLUMN_LENGTH = 16;
 
