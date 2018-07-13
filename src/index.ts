@@ -135,8 +135,6 @@ interface BacklogScript {
 
   getDefinitions: () => UiInstance
 
-  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>) => BacklogDefinition
-
   getMessage: (key: string, locale: string) => string
 
   showMessage: (message: string) => void
@@ -319,21 +317,6 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
         return app.close()
       })
       .getOrError()
-  },
-
-  definitions: (space: string, domain: string, apiKey: string, key: Key<Project>): BacklogDefinition => {
-    const locale = spreadSheetService.getUserLocale()
-    const client = createBacklogClient(space, domain, apiKey, locale).getOrError()
-    const project = getProject(client, key, locale).getOrError()
-
-    return BacklogDefinition(
-      client.getIssueTypesV2(project.id),
-      client.getCategoriesV2(project.id),
-      client.getVersionsV2(project.id),
-      client.getPrioritiesV2(),
-      client.getUsersV2(project.id),
-      client.getCustomFieldsV2(project.id)
-    )
   },
 
   getMessage: (key: string): string =>
