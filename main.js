@@ -100,71 +100,7 @@ function main_run_() {
  * Backlogプロジェクトの定義を取得します 
  */
 function init_run_() {
-	var app = UiApp.getActiveApplication();
-	var param = BacklogScript.getUserProperties();
-	var definition = BacklogScript.definitions(param.space, param.domain, param.apiKey, param.projectKey);
-	var templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME);
-	var issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build();
-	var categoryRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.categoryNames(), true).build();
-	var versionRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.versionNames(), true).build();
-	var priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build();
-	var userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build();
-	var lastRow = templateSheet.getLastRow() - 1;
-	var customFieldStartColumnNumber = 14; // N ~
-	var currentColumnNumber = customFieldStartColumnNumber;
-
-	BacklogScript.storeUserProperties(param);
-	templateSheet.getRange(2, 7, lastRow).setDataValidation(issueTypeRule); // 7 = G
-	templateSheet.getRange(2, 8, lastRow).setDataValidation(categoryRule); 	// 8 = H
-	templateSheet.getRange(2, 9, lastRow).setDataValidation(versionRule); 	// 9 = I
-	templateSheet.getRange(2, 10, lastRow).setDataValidation(versionRule); 	// 10 = J
-	templateSheet.getRange(2, 11, lastRow).setDataValidation(priorityRule); // 11 = K
-	templateSheet.getRange(2, 12, lastRow).setDataValidation(userRule); 	// 12 = L
-	for (var i = 0; i < definition.customFields.length; i++) {
-		var customField = definition.customFields[i];
-		var headerCell = getCell(templateSheet, currentColumnNumber, ROW_HEADER_INDEX);
-		var columnName = headerCell.getValue();
-
-		/**
-		 * https://github.com/nulab/backlog4j/blob/master/src/main/java/com/nulabinc/backlog4j/CustomField.java#L10
-		 * Text(1), TextArea(2), Numeric(3), Date(4), SingleList(5), MultipleList(6), CheckBox(7), Radio(8)
-		 * We don't support the types MultipleList(6) and CheckBox(7), Radio(8)
-		 */
-		var customFieldName = "";
-
-		if (customField.typeId >= 6)
-			continue;
-		switch(customField.typeId) {
-			case 1:
-				customFieldName = "文字列";
-				break;
-			case 2:
-				customFieldName = "文章";
-				break;
-			case 3:
-				customFieldName = "数値";
-				break;
-			case 4:
-				customFieldName = "日付";
-				break;
-			case 5:
-				customFieldName = "選択リスト";
-				break;
-		}
-		if (columnName === "") {
-			templateSheet.insertColumnAfter(currentColumnNumber - 1);
-			templateSheet
-				.getRange(1, currentColumnNumber, templateSheet.getLastRow(), 1)
-				.setBackground("#F8FFFF")
-				.setFontColor("black");
-		}
-		headerCell.setFormula(
-			'=hyperlink("' + param.space + ".backlog" + param.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '（' + customFieldName + '）' + '")'
-		);
-		currentColumnNumber++;
-	}
-	BacklogScript.showMessage(BacklogScript.getMessage("complete_init"));
-	return app.close();
+	BacklogScript.getDefinitions();
 }
 
 /**
