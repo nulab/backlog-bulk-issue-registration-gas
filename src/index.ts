@@ -247,7 +247,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
     const property = this.getUserProperties()
     const grid = this.createGrid(app, property)
     
-    this.showDialog(app, grid, "init_run_")
+    this.showDialog(app, grid, "init")
   },
 
   showRunDialog(): void {
@@ -255,7 +255,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
     const property = this.getUserProperties()
     const grid = this.createGrid(app, property)
     
-    this.showDialog(app, grid, "main_run_")
+    this.showDialog(app, grid, "main")
   },
 
   getUserProperties: (): UserProperty =>
@@ -431,4 +431,32 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
     showMessage(message, spreadSheetService)
 });
 
-(global as any).BacklogScript = BacklogScript(new SpreadSheetServiceImpl)
+global.BacklogScript = BacklogScript(new SpreadSheetServiceImpl)
+global.onOpen = function() {
+	SpreadsheetApp.getActiveSpreadsheet()
+		.addMenu(
+			"Backlog",
+			[ 
+				{ 
+					name : this.BacklogScript.getMessage("menu_step1"), 
+					functionName: "init_d"
+				},
+				{ 
+					name : this.BacklogScript.getMessage("menu_step2"),
+					functionName: "main_d"
+				}
+			]
+		)
+}
+global.init_d = function () {
+  this.BacklogScript.showInitDialog()
+}
+global.main_d = function () {
+  this.BacklogScript.showRunDialog()
+}
+global.init = function () {
+  this.BacklogScript.getDefinitions()
+}
+global.main = function () {
+  this.BacklogScript.run()
+}
