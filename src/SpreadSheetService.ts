@@ -7,6 +7,7 @@ export interface SpreadSheetService {
   getUserProperty: (key: string) => string
   setUserProperty: (key: string, value: string) => void
   getRange: (sheet: Sheet, column: number, row: number) => Range
+  setColumnWidth: (sheet: Sheet, column: number, width: number) => void
   showMessage: (title: string, message: string) => void
 }
 
@@ -31,6 +32,10 @@ export class SpreadSheetServiceImpl implements SpreadSheetService {
 
   public getRange(sheet: Sheet, column: number, row: number): Range {
     return sheet.getRange(row, column)
+  }
+
+  public setColumnWidth(sheet: Sheet, column: number, width: number): void {
+    sheet.setColumnWidth(column, width);
   }
 
   public showMessage(title: string, message: string): void {

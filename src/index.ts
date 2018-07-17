@@ -13,6 +13,9 @@ import { SpreadSheetService, SpreadSheetServiceImpl } from "./SpreadSheetService
 const SCRIPT_VERSION = "v2.0.0-SNAPSHOT"
 const TEMPLATE_SHEET_NAME = "Template"
 const ROW_HEADER_INDEX = 1
+const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
+const ROW_START_INDEX = 2    /** データ行の開始インデックス */
+const DEFAULT_COLUMN_LENGTH = 16
 
 declare var global: any
 
@@ -91,6 +94,19 @@ const storeUserProperties = (property: UserProperty, spreadSheetService: SpreadS
 const showMessage = (message: string, spreadSheetService: SpreadSheetService): void =>
   spreadSheetService.showMessage(getMessage("scriptName", spreadSheetService), message)
 
+const strLength = (text: string): number => {
+  let count = 0
+
+  for (let i = 0; i < text.length; i++) {
+    const n = escape(text.charAt(i))
+    if (n.length < 4)
+      count += 1;
+    else
+      count += 2;
+  }
+  return count;
+}
+
 export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> => {
   const createIssue = Issue(
     0,
@@ -115,6 +131,57 @@ export const createIssue = (client: BacklogClient, issue: Issue, optParentIssueI
   return client.createIssueV2(createIssue)
 }
 
+const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService): any => {
+  let issues = []
+  const spreadSheet = SpreadsheetApp.getActiveSpreadsheet()
+	const sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME)
+	const columnLength = sheet.getLastColumn()
+	const values = sheet.getSheetValues(
+		ROW_START_INDEX, 
+		COLUMN_START_INDEX,
+		sheet.getLastRow() - 1, 
+		columnLength
+	)
+
+	for (let i = 0; i < values.length; i++) {
+		let customFields = [];
+		let customFieldIndex = 0;
+		for (let j = 13; j < columnLength; j++) {
+			if (values[i][j] !== "") {
+				customFields[customFieldIndex] = {
+					header: spreadSheetService.getRange(sheet, j + 1, ROW_HEADER_INDEX).getFormula(),
+					value: values[i][j]
+				};
+				customFieldIndex++;
+			}
+		}
+		const issue = {
+			summary: values[i][0] === "" ? undefined : values[i][0],
+			description: values[i][1] === "" ? undefined : values[i][1],
+			startDate: values[i][2] === "" ? undefined : values[i][2],
+			dueDate: values[i][3] === "" ? undefined : values[i][3],
+			estimatedHours: values[i][4] === "" ? undefined : values[i][4],
+			actualHours: values[i][5] === "" ? undefined : values[i][5],
+			issueTypeName: values[i][6] === "" ? undefined : values[i][6],
+			categoryNames: values[i][7],
+			versionNames: values[i][8],
+			milestoneNames: values[i][9],
+			priorityName: values[i][10] === "" ? undefined : values[i][10],
+			assigneeName: values[i][11] === "" ? undefined : values[i][11],
+			parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
+			customFields: customFields
+		};
+		issues[i] = issue;
+	}
+	return issues;
+}
+
+const calcWidth = (length: number): number => {
+	const DEFAULT_FONT_SIZE = 10; 	/** フォントのデフォルトサイズ */
+	const ADJUST_WIDTH_FACTOR = 0.75; /** 列幅調整時の係数 */
+	return length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+}
+
 interface BacklogScript {
 
   createApplication: (title: string, width: number, height: number) => UiInstance
@@ -131,7 +198,7 @@ interface BacklogScript {
 
   storeUserProperties: (property: UserProperty) => void
 
-  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void) => void
+  run: () => UiInstance
 
   getDefinitions: () => UiInstance
 
@@ -197,17 +264,33 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
   storeUserProperties: (property: UserProperty): void =>
     storeUserProperties(property, spreadSheetService),
 
-  run: (space: string, domain: string, apiKey: string, key: Key<Project>, rawIssues: List<any>, onSuccess: (i: number, issue: Issue) => void, onWarn: (message: string) => void): void => {
+  run: (): UiInstance => {
+    const app = UiApp.getActiveApplication()
+    const property = getUserProperties(spreadSheetService)
+    const current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss")
+    const sheetName = getMessage("scriptName", spreadSheetService) + " : " + current
+    const LOG_KEY_NUMBER = 1
+    const LOG_SUMMARY_NUMBER = 2
+
+    // BacklogScript throws an exception on error
+    showMessage(getMessage("progress_collect", spreadSheetService), spreadSheetService);
+    const templateIssues = getTemplateIssuesFromSpreadSheet(spreadSheetService)
+    storeUserProperties(property, spreadSheetService)
+    showMessage(getMessage("progress_begin", spreadSheetService), spreadSheetService)
+    
     const locale = spreadSheetService.getUserLocale()
-    const client = createBacklogClient(space, domain, apiKey, locale).getOrError()
-    const _ = validate(rawIssues, client, locale).getOrError()
-    const project = getProject(client, key, locale).getOrError()
+    const client = createBacklogClient(property.space, property.domain, property.apiKey, locale).getOrError()
+    const _ = validate(templateIssues, client, locale).getOrError()
+    const project = getProject(client, property.projectKey, locale).getOrError()
     const converter = createIssueConverter(client, project.id)
-    const convertResults = rawIssues.map(issue => convertIssue(converter, issue))
+    const convertResults = templateIssues.map(issue => convertIssue(converter, issue))
     const issues = Either.sequence(convertResults).getOrError()
 
     // Post issues
     let previousIssue = Option<Issue>(null)
+    let keyLength = DEFAULT_COLUMN_LENGTH
+    let summaryLength = DEFAULT_COLUMN_LENGTH
+
     for ( let i = 0; i < issues.length; i++) {
       let isTakenOverParentIssueId = false
       let optParentIssueId = issues[i].parentIssueId
@@ -215,7 +298,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
       optParentIssueId.map(function(parentIssueId) {
         if (parentIssueId === "*") {
           if (previousIssue.flatMap(issue => issue.parentIssueId).isDefined) {
-            previousIssue.map(issue => onWarn(Message.ALREADY_BEEN_CHILD_ISSUE(issue.issueKey, locale)))
+            previousIssue.map(issue => showMessage(Message.ALREADY_BEEN_CHILD_ISSUE(issue.issueKey, locale), spreadSheetService))
             optParentIssueId = None<string>()
           } else {
             optParentIssueId = previousIssue.map(issue => issue.id.toString())
@@ -229,9 +312,31 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
         if (!isTakenOverParentIssueId) {
           previousIssue = Some(issue)
         }
-        onSuccess(i, issue)
+        var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+        var issueKey = issue.issueKey;
+        var summary = issue.summary;
+        var fomula = '=hyperlink("' + property.space + ".backlog" + property.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
+        var currentRow = i + 1;
+    
+        if (logSheet == null)
+          logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 1);
+        keyLength = Math.max(keyLength, strLength(issueKey));
+        summaryLength = Math.max(summaryLength, strLength(summary));
+    
+        var keyWidth = calcWidth(keyLength)
+        var summaryWidth = calcWidth(summaryLength)
+        var keyCell = spreadSheetService.getRange(logSheet, LOG_KEY_NUMBER, currentRow)
+        var summaryCell = spreadSheetService.getRange(logSheet, LOG_SUMMARY_NUMBER, currentRow)
+    
+        keyCell.setFormula(fomula).setFontColor("blue").setFontLine("underline")
+        summaryCell.setValue(summary)
+        spreadSheetService.setColumnWidth(logSheet, LOG_KEY_NUMBER, keyWidth)
+        spreadSheetService.setColumnWidth(logSheet, LOG_SUMMARY_NUMBER, summaryWidth)
+        SpreadsheetApp.flush();
       }).getOrError()
+      showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
     }
+    return app.close()
   },
 
   getDefinitions: (): UiInstance => {
@@ -306,7 +411,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
             templateSheet
               .getRange(1, currentColumnNumber, templateSheet.getLastRow(), 1)
               .setBackground("#F8FFFF")
-              .setFontColor("black");
+              .setFontColor("black")
           }
           headerCell.setFormula(
             '=hyperlink("' + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '（' + customFieldName + '）' + '")'
