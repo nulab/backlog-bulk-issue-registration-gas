@@ -236,7 +236,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
     const submitHandler = ui.createServerClickHandler(handlerName)
 
     submitHandler.addCallbackElement(grid)
-    submitButton.addBlurHandler(submitHandler)
+    submitButton.addClickHandler(submitHandler)
     panel.add(grid).add(submitButton)
     ui.add(panel)
     SpreadsheetApp.getActiveSpreadsheet().show(ui)
@@ -332,7 +332,7 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
         summaryCell.setValue(summary)
         spreadSheetService.setColumnWidth(logSheet, LOG_KEY_NUMBER, keyWidth)
         spreadSheetService.setColumnWidth(logSheet, LOG_SUMMARY_NUMBER, summaryWidth)
-        SpreadsheetApp.flush();
+        SpreadsheetApp.flush()
       }).getOrError()
       showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
     }
