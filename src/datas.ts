@@ -5,6 +5,8 @@ export type Id<T> = number
 export type Key<T> = string
 export type IdOrKey<T> = string
 
+export type Locale = "en" | "ja"
+
 export interface WithId {
   readonly id: number
 }
@@ -95,11 +97,11 @@ export interface BacklogDefinition {
   readonly priorities: List<Priority>
   readonly users: List<User>
   readonly customFields: List<CustomFieldDefinition>
-  issueTypeNames: () => String[]
+  issueTypeNames: () => string[]
   categoryNames: () => string[]
   versionNames: () => string[]
-  priorityNames: () => String[]
-  userNames: () => String[]
+  priorityNames: () => string[]
+  userNames: () => string[]
 }
 export const BacklogDefinition = (
   issueTypes: List<IssueType>,
@@ -110,12 +112,20 @@ export const BacklogDefinition = (
   customFields: List<CustomFieldDefinition>
 ): BacklogDefinition => ({
   issueTypes, categories, versions, priorities, users, customFields,
-  issueTypeNames: (): String[] => issueTypes.map(item => item.name),
+  issueTypeNames: (): string[] => issueTypes.map(item => item.name),
   categoryNames: (): string[] => categories.map(item => item.name),
   versionNames: (): string[] => versions.map(item => item.name),
-  priorityNames: (): String[] => priorities.map(item => item.name),
-  userNames: (): String[] => users.map(item => item.name)
+  priorityNames: (): string[] => priorities.map(item => item.name),
+  userNames: (): string[] => users.map(item => item.name)
 })
+
+export interface UserProperty {
+  readonly space: string
+  readonly domain: string
+  readonly apiKey: string
+  readonly projectKey: string
+}
+export const UserProperty = (space: string, domain: string, apiKey: string, projectKey: string) => ({space, domain, apiKey, projectKey})
 
 export const notNull = <T, U>(t: T): boolean => t != null
 export const isEmpty = (str: string): boolean => str === ""
