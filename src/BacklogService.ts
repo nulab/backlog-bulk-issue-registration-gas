@@ -269,14 +269,14 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const sheetName = getMessage("scriptName", spreadSheetService) + " : " + current
     const LOG_KEY_NUMBER = 1
     const LOG_SUMMARY_NUMBER = 2
+    const locale = spreadSheetService.getUserLocale()
 
     // BacklogScript throws an exception on error
     showMessage(getMessage("progress_collect", spreadSheetService), spreadSheetService);
     const templateIssues = getTemplateIssuesFromSpreadSheet(spreadSheetService)
     storeUserProperties(property, spreadSheetService)
-    showMessage(getMessage("progress_begin", spreadSheetService), spreadSheetService)
-    
-    const locale = spreadSheetService.getUserLocale()
+    showMessage(Message.PROGRESS_RUN_BEGIN(locale), spreadSheetService)
+  
     const client = createBacklogClient(property.space, property.domain, property.apiKey, locale).getOrError()
     const _ = validate(templateIssues, client, locale).getOrError()
     const project = getProject(client, property.projectKey, locale).getOrError()
@@ -342,6 +342,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const property = getUserProperties(spreadSheetService)
     const locale = spreadSheetService.getUserLocale()
     
+    showMessage(Message.PROGRESS_INIT_BEGIN(locale), spreadSheetService)
     storeUserProperties(property, spreadSheetService)
     return createBacklogClient(property.space, property.domain, property.apiKey, locale)
       .flatMap(client =>

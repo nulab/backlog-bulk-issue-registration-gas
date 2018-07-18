@@ -23,7 +23,7 @@ const messages = {
     "ja": "STEP2: 課題一括登録を実行"
   },
   "complete_init" : {
-    "en": "Acquired the definition of Backlog",
+    "en": "Acquired definitions from Backlog",
     "ja": "Backlogの定義を取得完了しました"
   },
   "label_spaceId" : {
@@ -46,10 +46,6 @@ const messages = {
     "en": "Collecting data...",
     "ja": "データを収集しています..."
   },
-  "progress_begin" : {
-    "en": "Started bulk issue registration",
-    "ja": "一括登録を開始しました..."
-  },
   "progress_end" : {
     "en": " has finished",
     "ja": " が正常に行われました"
@@ -58,6 +54,20 @@ const messages = {
 
 export const Message = {
   findByKey: (key: string, locale: string): string => messages[key][locale],
+  PROGRESS_INIT_BEGIN: (locale: Locale): string => {
+    const msg = {
+      "en": "Started acquiring definitions from Backlog",
+      "ja": `Backlogの定義取得を開始しました...`
+    }
+    return msg[locale]
+  },
+  PROGRESS_RUN_BEGIN: (locale: Locale): string => {
+    const msg = {
+      "en": "Started bulk issue registration",
+      "ja": `一括登録を開始しました...`
+    }
+    return msg[locale]
+  },
   SPACE_URL_REQUIRED: (locale: Locale): string => {
     const msg = {
       "en": `Space URL is required`,
