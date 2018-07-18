@@ -23,7 +23,7 @@ const messages = {
     "ja": "STEP2: 課題一括登録を実行"
   },
   "complete_init" : {
-    "en": "Acquired the definition of Backlog",
+    "en": "Acquired definitions from Backlog",
     "ja": "Backlogの定義を取得完了しました"
   },
   "label_spaceId" : {
@@ -56,7 +56,7 @@ export const Message = {
   findByKey: (key: string, locale: string): string => messages[key][locale],
   PROGRESS_INIT_BEGIN: (locale: Locale): string => {
     const msg = {
-      "en": "Started acquiring the definition of Backlog",
+      "en": "Started acquiring definitions from Backlog",
       "ja": `Backlogの定義取得を開始しました...`
     }
     return msg[locale]
