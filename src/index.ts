@@ -313,20 +313,20 @@ const BacklogScript = (spreadSheetService: SpreadSheetService): BacklogScript =>
           previousIssue = Some(issue)
         }
         var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-        var issueKey = issue.issueKey;
-        var summary = issue.summary;
-        var fomula = '=hyperlink("' + property.space + ".backlog" + property.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
-        var currentRow = i + 1;
+        const issueKey = issue.issueKey;
+        const summary = issue.summary;
+        const fomula = '=hyperlink("' + property.space + ".backlog" + property.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
+        const currentRow = i + 1;
     
         if (logSheet == null)
           logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 1);
         keyLength = Math.max(keyLength, strLength(issueKey));
         summaryLength = Math.max(summaryLength, strLength(summary));
     
-        var keyWidth = calcWidth(keyLength)
-        var summaryWidth = calcWidth(summaryLength)
-        var keyCell = spreadSheetService.getRange(logSheet, LOG_KEY_NUMBER, currentRow)
-        var summaryCell = spreadSheetService.getRange(logSheet, LOG_SUMMARY_NUMBER, currentRow)
+        const keyWidth = calcWidth(keyLength)
+        const summaryWidth = calcWidth(summaryLength)
+        const keyCell = spreadSheetService.getRange(logSheet, LOG_KEY_NUMBER, currentRow)
+        const summaryCell = spreadSheetService.getRange(logSheet, LOG_SUMMARY_NUMBER, currentRow)
     
         keyCell.setFormula(fomula).setFontColor("blue").setFontLine("underline")
         summaryCell.setValue(summary)
