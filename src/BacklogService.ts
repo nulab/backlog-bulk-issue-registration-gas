@@ -332,8 +332,8 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         spreadSheetService.setColumnWidth(logSheet, LOG_SUMMARY_NUMBER, summaryWidth)
         SpreadsheetApp.flush()
       }).getOrError()
-      showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
     }
+    showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
     return app.close()
   },
 
