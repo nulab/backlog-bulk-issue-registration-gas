@@ -26,9 +26,9 @@ global.init_d = function () {
 global.main_d = function () {
   this.BacklogService.showRunDialog()
 }
-global.init = function () {
-  this.BacklogService.getDefinitions()
+global.init = function (grid: any) {
+  this.BacklogService.getDefinitions(grid)
 }
-global.main = function () {
-  this.BacklogService.run()
+global.main = function (grid: any) {
+  this.BacklogService.run(grid)
 }
