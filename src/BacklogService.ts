@@ -383,7 +383,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
            * Text(1), TextArea(2), Numeric(3), Date(4), SingleList(5), MultipleList(6), CheckBox(7), Radio(8)
            * We don't support the types MultipleList(6) and CheckBox(7), Radio(8)
            */
-          var customFieldName = "";
+          let customFieldName = "";
       
           if (customField.typeId >= 6)
             continue;
@@ -404,15 +404,22 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
               customFieldName = "選択リスト";
               break;
           }
+
+          const headerName = customField.name + '（' + customFieldName + '）'
+
           if (columnName === "") {
+            const headerStrLength = strLength(headerName)
+            const headerWidth = calcWidth(headerStrLength)
+
             templateSheet.insertColumnAfter(currentColumnNumber - 1);
             templateSheet
               .getRange(1, currentColumnNumber, templateSheet.getLastRow(), 1)
               .setBackground("#F8FFFF")
               .setFontColor("black")
+            spreadSheetService.setColumnWidth(templateSheet, currentColumnNumber, headerWidth)
           }
           headerCell.setFormula(
-            '=hyperlink("' + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + customField.name + '（' + customFieldName + '）' + '")'
+            '=hyperlink("' + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + headerName + '")'
           )
           currentColumnNumber++
         }
