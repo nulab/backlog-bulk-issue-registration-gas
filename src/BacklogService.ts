@@ -337,12 +337,12 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
   },
 
   getDefinitions: (grid: any): UiInstance => {
+    storeUserProperties(grid, spreadSheetService)
     const app = UiApp.getActiveApplication()
     const property = getUserProperties(spreadSheetService)
     const locale = spreadSheetService.getUserLocale()
     
     showMessage(Message.PROGRESS_INIT_BEGIN(locale), spreadSheetService)
-    storeUserProperties(grid, spreadSheetService)
     return createBacklogClient(property.space, property.domain, property.apiKey, locale)
       .flatMap(client =>
         getProject(client, property.projectKey, locale).map(project => 
