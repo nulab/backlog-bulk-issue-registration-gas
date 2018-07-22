@@ -1,3 +1,12 @@
 
 /.settings
 /.project
+
+# IDE Specific
+/.vscode
+
+# Node Specific
+/node_modules
+
+# Build directory
+/dist
