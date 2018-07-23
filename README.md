@@ -1,14 +1,15 @@
-# Backlog bulk issue registration via Google Sheets
+# Google SheetsによるBacklog課題一括登録
+
 (English document is [here](./README_en.md).)
 
-Googleドキュメント（スプレッドシート）をつかって、Backlogへ課題を一括登録するツールです。
+Googleスプレッドシート（Google Sheets）をつかって、Backlogへ課題を一括登録するツールです。
 
 以下のような場合に、お使いいただけます。
 
 * プロジェクト立ち上げ時に、定型のタスクを登録する必要があるとき
 * 運用・保守など、定期的に同じタスクを行わなければならないとき
 
-## インストール
+## 使い方
 
 テンプレートとなるスプレッドシートを準備します。下記リンクをクリックして、スプレッドシートをコピーしてください。
 * <a href="https://docs.google.com/spreadsheets/d/129pfbcB-OHU4X7m6pT1pHolEj8TOGNeklT3wGCIYBHI/copy" target="_blank">スプレッドシートをコピー(新しいタブで開いてください)</a>
