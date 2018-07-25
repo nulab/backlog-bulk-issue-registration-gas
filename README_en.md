@@ -99,3 +99,7 @@ If there are no changes in Backlogs data (e.g. issue type name, user name) you c
 If you however have added or updated your data in Backlog and need to update the data in the spreadsheet based on the data in Backlog, please start from STEP 1 again.
 
 Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove that column and redo the execution from STEP1.
+
+### Limitations
+
+This tool can not be used when access restriction by IP address is set to the Backlog.
