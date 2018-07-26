@@ -102,4 +102,4 @@ Custom fields are not automatically added and updated. If a custom field's name 
 
 ### Limitations
 
-This tool can not be used when access restriction by IP address is set to the Backlog.
+If access control with IP address restriction is used in Backlog, this tool can not be used.
