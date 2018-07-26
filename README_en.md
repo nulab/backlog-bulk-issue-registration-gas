@@ -100,6 +100,6 @@ If you however have added or updated your data in Backlog and need to update the
 
 Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove that column and redo the execution from STEP1.
 
-### Limitations
+## Limitations
 
 If access control with IP address restriction is used in Backlog, this tool can not be used.
