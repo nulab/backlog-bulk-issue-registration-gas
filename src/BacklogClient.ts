@@ -72,16 +72,19 @@ export interface BacklogClient {
   getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition>
 }
 
-const padding2 = (num: number): string =>
-  (`0` + num).slice(-2)
+export interface DateFormatter {
+  dateToString(date: Date): string
+}
 
-const formatToDate = (date: Date): string =>
-  `${date.getUTCFullYear()}-${padding2(date.getUTCMonth() + 1)}-${padding2(date.getUTCDate())}`
+export class GoogleAppsScriptDateFormatter implements DateFormatter {
+  public dateToString = (date: Date): string =>
+    Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd")
+}
 
 const nullOrArray = <A>(items: List<A>): List<A> =>
   items.length > 0 ? items : undefined
 
-export const issueToObject = (issue: Issue): any => {
+export const issueToObject = (issue: Issue, dateFormatter: DateFormatter): any => {
   const categoryIds = issue.categories.map(item => item.id)
   const versionIds = issue.versions.map(item => item.id)
   const milestoneIds = issue.milestones.map(item => item.id)
@@ -89,8 +92,8 @@ export const issueToObject = (issue: Issue): any => {
       projectId: issue.projectId,
       summary: issue.summary,
       description: issue.description.getOrElse(() => undefined),
-      startDate: issue.startDate.map(formatToDate).getOrElse(() => undefined),
-      dueDate: issue.dueDate.map(formatToDate).getOrElse(() => undefined),
+      startDate: issue.startDate.map(dateFormatter.dateToString).getOrElse(() => undefined),
+      dueDate: issue.dueDate.map(dateFormatter.dateToString).getOrElse(() => undefined),
       estimatedHours: issue.estimatedHours.getOrElse(() => undefined),
       actualHours: issue.actualHours.getOrElse(() => undefined),
       issueTypeId: issue.issueType.id,
@@ -127,11 +130,13 @@ export class BacklogClientImpl implements BacklogClient {
   private spaceName: string
   private domain: string
   private apiKey: string
-  constructor(http: Http, spaceName: string, domain: string, apiKey: string) {
+  private dateFormatter: DateFormatter
+  constructor(http: Http, spaceName: string, domain: string, apiKey: string, dateFormatter: DateFormatter) {
     this.http = http
     this.spaceName = spaceName
     this.domain = domain
     this.apiKey = apiKey
+    this.dateFormatter = dateFormatter
   }
 
   public getProjectV2(key: Key<Project>): Either<Error, Project> {
@@ -155,7 +160,7 @@ export class BacklogClientImpl implements BacklogClient {
 
   public createIssueV2(issue: Issue): Either<Error, Issue> {
     try {
-      const obj = issueToObject(issue)
+      const obj = issueToObject(issue, this.dateFormatter)
       const payload = objectToPayload(obj)
       const json = this.http.post(this.buildUri("issues"), payload)
       const createdIssue = this.jsonToIssue(json)
