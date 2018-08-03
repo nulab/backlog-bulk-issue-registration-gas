@@ -37,7 +37,7 @@ describe("IssueConverter", function () {
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users, customFieldDefinitions)
 
   test("convert: input all", function () {
-    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T15:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*",
+    const data = {summary: "データファイルを作成する", description: "step1\r\n\r\nstep2", startDate: "2018-04-16T15:00:00.000Z", dueDate: "2018-04-30T09:00:00.000Z", estimatedHours: "3", actualHours : "1.5", issueTypeName: "issue type 3", categoryNames: "category 1\ncategory 2 ", versionNames: "version 1", milestoneNames: "version 2", priorityName: "priority 1", assigneeName: "user 3", parentIssueId: "*",
       customFields: [{header: `=hyperlink("test.backlog.com/EditAttribute.action?attribute.id=12345","数字")`, value: "abc"}, {header: `=hyperlink("test.backlog.com/EditAttribute.action?attribute.id=12346","数字")`, value: "123"}]}
     const actual = converter.convert(data)
     actual.recover(function(error) {
@@ -49,7 +49,7 @@ describe("IssueConverter", function () {
       expect(issue.summary).toBe("データファイルを作成する")
       issue.description.map(description => expect(description).toBe("step1\r\n\r\nstep2"))
       issue.startDate.map(startDate => expect(startDate).toEqual(new Date("2018-04-16T15:00:00.000Z")))
-      issue.dueDate.map(dueDate => expect(dueDate).toEqual(new Date("2018-04-30T15:00:00.000Z")))
+      issue.dueDate.map(dueDate => expect(dueDate).toEqual(new Date("2018-04-30T09:00:00.000Z")))
       issue.estimatedHours.map(estimatedHours => expect(estimatedHours).toBe(3))
       issue.actualHours.map(actualHours => expect(actualHours).toBe(1.5))
       expect(issue.issueType.id).toBe(3)

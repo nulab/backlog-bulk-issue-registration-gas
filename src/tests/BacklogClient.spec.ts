@@ -1,13 +1,12 @@
 import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
 import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
 import {Http, HttpClient} from "../Http"
-import {BacklogClient, BacklogClientImpl, issueToObject, objectToPayload} from "../BacklogClient"
+import {BacklogClient, BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "../BacklogClient"
 import {Either, Right, Left} from "../Either"
 import {Issue, IssueType, Priority, User, Category, Version, CustomFieldDefinition, CustomField} from "../datas"
 import {None, Some} from "../Option"
 
 describe("BacklogClient", function () {
-
   class FakeHttp implements Http {
     public get(uri: string): JSON {
       if (uri === "https://testspace.backlog.jp/api/v2/projects/SPR?apiKey=testapikeystring") {
@@ -233,7 +232,11 @@ describe("BacklogClient", function () {
     }
   }
 
-  const client = new BacklogClientImpl(new FakeHttp(), "testspace", ".jp", "testapikeystring")
+  class FakeDateFormatter implements DateFormatter {
+    public dateToString = (date: Date): string => ""
+  }
+
+  const client = new BacklogClientImpl(new FakeHttp, "testspace", ".jp", "testapikeystring", new FakeDateFormatter)
 
   test("Get project", function () {
     const result = client.getProjectV2("SPR")
@@ -309,14 +312,19 @@ describe("BacklogClient", function () {
 })
 
 describe("BacklogClient", function () {
+  class FakeDateFormatter implements DateFormatter {
+    public dateToString = (date: Date): string => `${date.getUTCFullYear()}-${this.padding2(date.getUTCMonth() + 1)}-${this.padding2(date.getUTCDate())}`
+    padding2 = (num: number): string => (`0` + num).slice(-2)
+  }
+
   const maxIssue = Issue(
     0,
     "",
     123,
     "test summary",
     Some("description"),
-    Some(new Date("2018-04-16T15:00:00.000Z")), // startDate
-    Some(new Date("2018-01-01T02:00:00.000Z")), // dueDate
+    Some(new Date("Sun Jul 01 2018 00:00:00 GMT")), // startDate
+    Some(new Date("Sun Jul 02 2018 00:00:00 GMT")), // dueDate
     Some(1.25), // estimatedHours
     Some(3.3), // actualHours
     IssueType(1, "issue type"),
@@ -350,13 +358,12 @@ describe("BacklogClient", function () {
   )
 
   test("issue to object", function () {
-
-    const actual1 = issueToObject(maxIssue)
+    const actual1 = issueToObject(maxIssue, new FakeDateFormatter)
     expect(actual1.projectId).toBe(123)
     expect(actual1.summary).toBe("test summary")
     expect(actual1.description).toBe("description")
-    expect(actual1.startDate).toEqual("2018-04-16")
-    expect(actual1.dueDate).toEqual("2018-01-01")
+    expect(actual1.startDate).toEqual("2018-07-01")
+    expect(actual1.dueDate).toEqual("2018-07-02")
     expect(actual1.estimatedHours).toEqual(1.25)
     expect(actual1.actualHours).toEqual(3.3)
     expect(actual1.issueTypeId).toEqual(1)
@@ -367,7 +374,7 @@ describe("BacklogClient", function () {
     expect(actual1.assigneeId).toEqual(3)
     expect(actual1.parentIssueId).toEqual("*")
 
-    const actual2 = issueToObject(minIssue)
+    const actual2 = issueToObject(minIssue, new FakeDateFormatter)
     expect(actual2.projectId).toBe(12345)
     expect(actual2.summary).toBe("test 1")
     expect(actual2.description).toBe(undefined)
@@ -385,14 +392,14 @@ describe("BacklogClient", function () {
   })
 
   test("issue to object", function () {
-    const obj1 = issueToObject(minIssue)
+    const obj1 = issueToObject(minIssue, new FakeDateFormatter)
     const actual1 = objectToPayload(obj1)
     expect(actual1).toEqual("projectId=12345&summary=test%201&issueTypeId=12&priorityId=100")
 
-    const obj2 = issueToObject(maxIssue)
+    const obj2 = issueToObject(maxIssue, new FakeDateFormatter)
     const actual2 = objectToPayload(obj2)
     expect(actual2).toEqual(
-      "projectId=123&summary=test%20summary&description=description&startDate=2018-04-16&dueDate=2018-01-01&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*&customField_1=abc&customField_2=123"
+      "projectId=123&summary=test%20summary&description=description&startDate=2018-07-01&dueDate=2018-07-02&estimatedHours=1.25&actualHours=3.3&issueTypeId=1&categoryId[]=11&categoryId[]=12&versionId[]=23&versionId[]=24&versionId[]=44&milestoneId[]=50&priorityId=2&assigneeId=3&parentIssueId=*&customField_1=abc&customField_2=123"
     )
   })
 })
