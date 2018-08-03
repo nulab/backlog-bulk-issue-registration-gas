@@ -1,5 +1,5 @@
 import UiInstance = GoogleAppsScript.UI.UiInstance
-import {BacklogClient, BacklogClientImpl} from "./BacklogClient"
+import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
 import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty, User} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
@@ -9,7 +9,7 @@ import {List} from "./List"
 import { Message } from "./resources";
 import { SpreadSheetService, SpreadSheetServiceImpl } from "./SpreadSheetService";
 
-const SCRIPT_VERSION = "v2.0.0"
+const SCRIPT_VERSION = "v2.0.1"
 const TEMPLATE_SHEET_NAME = "Template"
 const ROW_HEADER_INDEX = 1
 const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
@@ -25,7 +25,7 @@ const createBacklogClient = (space: string, domain: string, apiKey: string, loca
   const spaceResult = isEmpty(space, Error(Message.SPACE_URL_REQUIRED(locale)))
   const apiKeyResult = isEmpty(apiKey, Error(Message.API_KEY_REQUIRED(locale)))
   return Either.map2(spaceResult, apiKeyResult, (s, a) => {
-    return Right(new BacklogClientImpl(new HttpClient, s, domain, a))
+    return Right(new BacklogClientImpl(new HttpClient, s, domain, a, new GoogleAppsScriptDateFormatter))
   })
 }
 
