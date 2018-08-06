@@ -1,10 +1,7 @@
-import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
-import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
-import {Http, HttpClient} from "../Http"
-import {BacklogClient, BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "../BacklogClient"
-import {Either, Right, Left} from "../Either"
-import {Issue, IssueType, Priority, User, Category, Version, CustomFieldDefinition, CustomField} from "../datas"
-import {None, Some} from "../Option"
+import {BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "./BacklogClient"
+import {Issue, IssueType, Priority, User, Category, Version, CustomField} from "./datas"
+import {None, Some} from "./Option"
+import {Http} from "./Http";
 
 describe("BacklogClient", function () {
   class FakeHttp implements Http {

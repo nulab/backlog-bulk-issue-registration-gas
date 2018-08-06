@@ -1,7 +1,7 @@
-import {List} from "../List"
-import {IssueType, Category, Version, Priority, User, CustomFieldDefinition, CustomField} from "../datas"
-import {IssueConverter, extractFromString} from "../IssueConverter"
-import {Left} from "../Either"
+import {List} from "./List"
+import {IssueType, Category, Version, Priority, User, CustomFieldDefinition} from "./datas"
+import {IssueConverter, extractFromString} from "./IssueConverter"
+import {Left} from "./Either"
 
 describe("IssueConverter", function () {
 
