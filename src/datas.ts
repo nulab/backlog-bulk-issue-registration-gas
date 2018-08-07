@@ -106,6 +106,7 @@ export interface BacklogDefinition {
   versionNames: () => string[]
   priorityNames: () => string[]
   userNames: () => string[]
+  customFieldItemNames: (customFieldDefinition: CustomFieldDefinition) => Option<string[]>
 }
 export const BacklogDefinition = (
   issueTypes: List<IssueType>,
@@ -120,7 +121,8 @@ export const BacklogDefinition = (
   categoryNames: (): string[] => categories.map(item => item.name),
   versionNames: (): string[] => versions.map(item => item.name),
   priorityNames: (): string[] => priorities.map(item => item.name),
-  userNames: (): string[] => users.map(item => item.name)
+  userNames: (): string[] => users.map(item => item.name),
+  customFieldItemNames: (customFieldDefinition: CustomFieldDefinition): Option<string[]> => customFieldDefinition.items.map(items => items.map(item => item.name))
 })
 
 export interface UserProperty {

@@ -417,6 +417,11 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
               .setBackground("#F8FFFF")
               .setFontColor("black")
             spreadSheetService.setColumnWidth(templateSheet, currentColumnNumber, headerWidth)
+
+            definition.customFieldItemNames(customField).map((itemNames) => {
+              const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
+              templateSheet.getRange(2, currentColumnNumber, lastRowNumber).setDataValidation(itemRule)
+            })
           }
           headerCell.setFormula(
             "=hyperlink(\"" + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + "\";\"" + headerName + "\")"

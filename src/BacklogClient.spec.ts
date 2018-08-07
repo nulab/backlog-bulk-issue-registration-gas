@@ -236,18 +236,18 @@ describe("BacklogClient", function () {
           "useIssueType": false,
           "applicableIssueTypes": [],
           "displayOrder": 2147223646,
-          "items": [ 
-            { 
-              "id": 1, 
-              "name": "Windows 8", 
-              "displayOrder": 0 
-            }, 
-            { 
-              "id": 2, 
-              "name": "macOS", 
-              "displayOrder": 0 
+          "items": [
+            {
+              "id": 1,
+              "name": "Windows 8",
+              "displayOrder": 0
+            },
+            {
+              "id": 2,
+              "name": "macOS",
+              "displayOrder": 0
             }
-          ] 
+          ]
         }]`
     }
   }
