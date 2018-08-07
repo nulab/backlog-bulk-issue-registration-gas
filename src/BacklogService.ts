@@ -417,16 +417,21 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
               .setBackground("#F8FFFF")
               .setFontColor("black")
             spreadSheetService.setColumnWidth(templateSheet, currentColumnNumber, headerWidth)
-
-            definition.customFieldItemNames(customField).map((itemNames) => {
-              const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
-              templateSheet.getRange(2, currentColumnNumber, lastRowNumber).setDataValidation(itemRule)
-            })
           }
           headerCell.setFormula(
             "=hyperlink(\"" + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + "\";\"" + headerName + "\")"
           )
           currentColumnNumber++
+        }
+        // Data validation must be added after all column insert
+        for (let i = 0; i < definition.customFields.length; i++) {
+          const customField = definition.customFields[i]
+          if (customField.typeId === 5) {
+            definition.customFieldItemNames(customField).map(itemNames => {
+              const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
+              templateSheet.getRange(2, i + customFieldStartColumnNumber - 1, lastRowNumber).setDataValidation(itemRule)
+            })
+          }
         }
         showMessage(getMessage("complete_init", spreadSheetService), spreadSheetService)
         return app.close()
