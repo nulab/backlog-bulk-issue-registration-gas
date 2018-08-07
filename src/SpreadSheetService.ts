@@ -1,6 +1,6 @@
 import Sheet = GoogleAppsScript.Spreadsheet.Sheet
 import Range = GoogleAppsScript.Spreadsheet.Range
-import { Locale } from "./datas";
+import {Locale} from "./datas"
 
 export interface SpreadSheetService {
   getUserLocale: () => Locale
@@ -14,7 +14,7 @@ export interface SpreadSheetService {
 export class SpreadSheetServiceImpl implements SpreadSheetService {
 
   public getUserLocale(): Locale {
-    switch(Session.getActiveUserLocale()) {
+    switch (Session.getActiveUserLocale()) {
       case "ja":
         return "ja"
       default:
@@ -35,7 +35,7 @@ export class SpreadSheetServiceImpl implements SpreadSheetService {
   }
 
   public setColumnWidth(sheet: Sheet, column: number, width: number): void {
-    sheet.setColumnWidth(column, width);
+    sheet.setColumnWidth(column, width)
   }
 
   public showMessage(title: string, message: string): void {

@@ -1,5 +1,5 @@
-import { Locale } from "./datas";
-import { Option } from "./Option";
+import {Locale} from "./datas"
+import {Option} from "./Option"
 
 const messages = {
   "scriptName": {
@@ -50,7 +50,7 @@ const messages = {
     "en": " has finished",
     "ja": " が正常に行われました"
   }
-};
+}
 
 export const Message = {
   findByKey: (key: string, locale: string): string => messages[key][locale],
