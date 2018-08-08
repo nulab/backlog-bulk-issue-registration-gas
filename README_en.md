@@ -98,7 +98,7 @@ If you open the issue list in Backlog, you can see the newly registered issues.
 If there are no changes in Backlogs data (e.g. issue type name, user name) you can start from STEP 2.
 If you however have added or updated your data in Backlog and need to update the data in the spreadsheet based on the data in Backlog, please start from STEP 1 again.
 
-Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove that all columns and redo the execution from STEP1.
+Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove **all** custom field columns and redo the execution from STEP1.
 
 ## Limitations
 
