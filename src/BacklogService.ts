@@ -429,7 +429,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
           if (customField.typeId === 5) {
             definition.customFieldItemNames(customField).map(itemNames => {
               const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
-              templateSheet.getRange(2, i + customFieldStartColumnNumber - 1, lastRowNumber).setDataValidation(itemRule)
+              templateSheet.getRange(2, i + customFieldStartColumnNumber, lastRowNumber).setDataValidation(itemRule)
             })
           }
         }
