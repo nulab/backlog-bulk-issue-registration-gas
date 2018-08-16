@@ -2,6 +2,7 @@ import {List} from "./List"
 import {IssueType, Category, Version, Priority, User, CustomFieldDefinition} from "./datas"
 import {IssueConverter, extractFromString} from "./IssueConverter"
 import {Left} from "./Either"
+import {None} from "./Option"
 
 describe("IssueConverter", function () {
 
@@ -31,8 +32,8 @@ describe("IssueConverter", function () {
     User(4, "user 4")
   ]
   const customFieldDefinitions: List<CustomFieldDefinition> = [
-    CustomFieldDefinition(12345, 5, "string"),
-    CustomFieldDefinition(12346, 3, "number")
+    CustomFieldDefinition(12345, 5, "string", None()),
+    CustomFieldDefinition(12346, 3, "number", None())
   ]
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users, customFieldDefinitions)
 

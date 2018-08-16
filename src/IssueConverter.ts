@@ -69,8 +69,15 @@ export const IssueConverter = (
           .orError(Error("Invalid custom field header. Raw input: " + item))
           .flatMap(customFieldId =>
             findWithId(customFieldId, customFieldDefinitions)
-            .orError(Error(`Custom field definition not found. id: ${customFieldId}`))
-            .map(definition => CustomField(customFieldId, definition.typeId, item.value))
+              .orError(Error(`Custom field definition not found. id: ${customFieldId}`))
+              .flatMap(definition =>
+                Either.sequenceOption(
+                  definition.items.map(items => findWithName(item.value, items).orError(new Error(`Custom field item not found. value: ${item.value}`)))
+                )
+                .map(optItem => optItem.map(item => item.id.toString()))
+                .map(optId => optId.getOrElse(() => item.value.toString()))
+                .map(value => CustomField(customFieldId, definition.typeId, value))
+              )
           )
       })
     )

@@ -79,10 +79,14 @@ export const Version = (id: number, name: string) => ({id, name})
 export interface Priority extends WithId, WithName {}
 export const Priority = (id: number, name: string) => ({id, name})
 
+export interface CustomFieldItem extends WithId, WithName {}
+export const CustomFieldItem = (id: number, name: string) => ({id, name})
+
 export interface CustomFieldDefinition extends WithId, WithName {
   readonly typeId: number
+  readonly items: Option<List<CustomFieldItem>>
 }
-export const CustomFieldDefinition = (id: number, typeId: number, name: string) => ({id, typeId, name})
+export const CustomFieldDefinition = (id: number, typeId: number, name: string, items: Option<List<CustomFieldItem>>) => ({id, typeId, name, items})
 
 export interface CustomField extends WithId {
   readonly fieldTypeId: number
@@ -102,6 +106,7 @@ export interface BacklogDefinition {
   versionNames: () => string[]
   priorityNames: () => string[]
   userNames: () => string[]
+  customFieldItemNames: (customFieldDefinition: CustomFieldDefinition) => Option<string[]>
 }
 export const BacklogDefinition = (
   issueTypes: List<IssueType>,
@@ -116,7 +121,8 @@ export const BacklogDefinition = (
   categoryNames: (): string[] => categories.map(item => item.name),
   versionNames: (): string[] => versions.map(item => item.name),
   priorityNames: (): string[] => priorities.map(item => item.name),
-  userNames: (): string[] => users.map(item => item.name)
+  userNames: (): string[] => users.map(item => item.name),
+  customFieldItemNames: (customFieldDefinition: CustomFieldDefinition): Option<string[]> => customFieldDefinition.items.map(items => items.map(item => item.name))
 })
 
 export interface UserProperty {
