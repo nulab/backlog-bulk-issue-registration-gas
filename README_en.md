@@ -12,7 +12,7 @@ Please read the entire document before you start working on the bulk registratio
 ## Installation
 
 First you need to prepare the spreadsheet template. Please follow the link below and copy the spreadsheet.
-* <a href="https://docs.google.com/spreadsheets/d/1RS9c1yNev7pCzxFyncuYcJDP6pjQSDQNEfCgsA7Exbw/copy" target="_blank">Copy spreadsheet (please open in new tab)</a>
+* <a href="https://docs.google.com/spreadsheets/d/1W6fOk_q6a3DZSgzT-mOxo6ukG0bn9jBfJLzigRExeZ4/copy" target="_blank">Copy spreadsheet (please open in new tab)</a>
 * If you are not logged into Google, you may get an error when trying to copy the document. If that happens, please login into Google using your Google account and try again.
 
 ## About the input cells
