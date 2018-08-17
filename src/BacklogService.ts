@@ -6,10 +6,10 @@ import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 import {List} from "./List"
-import { Message } from "./resources";
-import { SpreadSheetService, SpreadSheetServiceImpl } from "./SpreadSheetService";
+import {Message} from "./resources"
+import {SpreadSheetService, SpreadSheetServiceImpl} from "./SpreadSheetService"
 
-const SCRIPT_VERSION = "v2.0.1"
+const SCRIPT_VERSION = "v2.0.2"
 const TEMPLATE_SHEET_NAME = "Template"
 const ROW_HEADER_INDEX = 1
 const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
@@ -29,15 +29,17 @@ const createBacklogClient = (space: string, domain: string, apiKey: string, loca
   })
 }
 
-const getProject = (client: BacklogClient, key: Key<Project>, locale: Locale): Either<Error, Project> => {
-  const result = client.getProjectV2(key)
-  return result.recover(error => {
+export const getProject = (client: BacklogClient, key: Key<Project>, locale: Locale): Either<Error, Project> => {
+  const validationResult = isEmpty(key, Error(Message.PROJECT_KEY_REQUIRED(locale)))
+  const clientResult = client.getProjectV2(key).recover(error => {
     if (error.message.indexOf("returned code 404") !== -1)
       return Left(Error(Message.SPACE_OR_PROJECT_NOT_FOUND(locale)))
     if (error.message.indexOf("returned code 401") !== -1)
       return Left(Error(Message.AUTHENTICATE_FAILED(locale)))
     return Left(Error(Message.API_ACCESS_ERROR(error, locale)))
   })
+
+  return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
 
 const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
@@ -84,8 +86,8 @@ const getUserProperties = (spreadSheetService: SpreadSheetService): UserProperty
 const storeUserProperties = (grid: any, spreadSheetService: SpreadSheetService): void => {
   spreadSheetService.setUserProperty("space", grid.parameter.space)
   spreadSheetService.setUserProperty("domain", grid.parameter.domain)
-  spreadSheetService.setUserProperty("apiKey", grid.parameter.apiKey);
-  spreadSheetService.setUserProperty("projectKey", grid.parameter.projectKey);
+  spreadSheetService.setUserProperty("apiKey", grid.parameter.apiKey)
+  spreadSheetService.setUserProperty("projectKey", grid.parameter.projectKey)
 }
 
 const showMessage = (message: string, spreadSheetService: SpreadSheetService): void =>
@@ -97,11 +99,11 @@ const strLength = (text: string): number => {
   for (let i = 0; i < text.length; i++) {
     const n = escape(text.charAt(i))
     if (n.length < 4)
-      count += 1;
+      count += 1
     else
-      count += 2;
+      count += 2
   }
-  return count;
+  return count
 }
 
 const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> => {
@@ -131,52 +133,52 @@ const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Opti
 const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService): any => {
   let issues = []
   const spreadSheet = SpreadsheetApp.getActiveSpreadsheet()
-	const sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME)
-	const columnLength = sheet.getLastColumn()
-	const values = sheet.getSheetValues(
-		ROW_START_INDEX, 
-		COLUMN_START_INDEX,
-		sheet.getLastRow() - 1, 
-		columnLength
-	)
+  const sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME)
+  const columnLength = sheet.getLastColumn()
+  const values = sheet.getSheetValues(
+    ROW_START_INDEX,
+    COLUMN_START_INDEX,
+    sheet.getLastRow() - 1,
+    columnLength
+  )
 
-	for (let i = 0; i < values.length; i++) {
-		let customFields = [];
-		let customFieldIndex = 0;
-		for (let j = 13; j < columnLength; j++) {
-			if (values[i][j] !== "") {
-				customFields[customFieldIndex] = {
-					header: spreadSheetService.getRange(sheet, j + 1, ROW_HEADER_INDEX).getFormula(),
-					value: values[i][j]
-				};
-				customFieldIndex++;
-			}
-		}
-		const issue = {
-			summary: values[i][0] === "" ? undefined : values[i][0],
-			description: values[i][1] === "" ? undefined : values[i][1],
-			startDate: values[i][2] === "" ? undefined : values[i][2],
-			dueDate: values[i][3] === "" ? undefined : values[i][3],
-			estimatedHours: values[i][4] === "" ? undefined : values[i][4],
-			actualHours: values[i][5] === "" ? undefined : values[i][5],
-			issueTypeName: values[i][6] === "" ? undefined : values[i][6],
-			categoryNames: values[i][7],
-			versionNames: values[i][8],
-			milestoneNames: values[i][9],
-			priorityName: values[i][10] === "" ? undefined : values[i][10],
-			assigneeName: values[i][11] === "" ? undefined : values[i][11],
-			parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
-			customFields: customFields
-		};
-		issues[i] = issue;
-	}
-	return issues;
+  for (let i = 0; i < values.length; i++) {
+    let customFields = []
+    let customFieldIndex = 0
+    for (let j = 13; j < columnLength; j++) {
+      if (values[i][j] !== "") {
+        customFields[customFieldIndex] = {
+          header: spreadSheetService.getRange(sheet, j + 1, ROW_HEADER_INDEX).getFormula(),
+          value: values[i][j]
+        }
+        customFieldIndex++
+      }
+    }
+    const issue = {
+      summary: values[i][0] === "" ? undefined : values[i][0],
+      description: values[i][1] === "" ? undefined : values[i][1],
+      startDate: values[i][2] === "" ? undefined : values[i][2],
+      dueDate: values[i][3] === "" ? undefined : values[i][3],
+      estimatedHours: values[i][4] === "" ? undefined : values[i][4],
+      actualHours: values[i][5] === "" ? undefined : values[i][5],
+      issueTypeName: values[i][6] === "" ? undefined : values[i][6],
+      categoryNames: values[i][7],
+      versionNames: values[i][8],
+      milestoneNames: values[i][9],
+      priorityName: values[i][10] === "" ? undefined : values[i][10],
+      assigneeName: values[i][11] === "" ? undefined : values[i][11],
+      parentIssueKey: values[i][12] === "" ? undefined : values[i][12],
+      customFields: customFields
+    }
+    issues[i] = issue
+  }
+  return issues
 }
 
 const calcWidth = (length: number): number => {
-	const DEFAULT_FONT_SIZE = 10; 	/** フォントのデフォルトサイズ */
-	const ADJUST_WIDTH_FACTOR = 0.75; /** 列幅調整時の係数 */
-	return length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR;
+  const DEFAULT_FONT_SIZE = 10 	/** フォントのデフォルトサイズ */
+  const ADJUST_WIDTH_FACTOR = 0.75 /** 列幅調整時の係数 */
+  return length * DEFAULT_FONT_SIZE * ADJUST_WIDTH_FACTOR
 }
 
 interface BacklogService {
@@ -219,7 +221,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
       .createGrid(3, 4)
       .setWidget(0, 0, ui.createLabel(getMessage("label_spaceId", spreadSheetService)))
       .setWidget(0, 1, ui.createTextBox().setName("space").setValue(property.space))
-      .setWidget(0, 2, ui.createLabel('.backlog'))
+      .setWidget(0, 2, ui.createLabel(".backlog"))
       .setWidget(0, 3, ui.createListBox(false).setName("domain").addItem(property.domain).addItem(anotherDomain))
       .setWidget(1, 0, ui.createLabel(getMessage("label_apiKey", spreadSheetService)))
       .setWidget(1, 1, ui.createTextBox().setName("apiKey").setValue(property.apiKey))
@@ -243,7 +245,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
     const property = this.getUserProperties()
     const grid = this.createGrid(app, property)
-    
+
     this.showDialog(app, grid, "init")
   },
 
@@ -251,7 +253,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
     const property = this.getUserProperties()
     const grid = this.createGrid(app, property)
-    
+
     this.showDialog(app, grid, "main")
   },
 
@@ -271,11 +273,11 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const locale = spreadSheetService.getUserLocale()
 
     // BacklogScript throws an exception on error
-    showMessage(getMessage("progress_collect", spreadSheetService), spreadSheetService);
+    showMessage(getMessage("progress_collect", spreadSheetService), spreadSheetService)
     const templateIssues = getTemplateIssuesFromSpreadSheet(spreadSheetService)
     storeUserProperties(grid, spreadSheetService)
     showMessage(Message.PROGRESS_RUN_BEGIN(locale), spreadSheetService)
-  
+
     const client = createBacklogClient(property.space, property.domain, property.apiKey, locale).getOrError()
     const _ = validate(templateIssues, client, locale).getOrError()
     const project = getProject(client, property.projectKey, locale).getOrError()
@@ -309,22 +311,22 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         if (!isTakenOverParentIssueId) {
           previousIssue = Some(issue)
         }
-        var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-        const issueKey = issue.issueKey;
-        const summary = issue.summary;
-        const fomula = '=hyperlink("' + property.space + ".backlog" + property.domain + "/" + "view/" + issueKey + '";"' + issueKey + '")';
-        const currentRow = i + 1;
-    
+        let logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
+        const issueKey = issue.issueKey
+        const summary = issue.summary
+        const fomula = "=hyperlink(\"" + property.space + ".backlog" + property.domain + "/" + "view/" + issueKey + "\";\"" + issueKey + "\")"
+        const currentRow = i + 1
+
         if (logSheet == null)
-          logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 1);
-        keyLength = Math.max(keyLength, strLength(issueKey));
-        summaryLength = Math.max(summaryLength, strLength(summary));
-    
+          logSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(sheetName, 1)
+        keyLength = Math.max(keyLength, strLength(issueKey))
+        summaryLength = Math.max(summaryLength, strLength(summary))
+
         const keyWidth = calcWidth(keyLength)
         const summaryWidth = calcWidth(summaryLength)
         const keyCell = spreadSheetService.getRange(logSheet, LOG_KEY_NUMBER, currentRow)
         const summaryCell = spreadSheetService.getRange(logSheet, LOG_SUMMARY_NUMBER, currentRow)
-    
+
         keyCell.setFormula(fomula).setFontColor("blue").setFontLine("underline")
         summaryCell.setValue(summary)
         spreadSheetService.setColumnWidth(logSheet, LOG_KEY_NUMBER, keyWidth)
@@ -341,11 +343,11 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const app = UiApp.getActiveApplication()
     const property = getUserProperties(spreadSheetService)
     const locale = spreadSheetService.getUserLocale()
-    
+
     showMessage(Message.PROGRESS_INIT_BEGIN(locale), spreadSheetService)
     return createBacklogClient(property.space, property.domain, property.apiKey, locale)
       .flatMap(client =>
-        getProject(client, property.projectKey, locale).map(project => 
+        getProject(client, property.projectKey, locale).map(project =>
           BacklogDefinition(
             client.getIssueTypesV2(project.id),
             client.getCategoriesV2(project.id),
@@ -377,41 +379,41 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
           const customField = definition.customFields[i]
           const headerCell = spreadSheetService.getRange(templateSheet, currentColumnNumber, ROW_HEADER_INDEX)
           const columnName = headerCell.getValue()
-      
+
           /**
            * https://github.com/nulab/backlog4j/blob/master/src/main/java/com/nulabinc/backlog4j/CustomField.java#L10
            * Text(1), TextArea(2), Numeric(3), Date(4), SingleList(5), MultipleList(6), CheckBox(7), Radio(8)
            * We don't support the types MultipleList(6) and CheckBox(7), Radio(8)
            */
-          let customFieldName = "";
-      
+          let customFieldName = ""
+
           if (customField.typeId >= 6)
-            continue;
-          switch(customField.typeId) {
+            continue
+          switch (customField.typeId) {
             case 1:
-              customFieldName = "文字列";
-              break;
+              customFieldName = "文字列"
+              break
             case 2:
-              customFieldName = "文章";
-              break;
+              customFieldName = "文章"
+              break
             case 3:
-              customFieldName = "数値";
-              break;
+              customFieldName = "数値"
+              break
             case 4:
-              customFieldName = "日付";
-              break;
+              customFieldName = "日付"
+              break
             case 5:
-              customFieldName = "選択リスト";
-              break;
+              customFieldName = "選択リスト"
+              break
           }
 
-          const headerName = customField.name + '（' + customFieldName + '）'
+          const headerName = customField.name + "（" + customFieldName + "）"
 
           if (columnName === "") {
             const headerStrLength = strLength(headerName)
             const headerWidth = calcWidth(headerStrLength)
 
-            templateSheet.insertColumnAfter(currentColumnNumber - 1);
+            templateSheet.insertColumnAfter(currentColumnNumber - 1)
             templateSheet
               .getRange(1, currentColumnNumber, templateSheet.getLastRow(), 1)
               .setBackground("#F8FFFF")
@@ -419,9 +421,19 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
             spreadSheetService.setColumnWidth(templateSheet, currentColumnNumber, headerWidth)
           }
           headerCell.setFormula(
-            '=hyperlink("' + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + '";"' + headerName + '")'
+            "=hyperlink(\"" + property.space + ".backlog" + property.domain + "/EditAttribute.action?attribute.id=" + customField.id + "\";\"" + headerName + "\")"
           )
           currentColumnNumber++
+        }
+        // Data validation must be added after all column insert
+        for (let i = 0; i < definition.customFields.length; i++) {
+          const customField = definition.customFields[i]
+          if (customField.typeId === 5) {
+            definition.customFieldItemNames(customField).map(itemNames => {
+              const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
+              templateSheet.getRange(2, i + customFieldStartColumnNumber, lastRowNumber).setDataValidation(itemRule)
+            })
+          }
         }
         showMessage(getMessage("complete_init", spreadSheetService), spreadSheetService)
         return app.close()
@@ -434,4 +446,4 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
 
   showMessage: (message: string): void =>
     showMessage(message, spreadSheetService)
-});
+})

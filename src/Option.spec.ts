@@ -1,4 +1,4 @@
-import {Some, None} from "../Option"
+import {Some, None} from "./Option"
 
 describe("Option.equals", function () {
 

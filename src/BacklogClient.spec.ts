@@ -1,10 +1,7 @@
-import HTTPResponse = GoogleAppsScript.URL_Fetch.HTTPResponse
-import URLFetchRequestOptions = GoogleAppsScript.URL_Fetch.URLFetchRequestOptions
-import {Http, HttpClient} from "../Http"
-import {BacklogClient, BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "../BacklogClient"
-import {Either, Right, Left} from "../Either"
-import {Issue, IssueType, Priority, User, Category, Version, CustomFieldDefinition, CustomField} from "../datas"
-import {None, Some} from "../Option"
+import {BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "./BacklogClient"
+import {Issue, IssueType, Priority, User, Category, Version, CustomField} from "./datas"
+import {None, Some} from "./Option"
+import {Http} from "./Http"
 
 describe("BacklogClient", function () {
   class FakeHttp implements Http {
@@ -228,6 +225,29 @@ describe("BacklogClient", function () {
           "useIssueType": false,
           "applicableIssueTypes": [],
           "displayOrder": 2147223646
+        },
+        {
+          "id": 83747,
+          "typeId": 5,
+          "version": 1528075236340,
+          "name": "single",
+          "description": "",
+          "required": false,
+          "useIssueType": false,
+          "applicableIssueTypes": [],
+          "displayOrder": 2147223646,
+          "items": [
+            {
+              "id": 1,
+              "name": "Windows 8",
+              "displayOrder": 0
+            },
+            {
+              "id": 2,
+              "name": "macOS",
+              "displayOrder": 0
+            }
+          ]
         }]`
     }
   }
@@ -303,11 +323,16 @@ describe("BacklogClient", function () {
 
   test("Get custom field definitions", function () {
     const CustomFieldDefinitions = client.getCustomFieldsV2(12345)
-    expect(CustomFieldDefinitions.length).toBe(2)
+    expect(CustomFieldDefinitions.length).toBe(3)
     expect(CustomFieldDefinitions[0].id).toBe(51218)
     expect(CustomFieldDefinitions[0].name).toBe("number")
     expect(CustomFieldDefinitions[1].id).toBe(51129)
     expect(CustomFieldDefinitions[1].name).toBe("text")
+    expect(CustomFieldDefinitions[1].items.isDefined).toBe(false)
+    expect(CustomFieldDefinitions[2].id).toBe(83747)
+    expect(CustomFieldDefinitions[2].name).toBe("single")
+    expect(CustomFieldDefinitions[2].items.isDefined).toBe(true)
+    CustomFieldDefinitions[2].items.map(items => expect(items.length).toBe(2))
   })
 })
 

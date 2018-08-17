@@ -1,4 +1,4 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey, CustomFieldItem} from "./datas"
 import {Http} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -84,6 +84,14 @@ export class GoogleAppsScriptDateFormatter implements DateFormatter {
 const nullOrArray = <A>(items: List<A>): List<A> =>
   items.length > 0 ? items : undefined
 
+const formatCustomFields = (customFields: List<CustomField>, dateFormatter: DateFormatter): List<CustomField> => {
+  return customFields.map(customField => {
+    if (customField.fieldTypeId === 4)
+      return CustomField(customField.id, customField.fieldTypeId, dateFormatter.dateToString(new Date(customField.value)))
+    return customField
+  })
+}
+
 export const issueToObject = (issue: Issue, dateFormatter: DateFormatter): any => {
   const categoryIds = issue.categories.map(item => item.id)
   const versionIds = issue.versions.map(item => item.id)
@@ -103,7 +111,7 @@ export const issueToObject = (issue: Issue, dateFormatter: DateFormatter): any =
       priorityId: issue.priority.id,
       assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
       parentIssueId: issue.parentIssueId.getOrElse(() => undefined),
-      customFields: nullOrArray(issue.customFields)
+      customFields: nullOrArray(formatCustomFields(issue.customFields, dateFormatter))
     }
   }
 
@@ -197,7 +205,14 @@ export class BacklogClientImpl implements BacklogClient {
 
   public getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition> {
     const json = this.http.get(this.buildUri(`projects/${id}/customFields`))
-    return Object.keys(json).map(key => ({id: json[key]["id"], typeId: json[key]["typeId"], name: json[key]["name"]}))
+    return Object.keys(json).map(key =>
+      CustomFieldDefinition(
+        json[key]["id"],
+        json[key]["typeId"],
+        json[key]["name"],
+        Option(json[key]["items"] as List<any>).map(items => items.map(this.jsonTo))
+      )
+    )
   }
 
   private buildUri(resource: string): string {

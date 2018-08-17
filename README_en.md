@@ -12,7 +12,7 @@ Please read the entire document before you start working on the bulk registratio
 ## Installation
 
 First you need to prepare the spreadsheet template. Please follow the link below and copy the spreadsheet.
-* <a href="https://docs.google.com/spreadsheets/d/1RS9c1yNev7pCzxFyncuYcJDP6pjQSDQNEfCgsA7Exbw/copy" target="_blank">Copy spreadsheet (please open in new tab)</a>
+* <a href="https://docs.google.com/spreadsheets/d/1W6fOk_q6a3DZSgzT-mOxo6ukG0bn9jBfJLzigRExeZ4/copy" target="_blank">Copy spreadsheet (please open in new tab)</a>
 * If you are not logged into Google, you may get an error when trying to copy the document. If that happens, please login into Google using your Google account and try again.
 
 ## About the input cells
@@ -98,7 +98,7 @@ If you open the issue list in Backlog, you can see the newly registered issues.
 If there are no changes in Backlogs data (e.g. issue type name, user name) you can start from STEP 2.
 If you however have added or updated your data in Backlog and need to update the data in the spreadsheet based on the data in Backlog, please start from STEP 1 again.
 
-Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove that column and redo the execution from STEP1.
+Custom fields are not automatically added and updated. If a custom field's name or type has been changed, remove **all** custom field columns and redo the execution from STEP1.
 
 ## Limitations
 
