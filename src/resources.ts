@@ -82,6 +82,13 @@ export const Message = {
     }
     return msg[locale]
   },
+  PROJECT_KEY_REQUIRED: (locale: Locale): string => {
+    const msg = {
+      "en": `Project key is required`,
+      "ja": `プロジェクトキーを入力してください`
+    }
+    return msg[locale]
+  },
   SPACE_OR_PROJECT_NOT_FOUND: (locale: Locale): string => {
     const msg = {
       "en": `No space or project found`,

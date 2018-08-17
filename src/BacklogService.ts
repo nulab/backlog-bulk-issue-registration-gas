@@ -29,15 +29,17 @@ const createBacklogClient = (space: string, domain: string, apiKey: string, loca
   })
 }
 
-const getProject = (client: BacklogClient, key: Key<Project>, locale: Locale): Either<Error, Project> => {
-  const result = client.getProjectV2(key)
-  return result.recover(error => {
+export const getProject = (client: BacklogClient, key: Key<Project>, locale: Locale): Either<Error, Project> => {
+  const validationResult = isEmpty(key, Error(Message.PROJECT_KEY_REQUIRED(locale)))
+  const clientResult = client.getProjectV2(key).recover(error => {
     if (error.message.indexOf("returned code 404") !== -1)
       return Left(Error(Message.SPACE_OR_PROJECT_NOT_FOUND(locale)))
     if (error.message.indexOf("returned code 401") !== -1)
       return Left(Error(Message.AUTHENTICATE_FAILED(locale)))
     return Left(Error(Message.API_ACCESS_ERROR(error, locale)))
   })
+
+  return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
 
 const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
