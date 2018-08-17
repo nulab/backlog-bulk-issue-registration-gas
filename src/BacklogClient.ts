@@ -84,6 +84,14 @@ export class GoogleAppsScriptDateFormatter implements DateFormatter {
 const nullOrArray = <A>(items: List<A>): List<A> =>
   items.length > 0 ? items : undefined
 
+const formatCustomFields = (customFields: List<CustomField>, dateFormatter: DateFormatter): List<CustomField> => {
+  return customFields.map(customField => {
+    if (customField.fieldTypeId === 4)
+      return CustomField(customField.id, customField.fieldTypeId, dateFormatter.dateToString(new Date(customField.value)))
+    return customField
+  })
+}
+
 export const issueToObject = (issue: Issue, dateFormatter: DateFormatter): any => {
   const categoryIds = issue.categories.map(item => item.id)
   const versionIds = issue.versions.map(item => item.id)
@@ -103,7 +111,7 @@ export const issueToObject = (issue: Issue, dateFormatter: DateFormatter): any =
       priorityId: issue.priority.id,
       assigneeId: issue.assignee.map(item => item.id).getOrElse(() => undefined),
       parentIssueId: issue.parentIssueId.getOrElse(() => undefined),
-      customFields: nullOrArray(issue.customFields)
+      customFields: nullOrArray(formatCustomFields(issue.customFields, dateFormatter))
     }
   }
 
