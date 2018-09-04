@@ -31,7 +31,7 @@ If custom fields are used in the project that is to be the target for the bulk i
 
 * Multiple selection custom fields are not added.
 * Radio button custom fields are not added.
-* Custom fields can be with Premium Plan or higher plans.
+* Custom fields can be used with Premium or higher plans.
 
 ## Execution
 
