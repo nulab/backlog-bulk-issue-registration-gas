@@ -30,7 +30,8 @@ If you wish to specify a parent issue that is already registered with Backlog, p
 If custom fields are used in the project that is to be the target for the bulk issue registration, these custom fields will be added as light blue columns when executing STEP1, which will be described later.
 
 * Multiple selection custom fields are not added.
-* Custom fields can be with Premium Plan or higher plans.
+* Radio button custom fields are not added.
+* Custom fields can be used with Premium or higher plans.
 
 ## Execution
 
