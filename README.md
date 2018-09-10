@@ -111,3 +111,7 @@ Backlog側のプロジェクト設定を変更しなければ、STEP2の操作�
 ## 制限事項
 
 BacklogにIPアドレスによるアクセス制限を設定している場合、本機能はご利用いただけません。
+
+## 困ったときは？
+
+[wiki](https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki)を参照ください。
