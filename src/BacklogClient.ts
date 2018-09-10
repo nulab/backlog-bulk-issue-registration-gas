@@ -69,7 +69,9 @@ export interface BacklogClient {
    *
    * @see https://developer.nulab-inc.com/ja/docs/backlog/api/2/get-custom-field-list/
    */
-  getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition>
+  getCustomFieldsV2(id: Id<Project>): List<CustomFieldDefinition>,
+
+  importFinalize: (projectKey: Key<Project>) => Either<Error, void>,
 }
 
 export interface DateFormatter {
@@ -213,6 +215,14 @@ export class BacklogClientImpl implements BacklogClient {
         Option(json[key]["items"] as List<any>).map(items => items.map(this.jsonTo))
       )
     )
+  }
+
+  public importFinalize(projectKey: Key<Project>): Either<Error, void> {
+    try {
+      this.http.get(this.buildUri(`importer/spreadsheet?projectKey=${projectKey}`))
+    } catch (e) {
+      return Left(e)
+    }
   }
 
   private buildUri(resource: string): string {

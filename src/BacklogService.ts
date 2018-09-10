@@ -334,6 +334,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         SpreadsheetApp.flush()
       }).getOrError()
     }
+    client.importFinalize(property.projectKey)
     showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
     return app.close()
   },
