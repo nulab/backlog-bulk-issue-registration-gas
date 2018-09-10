@@ -9,7 +9,7 @@ import {List} from "./List"
 import {Message} from "./resources"
 import {SpreadSheetService, SpreadSheetServiceImpl} from "./SpreadSheetService"
 
-const SCRIPT_VERSION = "v2.0.3"
+const SCRIPT_VERSION = "v2.0.4-SNAPSHOT"
 const TEMPLATE_SHEET_NAME = "Template"
 const ROW_HEADER_INDEX = 1
 const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
