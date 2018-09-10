@@ -144,5 +144,12 @@ export const Message = {
       "ja": `課題 '${issueKey}' はすでに子課題となっているため、親課題として設定できません`
     }
     return msg[locale]
+  },
+  INVALID_ROW_LENGTH: (locale: Locale): string => {
+    const msg = {
+      "en": `There is no data on the sheet.`,
+      "ja": `シート上にデータが存在しません。`
+    }
+    return msg[locale]
   }
 }
