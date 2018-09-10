@@ -130,15 +130,20 @@ const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Opti
   return client.createIssueV2(createIssue)
 }
 
-const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService): any => {
+const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService): Either<Error, any> => {
   let issues = []
   const spreadSheet = SpreadsheetApp.getActiveSpreadsheet()
   const sheet = spreadSheet.getSheetByName(TEMPLATE_SHEET_NAME)
   const columnLength = sheet.getLastColumn()
+  const rowLength = sheet.getLastRow() - 1
+
+  if (rowLength <= 0)
+    return Left(Error(Message.INVALID_ROW_LENGTH(spreadSheetService.getUserLocale())))
+
   const values = sheet.getSheetValues(
     ROW_START_INDEX,
     COLUMN_START_INDEX,
-    sheet.getLastRow() - 1,
+    rowLength,
     columnLength
   )
 
@@ -172,7 +177,7 @@ const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService
     }
     issues[i] = issue
   }
-  return issues
+  return Right(issues)
 }
 
 const calcWidth = (length: number): number => {
@@ -274,7 +279,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
 
     // BacklogScript throws an exception on error
     showMessage(getMessage("progress_collect", spreadSheetService), spreadSheetService)
-    const templateIssues = getTemplateIssuesFromSpreadSheet(spreadSheetService)
+    const templateIssues = getTemplateIssuesFromSpreadSheet(spreadSheetService).getOrError()
     storeUserProperties(grid, spreadSheetService)
     showMessage(Message.PROGRESS_RUN_BEGIN(locale), spreadSheetService)
 
@@ -344,6 +349,11 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const app = UiApp.getActiveApplication()
     const property = getUserProperties(spreadSheetService)
     const locale = spreadSheetService.getUserLocale()
+    const templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME)
+    const lastRowNumber = templateSheet.getLastRow() - 1
+
+    if (lastRowNumber <= 0)
+      throw Error(Message.INVALID_ROW_LENGTH(locale))
 
     showMessage(Message.PROGRESS_INIT_BEGIN(locale), spreadSheetService)
     return createBacklogClient(property.space, property.domain, property.apiKey, locale)
@@ -360,13 +370,11 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         )
       )
       .map(definition => {
-        const templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME)
         const issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build()
         const categoryRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.categoryNames(), true).build()
         const versionRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.versionNames(), true).build()
         const priorityRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.priorityNames(), true).build()
         const userRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.userNames(), true).build()
-        const lastRowNumber = templateSheet.getLastRow() - 1
         const customFieldStartColumnNumber = 14 // N ~
         let currentColumnNumber = customFieldStartColumnNumber
 
