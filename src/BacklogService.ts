@@ -439,8 +439,10 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
           const customField = definition.customFields[i]
           if (customField.typeId === 5) {
             definition.customFieldItemNames(customField).map(itemNames => {
-              const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
-              templateSheet.getRange(2, i + customFieldStartColumnNumber, lastRowNumber).setDataValidation(itemRule)
+              if (itemNames.length > 0) {
+                const itemRule = SpreadsheetApp.newDataValidation().requireValueInList(itemNames, true).build()
+                templateSheet.getRange(2, i + customFieldStartColumnNumber, lastRowNumber).setDataValidation(itemRule)
+              }
             })
           }
         }
