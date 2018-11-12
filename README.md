@@ -12,7 +12,7 @@ Googleスプレッドシート（Google Sheets）をつかって、Backlogへ課
 ## 使い方
 
 テンプレートとなるスプレッドシートを準備します。下記リンクをクリックして、スプレッドシートをコピーしてください。
-* <a href="https://docs.google.com/spreadsheets/d/1t57pNMGJIaavDqeT1S3aO0adfjolEnrW4y15OfN-guc/copy" target="_blank">スプレッドシートをコピー(新しいタブで開いてください)</a>
+* <a href="https://docs.google.com/spreadsheets/d/1bUMYsQcayIpwjSMaT2CfMucLFfC3kZqGXgIiiydCHVI/copy" target="_blank">スプレッドシートをコピー(新しいタブで開いてください)</a>
 * Googleにログインしていない場合、コピー時にエラーとなる場合があります。その際は、ログインして少し時間を置いてから再度お試しください。
 
 
