@@ -219,7 +219,7 @@ export class BacklogClientImpl implements BacklogClient {
 
   public importFinalize(projectKey: Key<Project>): Either<Error, void> {
     try {
-      this.http.get(this.buildUri(`importer/spreadsheet?projectKey=${projectKey}`))
+      this.http.get(`https://${this.spaceName}.backlog${this.domain}/api/v2/importer/spreadsheet?projectKey=${projectKey}`)
     } catch (e) {
       return Left(e)
     }
