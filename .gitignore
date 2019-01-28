@@ -10,3 +10,6 @@
 
 # Build directory
 /dist
+
+# Others
+.clasp.json
