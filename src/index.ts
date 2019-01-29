@@ -58,6 +58,10 @@ global.getConfig = function () {
   return this.BacklogService.getUserProperties()
 }
 
+global.getMessage = function (key: string) {
+  return this.BacklogService.getMessage(key)
+}
+
 global.include = function include(filename: string) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent()
 }
