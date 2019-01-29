@@ -1,5 +1,6 @@
 import {BacklogService} from "./BacklogService"
 import {SpreadSheetServiceImpl} from "./SpreadSheetService"
+import {UserProperty} from "./datas"
 
 declare var global: any
 
@@ -18,7 +19,7 @@ global.onOpen = function() {
         },
         {
           name : this.BacklogService.getMessage("menu_step2"),
-          functionName: "main_d"
+          functionName: "run_d"
         }
       ]
     )
@@ -30,28 +31,30 @@ global.init_d = function () {
   html.mode = "init"
   SpreadsheetApp
     .getUi()
-    .showModalDialog(
+    .showModelessDialog(
       html.evaluate(),
       this.BacklogService.getMessage("title_init") + " " + SCRIPT_VERSION
     )
 }
 
-global.main_d = function () {
-  const html = HtmlService
-    .createTemplateFromFile("execute")
-    .evaluate()
+global.run_d = function () {
+  const html = HtmlService.createTemplateFromFile("index") as any
 
+  html.mode = "run"
   SpreadsheetApp
     .getUi()
-    .showModalDialog(html, this.BacklogService.getMessage("title_run") + " " + SCRIPT_VERSION)
+    .showModelessDialog(
+      html.evaluate(),
+      this.BacklogService.getMessage("title_run") + " " + SCRIPT_VERSION
+    )
 }
 
-global.init = function (grid: any) {
-  this.BacklogService.init(grid)
+global.init = function (property: UserProperty) {
+  this.BacklogService.init(property)
 }
 
-global.main = function (grid: any) {
-  this.BacklogService.run(grid)
+global.run = function (property: UserProperty) {
+  this.BacklogService.run(property)
 }
 
 global.getConfig = function () {
