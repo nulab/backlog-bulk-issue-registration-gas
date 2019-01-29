@@ -3,7 +3,10 @@ import {SpreadSheetServiceImpl} from "./SpreadSheetService"
 
 declare var global: any
 
+const SCRIPT_VERSION = "v2.0.5-SNAPSHOT"
+
 global.BacklogService = BacklogService(new SpreadSheetServiceImpl)
+
 global.onOpen = function() {
   SpreadsheetApp.getActiveSpreadsheet()
     .addMenu(
@@ -20,15 +23,41 @@ global.onOpen = function() {
       ]
     )
 }
+
 global.init_d = function () {
-  this.BacklogService.showInitDialog()
+  const html = HtmlService.createTemplateFromFile("index") as any
+
+  html.mode = "init"
+  SpreadsheetApp
+    .getUi()
+    .showModalDialog(
+      html.evaluate(),
+      this.BacklogService.getMessage("title_init") + " " + SCRIPT_VERSION
+    )
 }
+
 global.main_d = function () {
-  this.BacklogService.showRunDialog()
+  const html = HtmlService
+    .createTemplateFromFile("execute")
+    .evaluate()
+
+  SpreadsheetApp
+    .getUi()
+    .showModalDialog(html, this.BacklogService.getMessage("title_run") + " " + SCRIPT_VERSION)
 }
+
 global.init = function (grid: any) {
   this.BacklogService.getDefinitions(grid)
 }
+
 global.main = function (grid: any) {
   this.BacklogService.run(grid)
+}
+
+global.getConfig = function () {
+  this.BacklogService.getUserProperties()
+}
+
+global.include = function include(filename: string) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent()
 }

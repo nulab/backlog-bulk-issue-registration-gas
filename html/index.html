@@ -1,15 +1,46 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script>
+      // Prevent forms from submitting.
+      function preventFormSubmit() {
+        var forms = document.querySelectorAll('form');
+        for (var i = 0; i < forms.length; i++) {
+          forms[i].addEventListener('submit', function(event) {
+            event.preventDefault();
+          });
+        }
+      }
+      window.addEventListener('load', preventFormSubmit);
+      function onSuccess(result) {
+        google.script.host.close();
+      }
+      function onFailure(e) {
+        alert([e.message, e.stack]);
+      }
+      function handleFormSubmit(formObject, mode) {
+        switch (mode) {
+          case "init":
+            google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).init(formObject);
+            break;
+          case "run":
+            google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).run(formObject);
+            break;
+          default:
+            alert("Unknown mode: " + mode);
+        }
+      }
+    </script>
     <?!= include('css'); ?>
   </head>
   <body>
-    <form id="myForm" onsubmit="handleFormSubmit(this)">
+    <? var config = getConfig(); ?>
+    <form id="myForm" onsubmit="handleFormSubmit(this, '<?= mode ?>')">
       <fieldset>
         <div class="row">
           <label for="spaceID">Backlog Space ID</label>
           <div class="space-id-field">
-            <input id="spaceID" type="text" name="spaceID" value="" tabindex="1" class="space-id-field__id" />
+            <input id="spaceID" type="text" name="spaceID" value="<?= config ?>" tabindex="1" class="space-id-field__id" />
             <span class="space-id-field__name">.backlog</span>
             <select name="spaceIDdomain" tabindex="2" class="space-id-field__domain" />
               <option value=".com">.com</option>
@@ -19,7 +50,7 @@
         </div>
        <div class="row">
           <label for="apiKey">Backlog API key</label>
-          <input id="apiKey" type="text" name="apiKey" value="" tabindex="3" />
+          <input id="apiKey" type="text" name="apiKey" value="<?= config ?>" tabindex="3" />
         </div>
        <div class="row">
           <label for="projectKey">Backlog project key</label>

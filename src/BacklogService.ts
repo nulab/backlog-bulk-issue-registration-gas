@@ -7,9 +7,8 @@ import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 import {List} from "./List"
 import {Message} from "./resources"
-import {SpreadSheetService, SpreadSheetServiceImpl} from "./SpreadSheetService"
+import {SpreadSheetService} from "./SpreadSheetService"
 
-const SCRIPT_VERSION = "v2.0.5-SNAPSHOT"
 const TEMPLATE_SHEET_NAME = "Template"
 const ROW_HEADER_INDEX = 1
 const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
@@ -194,10 +193,6 @@ interface BacklogService {
 
   showDialog: (ui: UiInstance, grid: any, handlerName: string) => void
 
-  showInitDialog: () => void
-
-  showRunDialog: () => void
-
   getUserProperties: () => UserProperty
 
   storeUserProperties: (grid: any) => void
@@ -246,21 +241,21 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     SpreadsheetApp.getActiveSpreadsheet().show(ui)
   },
 
-  showInitDialog(): void {
-    const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-    const property = this.getUserProperties()
-    const grid = this.createGrid(app, property)
+  // showInitDialog(): void {
+  //   const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
+  //   const property = this.getUserProperties()
+  //   const grid = this.createGrid(app, property)
 
-    this.showDialog(app, grid, "init")
-  },
+  //   this.showDialog(app, grid, "init")
+  // },
 
-  showRunDialog(): void {
-    const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-    const property = this.getUserProperties()
-    const grid = this.createGrid(app, property)
+  // showRunDialog(): void {
+  //   const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
+  //   const property = this.getUserProperties()
+  //   const grid = this.createGrid(app, property)
 
-    this.showDialog(app, grid, "main")
-  },
+  //   this.showDialog(app, grid, "main")
+  // },
 
   getUserProperties: (): UserProperty =>
     getUserProperties(spreadSheetService),

@@ -28,18 +28,9 @@ module.exports = {
     ]
   },
   plugins: [
-    new GasPlugin(),
+    new GasPlugin(),    
     new HtmlWebpackPlugin({
-      filename: "init.html",
-      template: "./html/init.html"
-    }),
-    new HtmlWebpackPlugin({
-      filename: "execute.html",
-      template: "./html/execute.html"
-    }),
-    new HtmlWebpackPlugin({
-      filename: "css.html",
-      template: "./html/css.html"
+      template: "./html/index.html"
     })
   ]
 };
