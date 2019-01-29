@@ -1,6 +1,6 @@
 import UiInstance = GoogleAppsScript.UI.UiInstance
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty, User} from "./datas"
+import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -195,8 +195,6 @@ interface BacklogService {
 
   getUserProperties: () => UserProperty
 
-  storeUserProperties: (grid: any) => void
-
   run: (grid: any) => UiInstance
 
   init: (property: UserProperty) => UiInstance
@@ -241,27 +239,8 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     SpreadsheetApp.getActiveSpreadsheet().show(ui)
   },
 
-  // showInitDialog(): void {
-  //   const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-  //   const property = this.getUserProperties()
-  //   const grid = this.createGrid(app, property)
-
-  //   this.showDialog(app, grid, "init")
-  // },
-
-  // showRunDialog(): void {
-  //   const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-  //   const property = this.getUserProperties()
-  //   const grid = this.createGrid(app, property)
-
-  //   this.showDialog(app, grid, "main")
-  // },
-
   getUserProperties: (): UserProperty =>
     getUserProperties(spreadSheetService),
-
-  storeUserProperties: (grid: any): void =>
-    storeUserProperties(grid, spreadSheetService),
 
   run: (grid: any): UiInstance => {
     const app = UiApp.getActiveApplication()
