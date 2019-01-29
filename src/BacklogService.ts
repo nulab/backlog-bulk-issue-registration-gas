@@ -82,11 +82,11 @@ const getUserProperties = (spreadSheetService: SpreadSheetService): UserProperty
   return UserProperty(lastSpace, lastDomain, lastApiKey, lastProjectKey)
 }
 
-const storeUserProperties = (grid: any, spreadSheetService: SpreadSheetService): void => {
-  spreadSheetService.setUserProperty("space", grid.parameter.space)
-  spreadSheetService.setUserProperty("domain", grid.parameter.domain)
-  spreadSheetService.setUserProperty("apiKey", grid.parameter.apiKey)
-  spreadSheetService.setUserProperty("projectKey", grid.parameter.projectKey)
+const storeUserProperties = (property: UserProperty, spreadSheetService: SpreadSheetService): void => {
+  spreadSheetService.setUserProperty("space", property.space)
+  spreadSheetService.setUserProperty("domain", property.domain)
+  spreadSheetService.setUserProperty("apiKey", property.apiKey)
+  spreadSheetService.setUserProperty("projectKey", property.projectKey)
 }
 
 const showMessage = (message: string, spreadSheetService: SpreadSheetService): void =>
@@ -199,7 +199,7 @@ interface BacklogService {
 
   run: (grid: any) => UiInstance
 
-  getDefinitions: (grid: any) => UiInstance
+  init: (property: UserProperty) => UiInstance
 
   getMessage: (key: string, locale: string) => string
 
@@ -339,8 +339,8 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     return app.close()
   },
 
-  getDefinitions: (grid: any): UiInstance => {
-    storeUserProperties(grid, spreadSheetService)
+  init: (config: UserProperty): UiInstance => {
+    storeUserProperties(config, spreadSheetService)
     const app = UiApp.getActiveApplication()
     const property = getUserProperties(spreadSheetService)
     const locale = spreadSheetService.getUserLocale()

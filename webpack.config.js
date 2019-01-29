@@ -31,6 +31,10 @@ module.exports = {
     new GasPlugin(),    
     new HtmlWebpackPlugin({
       template: "./html/index.html"
+    }),
+    new HtmlWebpackPlugin({
+      filename: "css.html",
+      template: "./html/css.html"
     })
   ]
 };

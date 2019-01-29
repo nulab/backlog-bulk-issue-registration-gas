@@ -47,7 +47,7 @@ global.main_d = function () {
 }
 
 global.init = function (grid: any) {
-  this.BacklogService.getDefinitions(grid)
+  this.BacklogService.init(grid)
 }
 
 global.main = function (grid: any) {
@@ -55,7 +55,7 @@ global.main = function (grid: any) {
 }
 
 global.getConfig = function () {
-  this.BacklogService.getUserProperties()
+  return this.BacklogService.getUserProperties()
 }
 
 global.include = function include(filename: string) {
