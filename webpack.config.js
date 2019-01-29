@@ -36,6 +36,10 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "execute.html",
       template: "./html/execute.html"
+    }),
+    new HtmlWebpackPlugin({
+      filename: "css.html",
+      template: "./html/css.html"
     })
   ]
 };
