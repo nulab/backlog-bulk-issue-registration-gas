@@ -16,7 +16,7 @@
         google.script.host.close();
       }
       function onFailure(e) {
-        alert([e.message, e.stack]);
+        alert(e.message + "\n\n" + e.stack);
       }
       function handleFormSubmit(formObject, mode) {
         switch (mode) {
