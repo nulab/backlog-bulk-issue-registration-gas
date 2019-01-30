@@ -1,5 +1,6 @@
 const path = require('path');
 const GasPlugin = require("gas-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -14,6 +15,10 @@ module.exports = {
       {
         test: /\.ts$/,
         use: 'ts-loader'
+      },
+      {
+        test: /\.html$/,
+        loader: "html-loader"
       }
     ]
   },
@@ -23,6 +28,13 @@ module.exports = {
     ]
   },
   plugins: [
-    new GasPlugin()
+    new GasPlugin(),    
+    new HtmlWebpackPlugin({
+      template: "./html/index.html"
+    }),
+    new HtmlWebpackPlugin({
+      filename: "css.html",
+      template: "./html/css.html"
+    })
   ]
 };

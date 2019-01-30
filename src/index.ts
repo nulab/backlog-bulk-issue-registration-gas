@@ -1,9 +1,13 @@
 import {BacklogService} from "./BacklogService"
 import {SpreadSheetServiceImpl} from "./SpreadSheetService"
+import {UserProperty} from "./datas"
 
 declare var global: any
 
+const SCRIPT_VERSION = "v2.1.0"
+
 global.BacklogService = BacklogService(new SpreadSheetServiceImpl)
+
 global.onOpen = function() {
   SpreadsheetApp.getActiveSpreadsheet()
     .addMenu(
@@ -15,20 +19,52 @@ global.onOpen = function() {
         },
         {
           name : this.BacklogService.getMessage("menu_step2"),
-          functionName: "main_d"
+          functionName: "run_d"
         }
       ]
     )
 }
+
 global.init_d = function () {
-  this.BacklogService.showInitDialog()
+  const html = HtmlService.createTemplateFromFile("index") as any
+
+  html.mode = "init"
+  SpreadsheetApp
+    .getUi()
+    .showModelessDialog(
+      html.evaluate(),
+      this.BacklogService.getMessage("title_init") + " " + SCRIPT_VERSION
+    )
 }
-global.main_d = function () {
-  this.BacklogService.showRunDialog()
+
+global.run_d = function () {
+  const html = HtmlService.createTemplateFromFile("index") as any
+
+  html.mode = "run"
+  SpreadsheetApp
+    .getUi()
+    .showModelessDialog(
+      html.evaluate(),
+      this.BacklogService.getMessage("title_run") + " " + SCRIPT_VERSION
+    )
 }
-global.init = function (grid: any) {
-  this.BacklogService.getDefinitions(grid)
+
+global.init = function (property: UserProperty) {
+  this.BacklogService.init(property)
 }
-global.main = function (grid: any) {
-  this.BacklogService.run(grid)
+
+global.run = function (property: UserProperty) {
+  this.BacklogService.run(property)
+}
+
+global.getConfig = function () {
+  return this.BacklogService.getUserProperties()
+}
+
+global.getMessage = function (key: string) {
+  return this.BacklogService.getMessage(key)
+}
+
+global.include = function include(filename: string) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent()
 }

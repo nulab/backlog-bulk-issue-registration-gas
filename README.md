@@ -56,7 +56,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1.png" width="453" height="272">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1_2.1.0.png" width="453" height="328">
 
 * BacklogのスペースID
 * BacklogのAPIキー: https://backlog.com/ja/help/usersguide/personal-settings/userguide2378/
@@ -91,7 +91,7 @@ STEP2を実行することで、スプレッドシートに入力した内容で
 
 下記のような入力ダイアログが表示されますが、`STEP1`で既に入力済みなので`実行`ボタンをクリックして一括登録処理を実行します。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step2.png" width="455" height="271">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step2_2.1.0.png" width="455" height="328">
 
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 

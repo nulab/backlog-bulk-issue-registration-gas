@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      // Prevent forms from submitting.
+      function preventFormSubmit() {
+        var forms = document.querySelectorAll('form');
+        for (var i = 0; i < forms.length; i++) {
+          forms[i].addEventListener('submit', function(event) {
+            event.preventDefault();
+          });
+        }
+      }
+      window.addEventListener('load', preventFormSubmit);
+      function onSuccess(result) {
+        google.script.host.close();
+      }
+      function onFailure(e) {
+        alert(e.message + "\n\n" + e.stack);
+      }
+      function handleFormSubmit(formObject, mode) {
+        switch (mode) {
+          case "init":
+            google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).init(formObject);
+            break;
+          case "run":
+            google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).run(formObject);
+            break;
+          default:
+            alert("Unknown mode: " + mode);
+        }
+      }
+    </script>
+    <?!= include('css'); ?>
+  </head>
+  <body>
+    <? var config = getConfig(); ?>
+    <form id="myForm" onsubmit="handleFormSubmit(this, '<?= mode ?>')">
+      <fieldset>
+        <div class="row">
+          <label for="spaceID"><?= getMessage("label_spaceId") ?></label>
+          <div class="space-id-field">
+            <input id="spaceID" type="text" name="space" value="<?= config.space ?>" tabindex="1" class="space-id-field__id" />
+            <span class="space-id-field__name">.backlog</span>
+            <select name="domain" tabindex="2" class="space-id-field__domain" />
+              <? if (config.domain == ".com") { ?>
+                <option value=".com" selected>.com</option>
+              <? } else  { ?>
+                <option value=".com">.com</option>
+              <? } ?>
+              <? if (config.domain == ".jp") { ?>
+                <option value=".jp" selected>.jp</option>
+              <? } else  { ?>
+                <option value=".jp">.jp</option>
+              <? } ?>
+            </select>
+          </div>
+        </div>
+       <div class="row">
+          <label for="apiKey"><?= getMessage("label_apiKey") ?></label>
+          <input id="apiKey" type="text" name="apiKey" value="<?= config.apiKey ?>" tabindex="3" />
+        </div>
+       <div class="row">
+          <label for="projectKey"><?= getMessage("label_projectKey") ?></label>
+          <input id="projectKey" type="text" name="projectKey" value="<?= config.projectKey ?>" tabindex="4" />
+        </div>
+        <div class="button-area">
+          <input type="submit" class="button" value="<?= getMessage('button_execute') ?>" tabindex="5" />
+        </div>
+      </fieldset>
+    </form>
+  </body>
+</html>

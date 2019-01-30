@@ -1,6 +1,6 @@
 {
   "name": "backlog-bulk-issue-registration-gas",
-  "version": "2.0.5-SNAPSHOT",
+  "version": "2.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "lint": "tslint --fix src/**/*.ts",
     "test": "jest",
     "testw": "jest --watchAll",
-    "build": "npm run lint && npm run test && webpack"
+    "build": "npm run lint && npm run test && webpack",
+    "push": "npm run build && clasp push"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,8 @@
     "@types/google-apps-script": "0.0.31",
     "@types/jest": "^23.3.9",
     "gas-webpack-plugin": "^0.3.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^23.6.0",
     "prettier": "^1.15.1",
     "ts-jest": "^23.10.4",

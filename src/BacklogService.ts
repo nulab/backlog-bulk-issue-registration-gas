@@ -1,15 +1,13 @@
-import UiInstance = GoogleAppsScript.UI.UiInstance
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty, User} from "./datas"
+import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {IssueConverter} from "./IssueConverter"
 import {List} from "./List"
 import {Message} from "./resources"
-import {SpreadSheetService, SpreadSheetServiceImpl} from "./SpreadSheetService"
+import {SpreadSheetService} from "./SpreadSheetService"
 
-const SCRIPT_VERSION = "v2.0.5-SNAPSHOT"
 const TEMPLATE_SHEET_NAME = "Template"
 const ROW_HEADER_INDEX = 1
 const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
@@ -83,11 +81,11 @@ const getUserProperties = (spreadSheetService: SpreadSheetService): UserProperty
   return UserProperty(lastSpace, lastDomain, lastApiKey, lastProjectKey)
 }
 
-const storeUserProperties = (grid: any, spreadSheetService: SpreadSheetService): void => {
-  spreadSheetService.setUserProperty("space", grid.parameter.space)
-  spreadSheetService.setUserProperty("domain", grid.parameter.domain)
-  spreadSheetService.setUserProperty("apiKey", grid.parameter.apiKey)
-  spreadSheetService.setUserProperty("projectKey", grid.parameter.projectKey)
+const storeUserProperties = (property: UserProperty, spreadSheetService: SpreadSheetService): void => {
+  spreadSheetService.setUserProperty("space", property.space)
+  spreadSheetService.setUserProperty("domain", property.domain)
+  spreadSheetService.setUserProperty("apiKey", property.apiKey)
+  spreadSheetService.setUserProperty("projectKey", property.projectKey)
 }
 
 const showMessage = (message: string, spreadSheetService: SpreadSheetService): void =>
@@ -188,99 +186,34 @@ const calcWidth = (length: number): number => {
 
 interface BacklogService {
 
-  createApplication: (title: string, width: number, height: number) => UiInstance
-
-  createGrid: (ui: UiInstance, property: UserProperty) => any
-
-  showDialog: (ui: UiInstance, grid: any, handlerName: string) => void
-
-  showInitDialog: () => void
-
-  showRunDialog: () => void
-
   getUserProperties: () => UserProperty
 
-  storeUserProperties: (grid: any) => void
+  run: (property: UserProperty) => void
 
-  run: (grid: any) => UiInstance
-
-  getDefinitions: (grid: any) => UiInstance
+  init: (property: UserProperty) => void
 
   getMessage: (key: string, locale: string) => string
 
-  showMessage: (message: string) => void
 }
 
 export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogService => ({
 
-  createApplication: (title: string, width: number, height: number): UiInstance =>
-    UiApp
-      .createApplication()
-      .setTitle(title)
-      .setWidth(width)
-      .setHeight(height),
-
-  createGrid: (ui: UiInstance, property: UserProperty): any => {
-    const anotherDomain = (property.domain === ".com") ? ".jp" : ".com"
-    return ui
-      .createGrid(3, 4)
-      .setWidget(0, 0, ui.createLabel(getMessage("label_spaceId", spreadSheetService)))
-      .setWidget(0, 1, ui.createTextBox().setName("space").setValue(property.space))
-      .setWidget(0, 2, ui.createLabel(".backlog"))
-      .setWidget(0, 3, ui.createListBox(false).setName("domain").addItem(property.domain).addItem(anotherDomain))
-      .setWidget(1, 0, ui.createLabel(getMessage("label_apiKey", spreadSheetService)))
-      .setWidget(1, 1, ui.createTextBox().setName("apiKey").setValue(property.apiKey))
-      .setWidget(2, 0, ui.createLabel(getMessage("label_projectKey", spreadSheetService)))
-      .setWidget(2, 1, ui.createTextBox().setName("projectKey").setValue(property.projectKey))
-  },
-
-  showDialog(ui: UiInstance, grid: any, handlerName: string): void {
-    const panel = ui.createVerticalPanel()
-    const submitButton = ui.createButton(getMessage("button_execute", spreadSheetService))
-    const submitHandler = ui.createServerClickHandler(handlerName)
-
-    submitHandler.addCallbackElement(grid)
-    submitButton.addClickHandler(submitHandler)
-    panel.add(grid).add(submitButton)
-    ui.add(panel)
-    SpreadsheetApp.getActiveSpreadsheet().show(ui)
-  },
-
-  showInitDialog(): void {
-    const app = this.createApplication(getMessage("title_init", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-    const property = this.getUserProperties()
-    const grid = this.createGrid(app, property)
-
-    this.showDialog(app, grid, "init")
-  },
-
-  showRunDialog(): void {
-    const app = this.createApplication(getMessage("title_run", spreadSheetService) + " " + SCRIPT_VERSION, 360, 160)
-    const property = this.getUserProperties()
-    const grid = this.createGrid(app, property)
-
-    this.showDialog(app, grid, "main")
-  },
-
   getUserProperties: (): UserProperty =>
     getUserProperties(spreadSheetService),
 
-  storeUserProperties: (grid: any): void =>
-    storeUserProperties(grid, spreadSheetService),
-
-  run: (grid: any): UiInstance => {
-    const app = UiApp.getActiveApplication()
-    const property = getUserProperties(spreadSheetService)
+  run: (property: UserProperty): void => {
     const current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss")
     const sheetName = getMessage("scriptName", spreadSheetService) + " : " + current
     const LOG_KEY_NUMBER = 1
     const LOG_SUMMARY_NUMBER = 2
     const locale = spreadSheetService.getUserLocale()
 
-    // BacklogScript throws an exception on error
     showMessage(getMessage("progress_collect", spreadSheetService), spreadSheetService)
+
+    // BacklogScript throws an exception on error
     const templateIssues = getTemplateIssuesFromSpreadSheet(spreadSheetService).getOrError()
-    storeUserProperties(grid, spreadSheetService)
+
+    storeUserProperties(property, spreadSheetService)
     showMessage(Message.PROGRESS_RUN_BEGIN(locale), spreadSheetService)
 
     const client = createBacklogClient(property.space, property.domain, property.apiKey, locale).getOrError()
@@ -341,13 +274,11 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     }
     client.importFinalize(property.projectKey)
     showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
-    return app.close()
+    return
   },
 
-  getDefinitions: (grid: any): UiInstance => {
-    storeUserProperties(grid, spreadSheetService)
-    const app = UiApp.getActiveApplication()
-    const property = getUserProperties(spreadSheetService)
+  init: (property: UserProperty): void => {
+    storeUserProperties(property, spreadSheetService)
     const locale = spreadSheetService.getUserLocale()
     const templateSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TEMPLATE_SHEET_NAME)
     const lastRowNumber = templateSheet.getLastRow() - 1
@@ -451,14 +382,12 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
           validationRuleIndex++
         }
         showMessage(getMessage("complete_init", spreadSheetService), spreadSheetService)
-        return app.close()
+        return
       })
       .getOrError()
   },
 
   getMessage: (key: string): string =>
-    getMessage(key, spreadSheetService),
+    getMessage(key, spreadSheetService)
 
-  showMessage: (message: string): void =>
-    showMessage(message, spreadSheetService)
 })
