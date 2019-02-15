@@ -43,7 +43,7 @@ export const IssueConverter = (
   convert: (issue: any): Either<Error, Issue> => {
     const foundCategories = Either.sequence(
       lines(issue["categoryNames"]).map(
-        item => findWithName(item, categories).orError(Error(`Cateogry not found. name: ${item}`))
+        item => findWithName(item, categories).orError(Error(`Category not found. name: ${item}`))
     ))
     const foundVersions = Either.sequence(
       lines(issue["versionNames"]).map(
