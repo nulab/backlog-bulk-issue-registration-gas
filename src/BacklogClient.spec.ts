@@ -120,6 +120,16 @@ describe("BacklogClient", function () {
           "displayOrder": 0
         },
         {
+          "id": 121209,
+          "projectId": 12345,
+          "name": "0.1.0",
+          "description": null,
+          "startDate": null,
+          "releaseDueDate": null,
+          "archived": true,
+          "displayOrder": 2
+        },
+        {
           "id": 121213,
           "projectId": 12345,
           "name": "0.9.0",
@@ -127,7 +137,7 @@ describe("BacklogClient", function () {
           "startDate": null,
           "releaseDueDate": null,
           "archived": false,
-          "displayOrder": 1
+          "displayOrder": 3
         }]`
     }
 
