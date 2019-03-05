@@ -13,11 +13,15 @@ const ROW_HEADER_INDEX = 1
 const COLUMN_START_INDEX = 1 /** データ列の開始インデックス */
 const ROW_START_INDEX = 2    /** データ行の開始インデックス */
 const DEFAULT_COLUMN_LENGTH = 16
+const MAX_LIST_ITEM_COUNT = 500
 
 type Validation<A> = (a: A, onError: Error) => Either<Error, A>
 
 const isEmpty: Validation<string> = (str: string, onError: Error): Either<Error, string> =>
   str !== "" ? Right(str) : Left(onError)
+
+const slice = <A>(items: A[]): A[] =>
+  items.slice(0, MAX_LIST_ITEM_COUNT - 1)
 
 const createBacklogClient = (space: string, domain: string, apiKey: string, locale: Locale): Either<Error, BacklogClient> => {
   const spaceResult = isEmpty(space, Error(Message.SPACE_URL_REQUIRED(locale)))
@@ -289,16 +293,16 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     showMessage(Message.PROGRESS_INIT_BEGIN(locale), spreadSheetService)
     return createBacklogClient(property.space, property.domain, property.apiKey, locale)
       .flatMap(client =>
-        getProject(client, property.projectKey, locale).map(project =>
-          BacklogDefinition(
-            client.getIssueTypesV2(project.id),
-            client.getCategoriesV2(project.id),
-            client.getVersionsV2(project.id),
-            client.getPrioritiesV2(),
-            client.getUsersV2(project.id),
-            client.getCustomFieldsV2(project.id)
-          )
-        )
+        getProject(client, property.projectKey, locale).map(project => {
+          const issueTypes = client.getIssueTypesV2(project.id)
+          const categories = client.getCategoriesV2(project.id)
+          const versions = client.getVersionsV2(project.id)
+          const priorities = client.getPrioritiesV2()
+          const users = client.getUsersV2(project.id)
+          const customFields = client.getCustomFieldsV2(project.id)
+
+          return BacklogDefinition(slice(issueTypes), slice(categories), slice(versions), slice(priorities), slice(users), customFields)
+        })
       )
       .map(definition => {
         const issueTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(definition.issueTypeNames(), true).build()

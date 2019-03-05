@@ -197,7 +197,9 @@ export class BacklogClientImpl implements BacklogClient {
 
   public getVersionsV2(id: Id<Project>): Version[] {
     const json = this.http.get(this.buildUri(`projects/${id}/versions`))
-    return Object.keys(json).map(key => this.jsonTo(json[key]))
+    return Object.keys(json)
+      .filter(key => !json[key]["archived"])
+      .map(key => this.jsonTo(json[key]))
   }
 
   public getPrioritiesV2(): Priority[] {
