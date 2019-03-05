@@ -103,4 +103,6 @@ Custom fields are not automatically added and updated. If a custom field's name 
 
 ## Limitations
 
-If access control with IP address restriction is used in Backlog, this tool can not be used.
+- If access control with IP address restriction is used in Backlog, this tool can not be used.
+- Version/Milestone will not be fetched from Backlog if "Not shown on Project Home" is checked.
+- The max number of items in a list(e.g. issue type, category) that can be fetched is 500.
