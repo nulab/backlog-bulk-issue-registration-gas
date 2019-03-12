@@ -3,7 +3,7 @@ import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty} from "./da
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
-import {IssueConverter, createIssueConverter} from "./IssueConverter"
+import {createIssueConverter} from "./IssueConverter"
 import {List} from "./List"
 import {Message} from "./resources"
 import {SpreadSheetService} from "./SpreadSheetService"
@@ -43,9 +43,6 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
 
   return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
-
-const convertIssue = (converter: IssueConverter, issue: any): Either<Error, Issue> =>
-  converter.convert(issue)
 
 const validate = (issues: List<any>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
   for (let i = 0; i < issues.length; i++) {
@@ -97,29 +94,28 @@ const strLength = (text: string): number => {
   return count
 }
 
-const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> => {
-  const createIssue = Issue(
-    0,
-    "",
-    issue.projectId,
-    issue.summary,
-    issue.description,
-    issue.startDate,
-    issue.dueDate,
-    issue.estimatedHours,
-    issue.actualHours,
-    issue.issueType,
-    issue.categories,
-    issue.versions,
-    issue.milestones,
-    issue.priority,
-    issue.assignee,
-    optParentIssueId.map(id => id.toString()),
-    issue.customFields
+const createIssue = (client: BacklogClient, issue: Issue, optParentIssueId: Option<string>): Either<Error, Issue> =>
+  client.createIssueV2(
+    Issue(
+      0,
+      "",
+      issue.projectId,
+      issue.summary,
+      issue.description,
+      issue.startDate,
+      issue.dueDate,
+      issue.estimatedHours,
+      issue.actualHours,
+      issue.issueType,
+      issue.categories,
+      issue.versions,
+      issue.milestones,
+      issue.priority,
+      issue.assignee,
+      optParentIssueId.map(id => id.toString()),
+      issue.customFields
+    )
   )
-
-  return client.createIssueV2(createIssue)
-}
 
 const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService): Either<Error, any> => {
   let issues = []
@@ -213,7 +209,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const _ = validate(templateIssues, client, locale).getOrError()
     const project = getProject(client, property.projectKey, locale).getOrError()
     const converter = createIssueConverter(client, project.id)
-    const convertResults = templateIssues.map(issue => convertIssue(converter, issue))
+    const convertResults = templateIssues.map(issue => converter.convert(issue))
     const issues = Either.sequence(convertResults).getOrError()
 
     // Post issues
