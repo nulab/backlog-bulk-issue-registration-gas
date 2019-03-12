@@ -1,11 +1,22 @@
-import {Either, Left, Right} from "./Either"
-import {Option, Some, None} from "./Option"
+import {Either, Right} from "./Either"
+import {Option} from "./Option"
 import {Issue, Project, Id, IssueType, Category, WithName, Version, Priority, User, WithId, CustomFieldDefinition, CustomField} from "./datas"
 import {Predicate, List, find} from "./List"
+import {BacklogClient} from "./BacklogClient"
 
 export interface IssueConverter {
   convert(issue: any): Either<Error, Issue>
 }
+export const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
+  IssueConverter(
+    projectId,
+    client.getIssueTypesV2(projectId),
+    client.getCategoriesV2(projectId),
+    client.getVersionsV2(projectId),
+    client.getPrioritiesV2(),
+    client.getUsersV2(projectId),
+    client.getCustomFieldsV2(projectId)
+  )
 
 const isEmpty = (str: string): boolean =>
   str === "" ? true : false

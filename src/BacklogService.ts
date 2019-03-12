@@ -1,9 +1,9 @@
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, Id, BacklogDefinition, Locale, UserProperty} from "./datas"
+import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
-import {IssueConverter} from "./IssueConverter"
+import {IssueConverter, createIssueConverter} from "./IssueConverter"
 import {List} from "./List"
 import {Message} from "./resources"
 import {SpreadSheetService} from "./SpreadSheetService"
@@ -43,17 +43,6 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
 
   return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
-
-const createIssueConverter = (client: BacklogClient, projectId: Id<Project>): IssueConverter =>
-  IssueConverter(
-    projectId,
-    client.getIssueTypesV2(projectId),
-    client.getCategoriesV2(projectId),
-    client.getVersionsV2(projectId),
-    client.getPrioritiesV2(),
-    client.getUsersV2(projectId),
-    client.getCustomFieldsV2(projectId)
-  )
 
 const convertIssue = (converter: IssueConverter, issue: any): Either<Error, Issue> =>
   converter.convert(issue)
