@@ -1,6 +1,6 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey, CustomFieldItem} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey} from "./datas"
 import {Http} from "./Http"
-import {Option, Some, None} from "./Option"
+import {Option, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {List} from "./List"
 
