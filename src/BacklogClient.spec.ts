@@ -231,7 +231,7 @@ describe("BacklogClient", function () {
           "version": 1528075236000,
           "name": "text",
           "description": "",
-          "required": false,
+          "required": true,
           "useIssueType": false,
           "applicableIssueTypes": [],
           "displayOrder": 2147223646
@@ -336,11 +336,14 @@ describe("BacklogClient", function () {
     expect(CustomFieldDefinitions.length).toBe(3)
     expect(CustomFieldDefinitions[0].id).toBe(51218)
     expect(CustomFieldDefinitions[0].name).toBe("number")
+    expect(CustomFieldDefinitions[0].required).toBe(false)
     expect(CustomFieldDefinitions[1].id).toBe(51129)
     expect(CustomFieldDefinitions[1].name).toBe("text")
+    expect(CustomFieldDefinitions[1].required).toBe(true)
     expect(CustomFieldDefinitions[1].items.isDefined).toBe(false)
     expect(CustomFieldDefinitions[2].id).toBe(83747)
     expect(CustomFieldDefinitions[2].name).toBe("single")
+    expect(CustomFieldDefinitions[2].required).toBe(false)
     expect(CustomFieldDefinitions[2].items.isDefined).toBe(true)
     CustomFieldDefinitions[2].items.map(items => expect(items.length).toBe(2))
   })

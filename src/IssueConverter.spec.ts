@@ -32,8 +32,8 @@ describe("IssueConverter", function () {
     User(4, "user 4")
   ]
   const customFieldDefinitions: List<CustomFieldDefinition> = [
-    CustomFieldDefinition(12345, 5, "string", None()),
-    CustomFieldDefinition(12346, 3, "number", None())
+    CustomFieldDefinition(12345, 5, "string", true, None()),
+    CustomFieldDefinition(12346, 3, "number", false, None())
   ]
   const converter = IssueConverter(10777, issueTypes, categories, versions, priorities, users, customFieldDefinitions)
 
