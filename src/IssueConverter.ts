@@ -39,8 +39,7 @@ const findWithName = <A extends WithName>(name: string, items: List<A>): Option<
 
 export const extractFromString = (str: string): Option<number> => {
   const match = str.match(/.*?attribute.id=(\d+?)"/)
-  const result = Option(match)
-  return result.map(results => +results[1])
+  return Option(match).map(results => +results[1])
 }
 
 export const IssueConverter = (
