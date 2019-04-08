@@ -64,7 +64,7 @@ const validate = (issues: List<any>, customFieldDefinitions: List<CustomFieldDef
       const customField = customFields[j]
 
       if (definition.required && customField.value === undefined)
-        return Left(Error(errorString + "Custom field: " + definition.name + " is required."))
+        return Left(Error(errorString + Message.AVALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED(definition.name, locale)))
     }
   }
   return Right(true)

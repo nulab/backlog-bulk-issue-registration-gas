@@ -138,6 +138,13 @@ export const Message = {
     }
     return msg[locale]
   },
+  AVALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED: (definitionName: string, locale: Locale): string => {
+    const msg = {
+      "en": `Custom field value '${definitionName}' is required`,
+      "ja": `カスタム属性 '${definitionName}' は必須です`
+    }
+    return msg[locale]
+  },
   ALREADY_BEEN_CHILD_ISSUE: (issueKey: string, locale: Locale): string => {
     const msg = {
       "en": `The issue key '${issueKey}' is a child issue and can therefor not be set as a parent issue`,
