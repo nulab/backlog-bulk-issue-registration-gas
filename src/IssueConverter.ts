@@ -21,6 +21,9 @@ export const createIssueConverter = (client: BacklogClient, projectId: Id<Projec
 const isEmpty = (str: string): boolean =>
   str === "" ? true : false
 
+const isNull = (value: any): boolean =>
+  !Option(value).isDefined
+
 // "itemA\n\nitemB" => ["itemA", "itemB"]
 const lines = (str: string): string[] =>
   str.split("\n").filter(item => !isEmpty(item)).map(s => s.trim())
@@ -52,44 +55,46 @@ export const IssueConverter = (
   customFieldDefinitions: List<CustomFieldDefinition>): IssueConverter => ({
   convert: (issue: any): Either<Error, Issue> => {
     const foundCategories = Either.sequence(
-      lines(issue["categoryNames"]).map(
-        item => findWithName(item, categories).orError(Error(`Category not found. name: ${item}`))
+      lines(issue["categoryNames"]).map(item =>
+        findWithName(item, categories).orError(Error(`Category not found. name: ${item}`))
     ))
     const foundVersions = Either.sequence(
-      lines(issue["versionNames"]).map(
-        item => findWithName(item, versions).orError(Error(`Version not found. name: ${item}`))
+      lines(issue["versionNames"]).map(item =>
+        findWithName(item, versions).orError(Error(`Version not found. name: ${item}`))
     ))
     const foundMilestones = Either.sequence(
-      lines(issue["milestoneNames"]).map(
-        item => findWithName(item, versions).orError(Error(`Milestone not found. name: ${item}`))
+      lines(issue["milestoneNames"]).map(item =>
+        findWithName(item, versions).orError(Error(`Milestone not found. name: ${item}`))
     ))
     const foundIssueType = findWithName(issue["issueTypeName"], issueTypes)
       .orError(Error(`IssueType not found. name: ${issue["issueTypeName"]}`))
     const foundPriority = Option<string>(issue["priorityName"])
-      .map(name => findWithName(name, priorities)
+      .map(name =>
+        findWithName(name, priorities)
         .orError(Error(`Priority not found. name: ${issue["priorityName"]}`)))
       .getOrElse(() => Right(Priority(3, "default")))
     const foundOptUser = Either.sequenceOption(
       Option(issue["assigneeName"])
-        .map(item => findWithName(item, users).orError(new Error(`Assignee not found. name: ${item}`)))
+        .map(item => findWithName(item, users)
+        .orError(new Error(`Assignee not found. name: ${item}`)))
     )
     const foundCustomFields = Either.sequence(
-      (issue["customFields"] as List<any>).map(function(item) {
-        return extractFromString(item.header)
-          .orError(Error("Invalid custom field header. Raw input: " + item))
-          .flatMap(customFieldId =>
-            findWithId(customFieldId, customFieldDefinitions)
-              .orError(Error(`Custom field definition not found. id: ${customFieldId}`))
-              .flatMap(definition =>
-                Either.sequenceOption(
-                  definition.items.map(items => findWithName(item.value, items).orError(new Error(`Custom field item not found. value: ${item.value}`)))
-                )
-                .map(optItem => optItem.map(item => item.id.toString()))
-                .map(optId => optId.getOrElse(() => item.value.toString()))
-                .map(value => CustomField(customFieldId, definition.typeId, value))
+      (issue["customFields"] as List<any>).filter(item => !isNull(item.value)).map(item =>
+        extractFromString(item.header)
+        .orError(Error("Invalid custom field header. Raw input: " + item))
+        .flatMap(customFieldId =>
+          findWithId(customFieldId, customFieldDefinitions)
+            .orError(Error(`Custom field definition not found. id: ${customFieldId}`))
+            .flatMap(definition =>
+              Either.sequenceOption(
+                definition.items.map(items => findWithName(item.value, items).orError(new Error(`Custom field item not found. value: ${item.value} definition: ${definition.name}`)))
               )
-          )
-      })
+              .map(optItem => optItem.map(item => item.id.toString()))
+              .map(optId => optId.getOrElse(() => item.value.toString()))
+              .map(value => CustomField(customFieldId, definition.typeId, value))
+            )
+        )
+      )
     )
 
     return Either.map7(

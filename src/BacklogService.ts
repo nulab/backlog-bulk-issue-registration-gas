@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty} from "./datas"
+import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -44,10 +44,14 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
   return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
 
-const validate = (issues: List<any>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
+const validate = (issues: List<any>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
+  const definitions = customFieldDefinitions.filter(item => item.typeId < 6)
+
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i]
     const errorString = Message.VALIDATE_ERROR_LINE(i + 2, locale)
+    const customFields = issue["customFields"] as List<any>
+
     if (!Option(issue.summary).isDefined)
       return Left(Error(errorString + Message.VALIDATE_SUMMARY_EMPTY(locale)))
     if (!Option(issue.issueTypeName).isDefined)
@@ -55,6 +59,13 @@ const validate = (issues: List<any>, client: BacklogClient, locale: Locale): Eit
     if (issue.parentIssueKey !== undefined && issue.parentIssueKey !== "*")
       if (!client.getIssueV2(issue.parentIssueKey).isDefined)
         return Left(Error(errorString + Message.VALIDATE_PARENT_ISSUE_KEY_NOT_FOUND(issue.parentIssueKey, locale)))
+    for (let j = 0; j < definitions.length; j++) {
+      const definition = definitions[j]
+      const customField = customFields[j]
+
+      if (definition.required && customField.value === undefined)
+        return Left(Error(errorString + "Custom field: " + definition.name + " is required."))
+    }
   }
   return Right(true)
 }
@@ -138,13 +149,11 @@ const getTemplateIssuesFromSpreadSheet = (spreadSheetService: SpreadSheetService
     let customFields = []
     let customFieldIndex = 0
     for (let j = 13; j < columnLength; j++) {
-      if (values[i][j] !== "") {
-        customFields[customFieldIndex] = {
-          header: spreadSheetService.getRange(sheet, j + 1, ROW_HEADER_INDEX).getFormula(),
-          value: values[i][j]
-        }
-        customFieldIndex++
+      customFields[customFieldIndex] = {
+        header: spreadSheetService.getRange(sheet, j + 1, ROW_HEADER_INDEX).getFormula(),
+        value: values[i][j] === "" ? undefined : values[i][j]
       }
+      customFieldIndex++
     }
     const issue = {
       summary: values[i][0] === "" ? undefined : values[i][0],
@@ -206,8 +215,9 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     showMessage(Message.PROGRESS_RUN_BEGIN(locale), spreadSheetService)
 
     const client = createBacklogClient(property.space, property.domain, property.apiKey, locale).getOrError()
-    const _ = validate(templateIssues, client, locale).getOrError()
     const project = getProject(client, property.projectKey, locale).getOrError()
+    const definitions = client.getCustomFieldsV2(project.id)
+    const _ = validate(templateIssues, definitions, client, locale).getOrError()
     const converter = createIssueConverter(client, project.id)
     const convertResults = templateIssues.map(issue => converter.convert(issue))
     const issues = Either.sequence(convertResults).getOrError()
