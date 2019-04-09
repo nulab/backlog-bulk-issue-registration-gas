@@ -138,10 +138,24 @@ export const Message = {
     }
     return msg[locale]
   },
-  AVALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED: (definitionName: string, locale: Locale): string => {
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED: (definitionName: string, locale: Locale): string => {
     const msg = {
       "en": `Custom field value '${definitionName}' is required`,
       "ja": `カスタム属性 '${definitionName}' は必須です`
+    }
+    return msg[locale]
+  },
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER: (definitionName: string, locale: Locale): string => {
+    const msg = {
+      "en": `Custom field value '${definitionName}' needs number`,
+      "ja": `カスタム属性 '${definitionName}' の値は数値を入力してください`
+    }
+    return msg[locale]
+  },
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_DATE: (definitionName: string, locale: Locale): string => {
+    const msg = {
+      "en": `Custom field value '${definitionName}' needs date`,
+      "ja": `カスタム属性 '${definitionName}' の値は日付を入力してください`
     }
     return msg[locale]
   },

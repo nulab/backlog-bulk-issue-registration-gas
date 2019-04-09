@@ -64,7 +64,20 @@ const validate = (issues: List<any>, customFieldDefinitions: List<CustomFieldDef
       const customField = customFields[j]
 
       if (definition.required && customField.value === undefined)
-        return Left(Error(errorString + Message.AVALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED(definition.name, locale)))
+        return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED(definition.name, locale)))
+
+      if (customField.value === undefined) continue
+
+      switch (definition.typeId) {
+        case 3:
+          if (typeof customField.value !== "number")
+            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER(definition.name, locale)))
+          break
+        case 4:
+          if (!(customField.value instanceof Date))
+            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_DATE(definition.name, locale)))
+          break
+      }
     }
   }
   return Right(true)
