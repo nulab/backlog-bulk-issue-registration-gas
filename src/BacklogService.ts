@@ -71,11 +71,11 @@ const validate = (issues: List<any>, customFieldDefinitions: List<CustomFieldDef
       switch (definition.typeId) {
         case 3:
           if (typeof customField.value !== "number")
-            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER(definition.name, locale)))
+            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER(definition.name, customField.value, locale)))
           break
         case 4:
           if (!(customField.value instanceof Date))
-            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_DATE(definition.name, locale)))
+            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_DATE(definition.name, customField.value, locale)))
           break
       }
     }

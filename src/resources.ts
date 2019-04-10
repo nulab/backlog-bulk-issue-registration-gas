@@ -145,17 +145,17 @@ export const Message = {
     }
     return msg[locale]
   },
-  VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER: (definitionName: string, locale: Locale): string => {
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER: (definitionName: string, input: string, locale: Locale): string => {
     const msg = {
-      "en": `Custom field value '${definitionName}' needs number`,
-      "ja": `カスタム属性 '${definitionName}' の値は数値を入力してください`
+      "en": `Custom field value '${definitionName}' needs number. Row input: ${input}`,
+      "ja": `カスタム属性 '${definitionName}' の値は数値を入力してください。入力値: ${input}`
     }
     return msg[locale]
   },
-  VALIDATE_CUSTOM_FIELD_VALUE_IS_DATE: (definitionName: string, locale: Locale): string => {
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_DATE: (definitionName: string, input: string, locale: Locale): string => {
     const msg = {
-      "en": `Custom field value '${definitionName}' needs date`,
-      "ja": `カスタム属性 '${definitionName}' の値は日付を入力してください`
+      "en": `Custom field value '${definitionName}' needs date. Row input: ${input}`,
+      "ja": `カスタム属性 '${definitionName}' の値は日付を入力してください。入力値: ${input}`
     }
     return msg[locale]
   },
