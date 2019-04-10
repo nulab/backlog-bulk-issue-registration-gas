@@ -84,9 +84,11 @@ export const CustomFieldItem = (id: number, name: string) => ({id, name})
 
 export interface CustomFieldDefinition extends WithId, WithName {
   readonly typeId: number
+  readonly required: boolean
   readonly items: Option<List<CustomFieldItem>>
 }
-export const CustomFieldDefinition = (id: number, typeId: number, name: string, items: Option<List<CustomFieldItem>>) => ({id, typeId, name, items})
+export const CustomFieldDefinition = (id: number, typeId: number, name: string, required: boolean, items: Option<List<CustomFieldItem>>) =>
+  ({id, typeId, name, required, items})
 
 export interface CustomField extends WithId {
   readonly fieldTypeId: number

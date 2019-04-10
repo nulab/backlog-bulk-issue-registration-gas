@@ -1,6 +1,6 @@
-import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey, CustomFieldItem} from "./datas"
+import {User, IssueType, Category, Version, Project, Key, Issue, Id, Priority, WithId, WithName, CustomFieldDefinition, CustomField, IdOrKey} from "./datas"
 import {Http} from "./Http"
-import {Option, Some, None} from "./Option"
+import {Option, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {List} from "./List"
 
@@ -214,6 +214,7 @@ export class BacklogClientImpl implements BacklogClient {
         json[key]["id"],
         json[key]["typeId"],
         json[key]["name"],
+        json[key]["required"],
         Option(json[key]["items"] as List<any>).map(items => items.map(this.jsonTo))
       )
     )
