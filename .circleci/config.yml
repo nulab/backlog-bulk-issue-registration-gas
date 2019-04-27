@@ -23,7 +23,13 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: npm run build
+      - run: npm run build:ci
 
       - store_artifacts:
           path: dist
+
+      - store_artifacts:
+          path: reports
+
+      - store_test_results:
+          path: reports
