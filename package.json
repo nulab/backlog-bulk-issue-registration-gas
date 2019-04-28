@@ -6,9 +6,12 @@
   "scripts": {
     "watch": "webpack --watch",
     "lint": "tslint --fix src/**/*.ts",
+    "lint:ci": "tslint src/**/*.ts",
     "test": "jest",
     "testw": "jest --watchAll",
+    "test:ci": "jest --reporters default --reporters jest-junit",
     "build": "npm run lint && npm run test && webpack",
+    "build:ci": "npm run lint:ci && npm run test:ci && webpack",
     "push": "npm run build && clasp push"
   },
   "repository": {
@@ -28,6 +31,7 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.7.1",
+    "jest-junit": "^6.3.0",
     "prettier": "^1.15.1",
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.3.0",
@@ -52,5 +56,8 @@
       "json",
       "node"
     ]
+  },
+  "jest-junit": {
+    "output": "reports/js-test-results.xml"
   }
 }

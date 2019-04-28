@@ -11,5 +11,8 @@
 # Build directory
 /dist
 
+# Report directory
+/reports
+
 # Others
 .clasp.json
