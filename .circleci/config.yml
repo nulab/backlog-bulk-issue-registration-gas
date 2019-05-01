@@ -5,7 +5,7 @@
 version: 2.1
 
 orbs:
-  typetalk: ikikko/typetalk@0.0.2
+  typetalk: ikikko/typetalk@0.2.0
 
 jobs:
   build:
@@ -38,5 +38,5 @@ jobs:
       - store_test_results:
           path: reports
 
-      - typetalk/notify:
+      - typetalk/status:
           topic-id: "54145"
