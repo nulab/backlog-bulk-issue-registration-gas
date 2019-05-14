@@ -5,7 +5,7 @@
 version: 2.1
 
 orbs:
-  typetalk: ikikko/typetalk@0.3.0
+  typetalk: nulab/typetalk@1.0.1
 
 jobs:
   build:
