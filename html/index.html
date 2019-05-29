@@ -41,17 +41,21 @@
           <label for="spaceID"><?= getMessage("label_spaceId") ?></label>
           <div class="space-id-field">
             <input id="spaceID" type="text" name="space" value="<?= config.space ?>" tabindex="1" class="space-id-field__id" />
-            <span class="space-id-field__name">.backlog</span>
             <select name="domain" tabindex="2" class="space-id-field__domain" />
-              <? if (config.domain == ".com") { ?>
-                <option value=".com" selected>.com</option>
+              <? if (config.domain == "backlog.com") { ?>
+                <option value="backlog.com" selected>.backlog.com</option>
               <? } else  { ?>
-                <option value=".com">.com</option>
+                <option value="backlog.com">backlog.com</option>
               <? } ?>
-              <? if (config.domain == ".jp") { ?>
-                <option value=".jp" selected>.jp</option>
+              <? if (config.domain == "backlog.jp") { ?>
+                <option value="backlog.jp" selected>.backlog.jp</option>
               <? } else  { ?>
-                <option value=".jp">.jp</option>
+                <option value="backlog.jp">backlog.jp</option>
+              <? } ?>
+              <? if (config.domain == "backlogtool.com") { ?>
+                <option value="backlogtool.com" selected>.backlogtool.com</option>
+              <? } else  { ?>
+                <option value="backlogtool.com">backlogtool.com</option>
               <? } ?>
             </select>
           </div>
