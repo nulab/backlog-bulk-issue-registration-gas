@@ -56,19 +56,11 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 
 下記のような入力ダイアログが表示されますので、順に必要な情報を入力してください。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1_2.1.0.png" width="453" height="328">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1_2.3.0.png" width="548" height="393">
 
 * BacklogのスペースID
 * BacklogのAPIキー: https://backlog.com/ja/help/usersguide/personal-settings/userguide2378/
 * 登録対象となるBacklogのプロジェクトキー
-
-**デモ用Backlogプロジェクト**
-
-お試しで使いたい方は[Backlogデモプロジェクト](https://demo.backlog.jp/) からお試しいただけます。( **大事な情報を入力しないようにご注意ください!!** )
-
-* スペースID： `demo`.backlog.`jp`
-* APIキー： `ShMb0ao0AQuwzysKGEvLu9kZ96UczRSUufi9dXVFTKAtIY4ODiljBnYs9SBBb1bj`
-* プロジェクトキー： `STWK`
 
 必要な情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  
 正常に完了すると、右下に完了のポップアップが表示されます。
@@ -91,7 +83,7 @@ STEP2を実行することで、スプレッドシートに入力した内容で
 
 下記のような入力ダイアログが表示されますが、`STEP1`で既に入力済みなので`実行`ボタンをクリックして一括登録処理を実行します。
 
-<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step2_2.1.0.png" width="455" height="328">
+<img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step2_2.3.0.png" width="550" height="394">
 
 登録処理実行時に、結果出力用のシートが新規作成され自動的にそのシートに遷移します。このシートで、一括登録された課題の（キー・件名）を一覧で確認することができます。
 
