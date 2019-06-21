@@ -266,7 +266,7 @@ describe("BacklogClient", function () {
     public dateToString = (date: Date): string => ""
   }
 
-  const client = new BacklogClientImpl(new FakeHttp, "testspace", ".jp", "testapikeystring", new FakeDateFormatter)
+  const client = new BacklogClientImpl(new FakeHttp, "testspace", "backlog.jp", "testapikeystring", new FakeDateFormatter)
 
   test("Get project", function () {
     const result = client.getProjectV2("SPR")

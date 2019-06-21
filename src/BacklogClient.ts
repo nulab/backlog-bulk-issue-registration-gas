@@ -222,14 +222,14 @@ export class BacklogClientImpl implements BacklogClient {
 
   public importFinalize(projectKey: Key<Project>): Either<Error, void> {
     try {
-      this.http.get(`https://${this.spaceName}.backlog${this.domain}/api/v2/importer/spreadsheet?projectKey=${projectKey}`)
+      this.http.get(`https://${this.spaceName}.${this.domain}/api/v2/importer/spreadsheet?projectKey=${projectKey}`)
     } catch (e) {
       return Left(e)
     }
   }
 
   private buildUri(resource: string): string {
-    return `https://${this.spaceName}.backlog${this.domain}/api/v2/${resource}?apiKey=${this.apiKey}`
+    return `https://${this.spaceName}.${this.domain}/api/v2/${resource}?apiKey=${this.apiKey}`
   }
 
   private jsonToIssue(json: JSON): Issue {
