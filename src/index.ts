@@ -4,7 +4,7 @@ import {UserProperty} from "./datas"
 
 declare var global: any
 
-const SCRIPT_VERSION = "v2.2.0"
+const SCRIPT_VERSION = "v2.3.0"
 
 global.BacklogService = BacklogService(new SpreadSheetServiceImpl)
 
