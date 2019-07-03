@@ -264,7 +264,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         let logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
         const issueKey = issue.issueKey
         const summary = issue.summary
-        const fomula = "=hyperlink(\"" + property.space + ".backlog" + property.domain + "/" + "view/" + issueKey + "\";\"" + issueKey + "\")"
+        const fomula = "=hyperlink(\"" + property.space + "." + property.domain + "/" + "view/" + issueKey + "\";\"" + issueKey + "\")"
         const currentRow = i + 1
 
         if (logSheet == null)
