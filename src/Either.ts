@@ -62,10 +62,10 @@ export const Either = {
     }
     return Right(items)
   },
-  run<E, A>(gen: IterableIterator<Either<E, A>>): Either<E, A> {
+  run<E, A>(gen: Generator<Either<E, A>, Either<E, A>, A>): Either<E, A> {
     let lastValue: A
     while (true) {
-        const result: IteratorResult<Either<E, A>> = gen.next(lastValue)
+        const result = gen.next(lastValue)
         if (result.done || result.value.isLeft) {
             return result.value
         }
