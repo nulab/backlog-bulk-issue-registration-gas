@@ -2,7 +2,7 @@ import {BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "
 import {Issue, IssueType, Priority, User, Category, Version, CustomField} from "./datas"
 import {None, Some} from "./Option"
 import {Http} from "./Http"
-import { isEmptyList } from "./List"
+import {isEmptyList} from "./List"
 
 describe("BacklogClient", function () {
   class FakeHttp implements Http {
