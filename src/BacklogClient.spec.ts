@@ -2,6 +2,7 @@ import {BacklogClientImpl, issueToObject, objectToPayload, DateFormatter} from "
 import {Issue, IssueType, Priority, User, Category, Version, CustomField} from "./datas"
 import {None, Some} from "./Option"
 import {Http} from "./Http"
+import { isEmptyList } from "./List"
 
 describe("BacklogClient", function () {
   class FakeHttp implements Http {
@@ -233,7 +234,7 @@ describe("BacklogClient", function () {
           "description": "",
           "required": true,
           "useIssueType": false,
-          "applicableIssueTypes": [],
+          "applicableIssueTypes": [111],
           "displayOrder": 2147223646
         },
         {
@@ -337,13 +338,17 @@ describe("BacklogClient", function () {
     expect(CustomFieldDefinitions[0].id).toBe(51218)
     expect(CustomFieldDefinitions[0].name).toBe("number")
     expect(CustomFieldDefinitions[0].required).toBe(false)
+    expect(isEmptyList(CustomFieldDefinitions[0].applicableIssueTypes)).toBe(true)
     expect(CustomFieldDefinitions[1].id).toBe(51129)
     expect(CustomFieldDefinitions[1].name).toBe("text")
     expect(CustomFieldDefinitions[1].required).toBe(true)
     expect(CustomFieldDefinitions[1].items.isDefined).toBe(false)
+    expect(isEmptyList(CustomFieldDefinitions[1].applicableIssueTypes)).toBe(false)
+    expect(CustomFieldDefinitions[1].applicableIssueTypes[0]).toBe(111)
     expect(CustomFieldDefinitions[2].id).toBe(83747)
     expect(CustomFieldDefinitions[2].name).toBe("single")
     expect(CustomFieldDefinitions[2].required).toBe(false)
+    expect(isEmptyList(CustomFieldDefinitions[2].applicableIssueTypes)).toBe(true)
     expect(CustomFieldDefinitions[2].items.isDefined).toBe(true)
     CustomFieldDefinitions[2].items.map(items => expect(items.length).toBe(2))
   })

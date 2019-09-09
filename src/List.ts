@@ -5,6 +5,9 @@ import {F1} from "./types"
 export type List<A> = ReadonlyArray<A>
 export type Predicate<A> = F1<A, boolean>
 
+export const isEmptyList = <A>(list: List<A>): boolean =>
+  list.length === 0
+
 export const find = <A>(predicate: Predicate<A>, list: List<A>): Option<A> => {
   let i = 0
   const length = list.length
