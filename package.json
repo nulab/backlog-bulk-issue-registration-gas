@@ -1,6 +1,6 @@
 {
   "name": "backlog-bulk-issue-registration-gas",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "",
   "main": "index.js",
   "scripts": {
