@@ -1,4 +1,4 @@
-import {Locale} from "./datas"
+import {Locale, IssueType} from "./datas"
 import {Option} from "./Option"
 
 const messages = {
@@ -142,6 +142,13 @@ export const Message = {
     const msg = {
       "en": `Custom field value '${definitionName}' is required`,
       "ja": `カスタム属性 '${definitionName}' は必須です`
+    }
+    return msg[locale]
+  },
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED_ISSUE_TYPE: (definitionName: string, issueType: IssueType, locale: Locale): string => {
+    const msg = {
+      "en": `Custom field value '${definitionName}' is required for the isue type '${issueType.name}'`,
+      "ja": `カスタム属性 '${definitionName}' は、種別 '${issueType.name}' で必須です`
     }
     return msg[locale]
   },

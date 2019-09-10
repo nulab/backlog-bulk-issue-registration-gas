@@ -1,10 +1,10 @@
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition} from "./datas"
+import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition, IssueType} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
 import {createIssueConverter} from "./IssueConverter"
-import {List} from "./List"
+import {List, isEmptyList, find} from "./List"
 import {Message} from "./resources"
 import {SpreadSheetService} from "./SpreadSheetService"
 
@@ -44,7 +44,7 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
   return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
 
-const validate = (issues: List<any>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
+const validate = (issues: List<any>, issueTypes: List<IssueType>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
   const definitions = customFieldDefinitions.filter(item => item.typeId < 6)
 
   for (let i = 0; i < issues.length; i++) {
@@ -59,12 +59,25 @@ const validate = (issues: List<any>, customFieldDefinitions: List<CustomFieldDef
     if (issue.parentIssueKey !== undefined && issue.parentIssueKey !== "*")
       if (!client.getIssueV2(issue.parentIssueKey).isDefined)
         return Left(Error(errorString + Message.VALIDATE_PARENT_ISSUE_KEY_NOT_FOUND(issue.parentIssueKey, locale)))
+
     for (let j = 0; j < definitions.length; j++) {
       const definition = definitions[j]
       const customField = customFields[j]
 
-      if (definition.required && customField.value === undefined)
+      if (definition.required && isEmptyList(definition.applicableIssueTypes) && customField.value === undefined)
         return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED(definition.name, locale)))
+
+      if (definition.required && customField.value === undefined) {
+        for (let k = 0; k < definition.applicableIssueTypes.length; k++) {
+          const issueTypeId = definition.applicableIssueTypes[k]
+          const issueTypeDefinition = find( (issueType: IssueType) =>
+            issueType.name === issue.issueTypeName, issueTypes
+          ).orError(Error(`Issue type name not found. Name: ${issue.issueTypeName}`)).getOrError()
+
+          if (issueTypeDefinition.id === issueTypeId)
+            return Left(Error(errorString + Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED_ISSUE_TYPE(definition.name, issueTypeDefinition, locale)))
+        }
+      }
 
       if (customField.value === undefined) continue
 
@@ -230,7 +243,8 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
     const client = createBacklogClient(property.space, property.domain, property.apiKey, locale).getOrError()
     const project = getProject(client, property.projectKey, locale).getOrError()
     const definitions = client.getCustomFieldsV2(project.id)
-    const _ = validate(templateIssues, definitions, client, locale).getOrError()
+    const issueTypes = client.getIssueTypesV2(project.id)
+    const _ = validate(templateIssues, issueTypes, definitions, client, locale).getOrError()
     const converter = createIssueConverter(client, project.id)
     const convertResults = templateIssues.map(issue => converter.convert(issue))
     const issues = Either.sequence(convertResults).getOrError()
