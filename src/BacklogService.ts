@@ -45,7 +45,14 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
 }
 
 const validate = (issues: List<any>, issueTypes: List<IssueType>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
-  const definitions = customFieldDefinitions.filter(item => item.typeId < 6)
+  for (let i = 0; i < customFieldDefinitions.length; i++) {
+    const definition = customFieldDefinitions[i]
+
+    if (definition.required && !isSupportedCustomField(definition))
+      return Left(Error(Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED_UNSUPPORTED(definition.name, locale)))
+  }
+
+  const definitions = customFieldDefinitions.filter(item => isSupportedCustomField(item))
 
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i]
