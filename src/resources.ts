@@ -152,6 +152,13 @@ export const Message = {
     }
     return msg[locale]
   },
+  VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED_UNSUPPORTED: (definitionName: string, locale: Locale): string => {
+    const msg = {
+      "en": `Custom field value '${definitionName}' is required but it isn't supported. Please cancel this setting.`,
+      "ja": `カスタム属性 '${definitionName}' は必須ですがサポートされていません。必須の設定を解除してください。`
+    }
+    return msg[locale]
+  },
   VALIDATE_CUSTOM_FIELD_VALUE_IS_NUMBER: (definitionName: string, input: string, locale: Locale): string => {
     const msg = {
       "en": `Custom field value '${definitionName}' needs number. Row input: ${input}`,

@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition, IssueType} from "./datas"
+import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition, IssueType, isSupportedCustomField} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -45,7 +45,14 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
 }
 
 const validate = (issues: List<any>, issueTypes: List<IssueType>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
-  const definitions = customFieldDefinitions.filter(item => item.typeId < 6)
+  for (let i = 0; i < customFieldDefinitions.length; i++) {
+    const definition = customFieldDefinitions[i]
+
+    if (definition.required && !isSupportedCustomField(definition))
+      return Left(Error(Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED_UNSUPPORTED(definition.name, locale)))
+  }
+
+  const definitions = customFieldDefinitions.filter(item => isSupportedCustomField(item))
 
   for (let i = 0; i < issues.length; i++) {
     const issue = issues[i]
@@ -353,7 +360,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
            */
           let customFieldName = ""
 
-          if (customField.typeId >= 6)
+          if (!isSupportedCustomField(customField))
             continue
           switch (customField.typeId) {
             case 1:
@@ -395,7 +402,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         let validationRuleIndex = 0
         for (let i = 0; i < definition.customFields.length; i++) {
           const customField = definition.customFields[i]
-          if (customField.typeId >= 6)
+          if (!isSupportedCustomField(customField))
             continue
           if (customField.typeId === 5) {
             definition.customFieldItemNames(customField).map(itemNames => {
