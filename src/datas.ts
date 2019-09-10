@@ -97,6 +97,9 @@ export interface CustomField extends WithId {
 }
 export const CustomField = (id: number, fieldTypeId: number, value: any) => ({id, fieldTypeId, value})
 
+export const isSupportedCustomField = (definition: CustomFieldDefinition) =>
+  definition.typeId < 6
+
 export interface BacklogDefinition {
   readonly issueTypes: List<IssueType>
   readonly categories: List<Category>

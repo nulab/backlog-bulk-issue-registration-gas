@@ -1,5 +1,5 @@
 import {BacklogClient, BacklogClientImpl, GoogleAppsScriptDateFormatter} from "./BacklogClient"
-import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition, IssueType} from "./datas"
+import {Key, Project, Issue, BacklogDefinition, Locale, UserProperty, CustomFieldDefinition, IssueType, isSupportedCustomField} from "./datas"
 import {HttpClient} from "./Http"
 import {Option, Some, None} from "./Option"
 import {Either, Right, Left} from "./Either"
@@ -353,7 +353,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
            */
           let customFieldName = ""
 
-          if (customField.typeId >= 6)
+          if (!isSupportedCustomField(customField))
             continue
           switch (customField.typeId) {
             case 1:
@@ -395,7 +395,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         let validationRuleIndex = 0
         for (let i = 0; i < definition.customFields.length; i++) {
           const customField = definition.customFields[i]
-          if (customField.typeId >= 6)
+          if (!isSupportedCustomField(customField))
             continue
           if (customField.typeId === 5) {
             definition.customFieldItemNames(customField).map(itemNames => {
