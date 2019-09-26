@@ -59,7 +59,7 @@ STEP1では、Backlogに設定済みの定義(種別名、ユーザー名等)を
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/ja/form_step1_2.3.0.png" width="548" height="393">
 
 * BacklogのスペースID
-* BacklogのAPIキー: https://backlog.com/ja/help/usersguide/personal-settings/userguide2378/
+* BacklogのAPIキー: [APIの設定](https://backlog.com/ja/help/usersguide/personal-settings/userguide2378/) を参考にAPIキーを発行してください。
 * 登録対象となるBacklogのプロジェクトキー
 
 必要な情報を全て入力後、`実行`ボタンをクリックして定義一覧取得を実行します。  

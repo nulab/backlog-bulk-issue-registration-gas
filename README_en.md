@@ -60,7 +60,7 @@ The following input dialog will be shown. Enter the necessary information so tha
 <img src="https://github.com/nulab/backlog-bulk-issue-registration-gas/wiki/images/en/form_step1_2.3.0.png" width="526" height="359">
 
 * Space ID of your Backlog
-* Backlog API key: https://support.backlog.com/hc/en-us/articles/115015420567-API-Settings
+* Backlog API key: Please create an API key. For details please refer to the [API Settings](https://support.backlog.com/hc/en-us/articles/115015420567-API-Setting) article in our Help Center. 
 * Project key of the Backlog project that issues will be registered to
 
 After entering all necessary information, click on the 'Execute' button to fetch the data from Backlog.
