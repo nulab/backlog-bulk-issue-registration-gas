@@ -6,23 +6,14 @@ declare var global: any
 
 const SCRIPT_VERSION = "v2.3.1"
 
-global.BacklogService = BacklogService(new SpreadSheetServiceImpl)
+const service = BacklogService(new SpreadSheetServiceImpl)
 
 global.onOpen = function() {
-  SpreadsheetApp.getActiveSpreadsheet()
-    .addMenu(
-      "Backlog",
-      [
-        {
-          name : this.BacklogService.getMessage("menu_step1"),
-          functionName: "init_d"
-        },
-        {
-          name : this.BacklogService.getMessage("menu_step2"),
-          functionName: "run_d"
-        }
-      ]
-    )
+  SpreadsheetApp.getUi()
+    .createMenu("Backlog")
+    .addItem(service.getMessage("menu_step1"), "init_d")
+    .addItem(service.getMessage("menu_step2"), "run_d")
+    .addToUi()
 }
 
 global.init_d = function () {
@@ -33,7 +24,7 @@ global.init_d = function () {
     .getUi()
     .showModelessDialog(
       html.evaluate(),
-      this.BacklogService.getMessage("title_init") + " " + SCRIPT_VERSION
+      service.getMessage("title_init") + " " + SCRIPT_VERSION
     )
 }
 
@@ -45,24 +36,24 @@ global.run_d = function () {
     .getUi()
     .showModelessDialog(
       html.evaluate(),
-      this.BacklogService.getMessage("title_run") + " " + SCRIPT_VERSION
+      service.getMessage("title_run") + " " + SCRIPT_VERSION
     )
 }
 
 global.init = function (property: UserProperty) {
-  this.BacklogService.init(property)
+  service.init(property)
 }
 
 global.run = function (property: UserProperty) {
-  this.BacklogService.run(property)
+  service.run(property)
 }
 
 global.getConfig = function () {
-  return this.BacklogService.getUserProperties()
+  return service.getUserProperties()
 }
 
 global.getMessage = function (key: string) {
-  return this.BacklogService.getMessage(key)
+  return service.getMessage(key)
 }
 
 global.include = function include(filename: string) {

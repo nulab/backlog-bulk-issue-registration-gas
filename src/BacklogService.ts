@@ -223,7 +223,7 @@ interface BacklogService {
 
   init: (property: UserProperty) => void
 
-  getMessage: (key: string, locale: string) => string
+  getMessage: (key: string) => string
 
 }
 

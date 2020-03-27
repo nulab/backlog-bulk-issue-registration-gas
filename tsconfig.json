@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "target": "es5",
-    "module": "es2015",
-    "lib": ["es6"]
+    "target": "ES2019",
   }
 }
