@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/nulab/backlog-bulk-issue-registration-gas#readme",
   "devDependencies": {
+    "@google/clasp": "^1.7.0",
     "@types/google-apps-script": "1.0.16",
     "@types/jest": "^26.0.15",
     "gas-webpack-plugin": "^1.2.0",
