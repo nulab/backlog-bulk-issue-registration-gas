@@ -1,0 +1,65 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Default
+
+on: [push]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+     
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: node_modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json')}}
+        
+      - name: npm install
+        if: steps.node_modules.outputs.cache-hit != 'true'
+        run: npm install
+        
+      - name: Build and test
+        run: npm run build
+  
+  notify:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Notify to Typetalk if success
+        if: success()
+        uses: shomatan/typetalk-action@master
+        env:
+          TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
+        with:
+          topic-id: 54145
+          message: ":tada: A build job has succeeded!\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
+
+      - name: Notify to Typetalk if fail
+        if: failure()
+        uses: shomatan/typetalk-action@master
+        env:
+          TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
+        with:
+          topic-id: 54145
+          message: "Backlog bulk issue registration gas job failed"
+
+      - name: Notify to Typetalk if cancelled
+        if: cancelled()
+        uses: shomatan/typetalk-action@master
+        env:
+          TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
+        with:
+          topic-id: 54145
+          message: "backlog bulk issue registration gas job has cancelled"
