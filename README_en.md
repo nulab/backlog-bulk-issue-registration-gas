@@ -1,6 +1,6 @@
 # Backlog bulk issue registration via Google Sheets
 
-![Build](https://github.com/nulab/backlog-bulk-issue-registration-gas/workflows/Default/badge.svg?branch=master)
+![Build](https://github.com/nulab/backlog-bulk-issue-registration-gas/workflows/Build/badge.svg?branch=master)
 
 This is a tool to bulk register issues with Backlog using Google Docs (Spreadsheet).
 

@@ -1,6 +1,6 @@
 # Google SheetsによるBacklog課題一括登録
 
-![Build](https://github.com/nulab/backlog-bulk-issue-registration-gas/workflows/Default/badge.svg?branch=master)
+![Build](https://github.com/nulab/backlog-bulk-issue-registration-gas/workflows/Build/badge.svg?branch=master)
 
 (English document is [here](./README_en.md).)
 
