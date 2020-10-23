@@ -1,5 +1,7 @@
 # Google SheetsによるBacklog課題一括登録
 
+![Build](https://github.com/nulab/backlog-bulk-issue-registration-gas/workflows/Default/badge.svg?branch=master)
+
 (English document is [here](./README_en.md).)
 
 Googleスプレッドシート（Google Sheets）をつかって、Backlogへ課題を一括登録するツールです。
