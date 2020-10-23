@@ -53,7 +53,7 @@ jobs:
           TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
         with:
           topic-id: 54145
-          message: "Backlog bulk issue registration gas job failed"
+          message: ":rage: Backlog bulk issue registration GAS job failed\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
 
       - name: Notify to Typetalk if cancelled
         if: cancelled()
@@ -62,4 +62,4 @@ jobs:
           TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
         with:
           topic-id: 54145
-          message: "backlog bulk issue registration gas job has cancelled"
+          message: ":no_entry: Backlog bulk issue registration GAS job has cancelled"
