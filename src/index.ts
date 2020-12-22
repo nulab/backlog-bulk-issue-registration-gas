@@ -52,6 +52,17 @@ global.getConfig = function () {
   return service.getUserProperties()
 }
 
+global.run_cron = function () {
+  let config = global.getConfig()
+  let property = {
+    "space": config.space,
+    "domain": config.domain,
+    "projectKey": config.projectKey,
+    "apiKey": config.apiKey
+  }
+  service.run(property)
+}
+
 global.getMessage = function (key: string) {
   return service.getMessage(key)
 }
