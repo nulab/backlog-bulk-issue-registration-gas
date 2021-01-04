@@ -232,7 +232,7 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
   getUserProperties: (): UserProperty =>
     getUserProperties(spreadSheetService),
 
-  run: (property) => {
+  run: (property: UserProperty): void => {
     const current = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd HH:mm:ss")
     const sheetName = getMessage("scriptName", spreadSheetService) + " : " + current
     const LOG_KEY_NUMBER = 1
@@ -304,9 +304,6 @@ export const BacklogService = (spreadSheetService: SpreadSheetService): BacklogS
         spreadSheetService.setColumnWidth(logSheet, LOG_SUMMARY_NUMBER, summaryWidth)
         SpreadsheetApp.flush()
       }).getOrError()
-
-      // BLG-24789 keep Backlog stability
-      Utilities.sleep(500)
     }
     client.importFinalize(property.projectKey)
     showMessage(getMessage("scriptName", spreadSheetService) + getMessage("progress_end", spreadSheetService), spreadSheetService)
