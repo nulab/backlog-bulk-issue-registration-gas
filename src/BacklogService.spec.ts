@@ -213,7 +213,7 @@ describe("BacklogService for validate", function () {
           "description":"",
           "required":true,
           "useIssueType":false,
-          "applicableIssueTypes":null,
+          "applicableIssueTypes":[],
           "displayOrder":2147483646,
           "allowAddItem":false,
           "items": [
