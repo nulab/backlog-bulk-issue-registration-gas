@@ -44,9 +44,34 @@ export const getProject = (client: BacklogClient, key: Key<Project>, locale: Loc
   return Either.map2(validationResult, clientResult, (_, project) => Right(project))
 }
 
-const validate = (issues: List<any>, issueTypes: List<IssueType>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
-  for (let i = 0; i < customFieldDefinitions.length; i++) {
-    const definition = customFieldDefinitions[i]
+export const relatedIssueTypes = (issues: List<any>, issueTypes: List<IssueType>): List<IssueType> => {
+  const issueTypeNames = issues.map(x => x.issueTypeName)
+  return issueTypes.filter(x => issueTypeNames.includes(x.name) )
+}
+
+export const relatedCustomFieldDefinitions = (issueTypes: List<IssueType>, customFieldDefinitions: List<CustomFieldDefinition>): List<CustomFieldDefinition> => {
+  const related = []
+  for (const definition of customFieldDefinitions) {
+    if (!definition.useIssueType) {
+      related.push(definition)
+    } else {
+      const applicableIssueTypeIds = definition.applicableIssueTypes
+      const issueTypeIds = issueTypes.map(x => x.id)
+      for (const id of issueTypeIds) {
+        if (applicableIssueTypeIds.includes(id)){
+          related.push(definition)
+        }
+      }
+    }
+  }
+  return related
+}
+
+export const validate = (issues: List<any>, issueTypes: List<IssueType>, customFieldDefinitions: List<CustomFieldDefinition>, client: BacklogClient, locale: Locale): Either<Error, boolean> => {
+  const relatedTypes = relatedIssueTypes(issues, issueTypes)
+  const relatedDefinitions = relatedCustomFieldDefinitions(relatedTypes, customFieldDefinitions)
+  for (let i = 0; i < relatedDefinitions.length; i++) {
+    const definition = relatedDefinitions[i]
 
     if (definition.required && !isSupportedCustomField(definition))
       return Left(Error(Message.VALIDATE_CUSTOM_FIELD_VALUE_IS_REQUIRED_UNSUPPORTED(definition.name, locale)))
