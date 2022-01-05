@@ -215,6 +215,7 @@ export class BacklogClientImpl implements BacklogClient {
         json[key]["typeId"],
         json[key]["name"],
         json[key]["required"],
+        json[key]["useIssueType"],
         json[key]["applicableIssueTypes"],
         Option(json[key]["items"] as List<any>).map(items => items.map(this.jsonTo))
       )
